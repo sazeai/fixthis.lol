@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const problem = await getProblemBySlug(slug).catch(() => null)
   if (!problem) return { title: "Problem not found" }
-  const description = `${problem.support_count} people have this problem. See the ${problem.competitor_count} products competing to solve it on FIXTHIS.`
+  const description = `${problem.support_count} people have hit ME TOO on this. See the ${problem.competitor_count} alternatives bidding to win them over on FIXTHIS.`
   return {
     title: problem.statement,
     description,

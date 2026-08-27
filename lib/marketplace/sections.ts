@@ -32,7 +32,7 @@ export function buildProblemSections(problems: ProblemSummary[]): ProblemSection
     {
       id: "contested",
       title: "Being fought over",
-      blurb: "Products are actively paying to be the featured solution here.",
+      blurb: "Alternatives are actively paying to get in front of these.",
       problems: [...contested].sort((a, b) => b.top_bid_cents - a.top_bid_cents || b.competitor_count - a.competitor_count),
     },
     {
@@ -44,7 +44,7 @@ export function buildProblemSections(problems: ProblemSummary[]): ProblemSection
     {
       id: "unclaimed",
       title: "Unclaimed",
-      blurb: "Real demand with no solution competing for it yet.",
+      blurb: "Nobody is bidding to win these people over yet.",
       problems: [...unclaimed].sort((a, b) => b.support_count - a.support_count || (a.launch_priority || 999) - (b.launch_priority || 999)),
     },
   ]

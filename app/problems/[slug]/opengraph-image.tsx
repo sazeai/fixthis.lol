@@ -8,9 +8,9 @@ export const contentType = "image/png"
 export default async function OpenGraphImage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const problem = await getProblemBySlug(slug).catch(() => null)
-  const statement = problem?.statement || "Find real problems worth solving."
-  const demand = problem ? `${problem.support_count} people have this` : "Public problem marketplace"
-  const competition = problem ? `${problem.competitor_count} products competing` : "Validate demand"
+  const statement = problem?.statement || "Call out the software that is failing you."
+  const demand = problem ? `${problem.support_count} hit ME TOO` : "A public board of software complaints"
+  const competition = problem ? `${problem.competitor_count} alternatives bidding` : "Pile on with ME TOO"
 
   return new ImageResponse(
     <div

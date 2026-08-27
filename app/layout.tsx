@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: { default: SITE_TITLE, template: `%s — ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  keywords: ["problem marketplace", "startup ideas", "customer pain points", "product validation", "problems worth solving"],
+  keywords: ["software complaints", "SaaS alternatives", "switch software", "product alternatives", "problem marketplace"],
   authors: [{ name: SITE_NAME, url: SITE_URL }],
   creator: SITE_NAME,
   publisher: SITE_NAME,
