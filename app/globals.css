@@ -1356,56 +1356,60 @@ input[type="range"].slider::-moz-range-thumb {
    Spawns from an anchor, rises with an overshoot, fades while still moving.
    Kept in CSS rather than a motion library: one keyframe, no bundle cost. */
 /*
- * Game-style floating combat text.
+ * Floating event labels: emerge, glide, evaporate.
  *
- * The previous version ran one easing curve across every keyframe, so the
- * "pop" was a decelerating wobble rather than a snap, and it only scaled from
- * 0.7 - too shallow to read as an impact at this size. Each segment now
- * carries its own timing function: a hard overshoot on the way in, two
- * decaying bounces to settle, then a long steady rise that fades out.
+ * This was a spring before, and the bounce was the problem. Settling took four
+ * keyframes between -19px and -30px, so the label stalled mid-rise while it
+ * wobbled - it read as hanging, not as motion. There is deliberately no
+ * overshoot here and no scale bounce.
+ *
+ * Only three stops carry a transform, so the position interpolates in one
+ * continuous glide from 16% all the way to the end with nothing to interrupt
+ * it. The label resolves out of a blur on the way in and expands slightly as
+ * it fades on the way out, which is what makes it dissolve rather than simply
+ * disappear.
+ *
+ * The fade starts at 52%, before the glide has finished. That overlap matters:
+ * an eased rise covers most of its distance early, so the tail is slow, and a
+ * label that is still fully opaque while barely moving looks stalled. Fading
+ * through the slow part means it is visibly leaving the whole time.
+ *
+ * Position uses `translate` rather than `transform` so it can be animated
+ * independently of `scale`. That is what removes the last hitch: with both on
+ * one transform, the entry needed a waypoint at 16%, the eased segment landed
+ * almost exactly on it, and the label paused for a frame at full opacity right
+ * after appearing. Translate now has stops only at the start and the end, so
+ * the rise is one uninterrupted move.
  */
 @keyframes fx-float-up {
   0% {
     opacity: 0;
-    transform: translate3d(0, 10px, 0) scale(0.35);
-    /* Overshoots past 1 - this is the punch. */
-    animation-timing-function: cubic-bezier(0.34, 1.9, 0.44, 1);
+    translate: 0 4px;
+    scale: 0.92;
+    filter: blur(4px);
   }
-  13% {
+  16% {
     opacity: 1;
-    transform: translate3d(calc(var(--fx-drift, 0px) * 0.1), -13px, 0) scale(1.22);
-    animation-timing-function: cubic-bezier(0.4, 0, 0.5, 1);
+    scale: 1;
+    filter: blur(0px);
   }
-  23% {
-    transform: translate3d(calc(var(--fx-drift, 0px) * 0.2), -19px, 0) scale(0.92);
-    animation-timing-function: cubic-bezier(0.34, 1.5, 0.5, 1);
-  }
-  33% {
-    transform: translate3d(calc(var(--fx-drift, 0px) * 0.29), -25px, 0) scale(1.06);
-    animation-timing-function: cubic-bezier(0.4, 0, 0.5, 1);
-  }
-  42% {
-    transform: translate3d(calc(var(--fx-drift, 0px) * 0.37), -30px, 0) scale(0.99);
-    animation-timing-function: cubic-bezier(0.33, 1.2, 0.55, 1);
-  }
-  50% {
+  52% {
     opacity: 1;
-    transform: translate3d(calc(var(--fx-drift, 0px) * 0.45), -35px, 0) scale(1);
-    /* Settled. From here it just rises and goes. */
-    animation-timing-function: cubic-bezier(0.25, 0.6, 0.35, 1);
-  }
-  74% {
-    opacity: 1;
+    filter: blur(0px);
   }
   100% {
     opacity: 0;
-    transform: translate3d(var(--fx-drift, 0px), -88px, 0) scale(0.94);
+    translate: var(--fx-drift, 0px) -78px;
+    scale: 1.07;
+    filter: blur(3px);
   }
 }
 
 .fx-float {
-  animation: fx-float-up 1600ms forwards;
-  will-change: transform, opacity;
+  /* One easing for the whole glide, on purpose: the previous version needed
+     per-segment curves only because it was bouncing. */
+  animation: fx-float-up 1800ms cubic-bezier(0.25, 0.5, 0.4, 1) forwards;
+  will-change: translate, scale, opacity, filter;
 }
 
 /* Movement is the point of this effect, so there is nothing to tone down -
@@ -1413,13 +1417,13 @@ input[type="range"].slider::-moz-range-thumb {
 @keyframes fx-float-fade {
   0% { opacity: 0; }
   12% { opacity: 1; }
-  74% { opacity: 1; }
+  52% { opacity: 1; }
   100% { opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .fx-float {
-    animation: fx-float-fade 1600ms linear forwards;
+    animation: fx-float-fade 1800ms linear forwards;
     --fx-drift: 0px;
   }
 }

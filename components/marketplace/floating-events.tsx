@@ -25,7 +25,7 @@ const TONE: Record<FloatingTone, string> = {
 }
 
 /** Matches the animation length, so a node is gone before it could pile up. */
-const LIFETIME_MS = 1650
+const LIFETIME_MS = 1850
 
 /**
  * Queue of short-lived floating labels.
