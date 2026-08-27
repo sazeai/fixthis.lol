@@ -1,10 +1,14 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { ChevronDown, Search, X } from "lucide-react"
+import { DeckPagination } from "@/components/marketplace/deck-pagination"
 import { PostProblemModal } from "@/components/marketplace/post-problem-modal"
 import { ProblemCard } from "@/components/marketplace/problem-card"
 import type { ProblemSection, ProblemSectionId, ProblemSummary } from "@/types/marketplace"
+
+/** Cards per page in the deck. */
+const PAGE_SIZE = 12
 
 const SECTION_MARK: Record<ProblemSectionId, string> = {
   trending: "01",
@@ -17,6 +21,8 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("All")
   const [active, setActive] = useState<ProblemSectionId>(sections[0]?.id || "trending")
+  const [page, setPage] = useState(1)
+  const deckRef = useRef<HTMLDivElement>(null)
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(problems.map((problem) => problem.category))).sort()],
@@ -38,7 +44,25 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
   }, [category, filtering, problems, query])
 
   const activeSection = sections.find((section) => section.id === active) || sections[0]
-  const visible = filtering ? results : activeSection?.problems || []
+  const pool = filtering ? results : activeSection?.problems || []
+
+  const pageCount = Math.max(1, Math.ceil(pool.length / PAGE_SIZE))
+  // Clamp rather than trusting state: switching to a shorter section or
+  // narrowing a filter can strand the page number past the end.
+  const currentPage = Math.min(page, pageCount)
+  const visible = pool.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+
+  // A new section or a changed filter is a new list — start at its first page.
+  useEffect(() => { setPage(1) }, [active, query, category])
+
+  function goToPage(next: number) {
+    const target = Math.min(Math.max(next, 1), pageCount)
+    if (target === currentPage) return
+    setPage(target)
+    // Bring the top of the deck into view without touching the rest of the
+    // page; this is a re-render, not a navigation.
+    deckRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
 
   const totalDemand = problems.reduce((total, problem) => total + problem.support_count, 0)
   const totalClaims = problems.reduce((total, problem) => total + problem.competitor_count, 0)
@@ -143,10 +167,10 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
       ) : null}
 
       {visible.length ? (
-        <div className="grid bg-[rgba(55,50,47,0.12)] md:grid-cols-2 md:gap-px">
+        <div ref={deckRef} className="grid scroll-mt-24 bg-[rgba(55,50,47,0.12)] md:grid-cols-2 md:gap-px">
           {visible.map((problem, index) => (
             <div key={problem.id} className={`${index ? "border-t border-[rgba(55,50,47,.12)]" : ""} md:border-t-0`}>
-              <ProblemCard problem={problem} index={index} />
+              <ProblemCard problem={problem} index={(currentPage - 1) * PAGE_SIZE + index} />
             </div>
           ))}
         </div>
@@ -156,6 +180,14 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
           <p className="mt-2 text-sm text-[#777]">Try another filter, or put this problem on the board.</p>
         </div>
       )}
+
+      <DeckPagination
+        page={currentPage}
+        pageCount={pageCount}
+        total={pool.length}
+        pageSize={PAGE_SIZE}
+        onChange={goToPage}
+      />
     </section>
   )
 }

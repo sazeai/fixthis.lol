@@ -5,9 +5,24 @@ import { EMAIL_FROM, EMAIL_REPLY_TO, resend } from "@/lib/emails/client"
 import { getAppUrl, sha256 } from "@/lib/marketplace/helpers"
 import { createAdminClient } from "@/utils/supabase/admin"
 
+/**
+ * Send one transactional email.
+ *
+ * The Resend SDK resolves with `{ data, error }` rather than throwing, so an
+ * unverified sending domain comes back as a quiet 403 that looks exactly like
+ * success. Every failure is logged with its real reason and rethrown, so a
+ * caller can decide whether it matters.
+ */
 async function send(payload: { to: string; subject: string; html: string }) {
-  if (!process.env.RESEND_API_KEY) { console.warn(`Email skipped: ${payload.subject}`); return }
-  await resend.emails.send({ from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, ...payload })
+  if (!process.env.RESEND_API_KEY) { console.warn(`Email skipped, no RESEND_API_KEY: ${payload.subject}`); return }
+
+  const { data, error } = await resend.emails.send({ from: EMAIL_FROM, replyTo: EMAIL_REPLY_TO, ...payload })
+  if (error) {
+    console.error("Email send failed", { to: payload.to, subject: payload.subject, from: EMAIL_FROM, error })
+    throw new Error(`Resend rejected the message: ${error.message || error.name || "unknown error"}`)
+  }
+  console.info("Email sent", { id: data?.id, to: payload.to, subject: payload.subject })
+  return data
 }
 
 export async function createProblemSubscription(problemId: string, email: string, appUrl = getAppUrl()) {

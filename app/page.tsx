@@ -10,6 +10,14 @@ import type { ProblemSummary, PublicTrafficStats } from "@/types/marketplace"
 
 export const dynamic = "force-dynamic"
 
+/** Errors log as "{}" when passed as a console.error argument; unwrap them. */
+function describeError(reason: unknown) {
+  if (reason instanceof Error) return `${reason.message}
+${reason.stack || ""}`
+  if (reason && typeof reason === "object") return JSON.stringify(reason)
+  return String(reason)
+}
+
 function HowItWorks() {
   const steps = [
     ["01", "Post a problem", "Describe what you need, or validate an existing pain with one click."],
@@ -22,7 +30,15 @@ function HowItWorks() {
 export default async function HomePage() {
   let problems: ProblemSummary[] = []
   let traffic: PublicTrafficStats = { live_visitors: null, visitors_24h: 0 }
-  try { [problems, traffic] = await Promise.all([getProblemSummaries(), getPublicTrafficStats()]) } catch (error) { console.error("FIXTHIS homepage query failed", error) }
+  // Settled, not all: a hiccup in the visitor counter must not discard the
+  // whole board. Errors are logged with their real reason — passing an Error
+  // straight to console.error prints "{}", because message and stack are
+  // non-enumerable, which is why this failure used to say nothing at all.
+  const [problemResult, trafficResult] = await Promise.allSettled([getProblemSummaries(), getPublicTrafficStats()])
+  if (problemResult.status === "fulfilled") problems = problemResult.value
+  else console.error("FIXTHIS problem board query failed:", describeError(problemResult.reason))
+  if (trafficResult.status === "fulfilled") traffic = trafficResult.value
+  else console.error("FIXTHIS traffic stats query failed:", describeError(trafficResult.reason))
   const sections = buildProblemSections(problems)
   return <div className="relative flex min-h-screen w-full flex-col bg-[#fafafa] font-sans text-[#111]"><PresenceTracker initial={traffic} /><div className="flex min-h-screen flex-col items-center"><MarketplaceFrame><Header /><main className="relative z-10 mt-28 flex w-full flex-col items-center"><Hero /><FramedSection><MarketplaceHome problems={problems} sections={sections} /></FramedSection><FramedSection contentClassName="pb-16"><HowItWorks /></FramedSection><FramedSection><Footer /></FramedSection></main></MarketplaceFrame></div></div>
 }

@@ -27,25 +27,25 @@ export function buildProblemSections(problems: ProblemSummary[]): ProblemSection
       id: "trending",
       title: "Trending problems",
       blurb: "Most recent demand, clicks, and bidding activity.",
-      problems: problems.slice(0, 12),
+      problems,
     },
     {
       id: "contested",
       title: "Being fought over",
       blurb: "Products are actively paying to be the featured solution here.",
-      problems: [...contested].sort((a, b) => b.top_bid_cents - a.top_bid_cents || b.competitor_count - a.competitor_count).slice(0, 12),
+      problems: [...contested].sort((a, b) => b.top_bid_cents - a.top_bid_cents || b.competitor_count - a.competitor_count),
     },
     {
       id: "fresh",
       title: "New pains",
       blurb: "Recently posted by people who ran into the problem themselves.",
-      problems: fresh.slice(0, 12),
+      problems: fresh,
     },
     {
       id: "unclaimed",
       title: "Unclaimed",
       blurb: "Real demand with no solution competing for it yet.",
-      problems: [...unclaimed].sort((a, b) => b.support_count - a.support_count || (a.launch_priority || 999) - (b.launch_priority || 999)).slice(0, 12),
+      problems: [...unclaimed].sort((a, b) => b.support_count - a.support_count || (a.launch_priority || 999) - (b.launch_priority || 999)),
     },
   ]
 
