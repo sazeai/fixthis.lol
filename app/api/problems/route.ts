@@ -6,7 +6,7 @@ import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
 import { tryGetVisitorKey } from "@/lib/marketplace/visitor"
 import { getAuthenticatedUser } from "@/lib/marketplace/auth"
-import { firstZodError, problemSchema } from "@/lib/marketplace/validation"
+import { checkProblemStatement, firstZodError, problemSchema } from "@/lib/marketplace/validation"
 import { getProblemSummaries, invalidateProblemOrdering } from "@/lib/marketplace/queries"
 import { createAdminClient } from "@/utils/supabase/admin"
 
@@ -35,6 +35,11 @@ export async function POST(request: Request) {
   if (!parsed.success) return jsonError(firstZodError(parsed.error))
   if (parsed.data.website) return jsonError("This submission could not be accepted.")
   if (!await verifyTurnstile(parsed.data.turnstileToken, ip)) return jsonError("Bot verification failed. Refresh and try again.", 403)
+
+  // Free deterministic content pass. Auth is the real gate; this just stops an
+  // authenticated account publishing a link, markup, abuse or keyboard mash.
+  const contentError = checkProblemStatement(parsed.data.statement)
+  if (contentError) return jsonError(contentError)
 
   const normalized = normalizeProblemStatement(parsed.data.statement)
   const supabase = createAdminClient()
