@@ -55,9 +55,7 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
             </div>
             <p className="mt-1.5 text-[10px] text-[#888]">
               Validate a pain or claim its featured placement from this board.
-              {" "}
-              <PostProblemModal mode="founder" asLink trigger="Selling something? Add the problem you solve" />
-            </p>
+                 </p>
           </div>
           <div className="grid grid-cols-3 divide-x divide-[rgba(55,50,47,.1)] border-t border-[rgba(55,50,47,.1)] pt-3 sm:min-w-[48%] sm:border-t-0 sm:pt-0">
             <Stat value={totalDemand.toLocaleString("en-US")} label="People with this" />

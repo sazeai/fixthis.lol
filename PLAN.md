@@ -18,7 +18,7 @@ The implementation will reuse the current visual system, Next.js foundation, Sup
 - Rename all public identity, metadata, legal copy, cookies, emails, analytics labels, and environment documentation to FIXTHIS; keep the final domain configurable through `NEXT_PUBLIC_APP_URL`.
 - Remove retired product routes, components, jobs, types, dependencies, and old marketplace migrations after extracting reusable infrastructure.
 - Use a fresh Supabase project with a clean FIXTHIS migration history; do not touch or migrate the old SaaS database.
-- Replace the broad authentication proxy with a minimal public-marketplace layer that sets a secure anonymous visitor cookie and protects only admin/management surfaces.
+- Replace the broad authentication proxy with a minimal public-marketplace layer that sets a secure anonymous visitor cookie and protects admin/management surfaces plus problem creation.
 - Remove wildcard credentialed CORS and `typescript.ignoreBuildErrors`; restore strict type-checking and a clean production build.
 - Organize the new code by bounded modules: problems, demand, placements, bidding, traffic, moderation, payments, and shared UI.
 
@@ -51,7 +51,7 @@ The implementation will reuse the current visual system, Next.js foundation, Sup
 
 **Exit gate:** the site is valuable and credible with no users and no advertisers, all 30 problems are reachable, and the homepage prominently presents the selected 16.
 
-## Phase 2 — Accountless Demand and Problem Supply
+## Phase 2 — Authenticated Problem Supply and Anonymous Demand
 
 ### Anonymous identity and support
 
@@ -61,20 +61,20 @@ The implementation will reuse the current visual system, Next.js foundation, Sup
 - After supporting, offer one optional moderated sentence answering what specifically is painful. This is not a comment thread and has no replies or public identity.
 - Allow optional double-opt-in email subscription after posting/supporting so a user can be notified when a solution first claims the problem.
 
-### Problem creation and screening
+### Problem creation gate
 
-- `POST /api/problems` accepts a buyer-perspective statement of 20–280 characters with no signup.
-- Apply server-side schema validation, honeypot, Upstash rate limits, managed Turnstile, bot detection, link/contact-detail rejection, normalized exact matching, and `pg_trgm` near-duplicate detection.
-- Safe submissions publish immediately. Suspicious/promotional submissions enter moderation instead of becoming public.
+- `POST /api/problems` accepts a buyer-perspective statement of 20–280 characters only with a verified Supabase magic-link session.
+- Apply server-side schema validation, honeypot, per-user and per-IP Upstash rate limits, managed Turnstile, bot detection, normalized exact matching, and `pg_trgm` near-duplicate detection.
+- Authenticated submissions publish immediately; there is no paid LLM classifier or per-submission model cost. Post-publication reports and the admin queue contain abuse that gets through.
 - Near-duplicates return the canonical existing problem so the visitor can support it rather than fragmenting demand.
 - Founder “add and claim” creates the problem with zero supporters and routes directly into the claim flow.
 
 ### Moderation
 
-- Expand admin tools to approve, hide, edit, feature, categorize, and canonicalize problems; moderate complaint details; inspect abuse signals; and preserve an audit trail.
+- Expand admin tools to hide, edit, feature, categorize, and canonicalize problems; moderate complaint details and reports; inspect abuse signals; and preserve an audit trail.
 - Public APIs never expose emails, raw visitor tokens, IP addresses, payment identifiers, or moderation metadata.
 
-**Exit gate:** duplicate votes do not inflate demand, safe problems publish accountlessly, abusive submissions are contained, and optional complaint/email flows work without creating accounts.
+**Exit gate:** duplicate votes do not inflate demand, only verified magic-link users can publish, abusive submissions are contained by rate limits/reports/admin review, and optional complaint/email flows remain available without requiring an account.
 
 ## Phase 3 — Attention Delivery and Trustworthy Analytics
 
@@ -155,7 +155,7 @@ The implementation will reuse the current visual system, Next.js foundation, Sup
 - Add structured operational logs and alerts for failed webhooks, stuck quotes, rotation RPC failures, traffic anomalies, email delivery failures, and counters falling out of sync.
 - Provide admin tools for placement suspension, founder-link revocation, founding claims, refunds, bid/event inspection, daily metrics, problem ranking overrides, and aggregate reconciliation.
 - Run a controlled launch with the 30 curated problems, 5–10 founding partners, and several real pre-launch user problems; remove all demo/fake marketplace records.
-- Enable public payment CTAs only after test-mode and one live low-value Dodo transaction complete the entire settlement, email, impression, click, refund, and re-ranking flow.
+- Enable public payment CTAs only after test-mode and one live low-value Dodo transaction complete the entire settlement, email, impression, click, refund, and re-ranking flow. Confirm the deployed webhook URL returns `2xx` for a signed Dodo test event before replaying any payment.
 
 **Exit gate:** production has real inventory and claims, no fabricated activity, verified payment/reversal handling, operational alerts, legal disclosure, and a repeatable launch checklist.
 
@@ -163,7 +163,7 @@ The implementation will reuse the current visual system, Next.js foundation, Sup
 
 - Public APIs:
   - Problem list/detail and public aggregate stats.
-  - Create problem, support problem, add optional complaint, and subscribe for updates.
+  - Create problem after magic-link sign-in, support problem, add optional complaint, and subscribe for updates.
   - Presence heartbeat, featured-solution assignment, and explicit outbound click.
   - Bid quote/checkout and signed Dodo webhook.
   - Founder magic-link request and authenticated placement management.
@@ -176,10 +176,10 @@ The implementation will reuse the current visual system, Next.js foundation, Sup
 
 ## Test Plan
 
-- Unit-test validation, buyer-perspective screening, slug/domain normalization, duplicate detection, trending score, bid minimums, top-five ranking, and every rotation allocation.
+- Unit-test validation, slug/domain normalization, duplicate detection, trending score, bid minimums, top-five ranking, and every rotation allocation.
 - Database integration-test duplicate supports, initial user support, 30-minute assignment stickiness, 24-hour click deduplication, concurrent 100-slot consumption, quote expiration, simultaneous checkouts, webhook idempotency, rebids, and refund/dispute fallback.
 - API security-test forged amounts, webhook signatures, replayed events, malicious URLs, SSRF/private-network destinations, rate limits, bot user agents, management-token enumeration, and PII leakage.
-- End-to-end test curated browsing, accountless posting/supporting, optional complaint/email confirmation, founder add-and-claim, Dodo cancel/success, battlefield changes, magic-link management, tracked outbound clicks, and mobile behavior.
+- End-to-end test curated browsing, magic-link posting, anonymous supporting, optional complaint/email confirmation, founder add-and-claim, Dodo cancel/success, battlefield changes, magic-link management, tracked outbound clicks, and mobile behavior.
 - Load-test concurrent impression assignment, heartbeat upserts, public-stat polling, and 100+ simultaneous bid quote attempts.
 - Release verification requires strict typecheck, production build, focused lint after substantive changes, migration-from-empty, accessibility smoke tests, and test-mode plus live Dodo webhook reconciliation.
 
@@ -187,11 +187,11 @@ The implementation will reuse the current visual system, Next.js foundation, Sup
 
 - Brand is **FIXTHIS**; the final domain remains environment-configured.
 - The old product and its data are disposable; FIXTHIS uses a fresh Supabase project.
-- Public users do not create accounts.
-- Safe submissions publish after automated screening; suspicious content waits for moderation.
+- Public browsing and support do not require an account; problem creation requires a verified Supabase magic link.
+- Authenticated submissions publish after schema, rate-limit, bot, and duplicate checks; abuse is handled through reports and admin moderation, not an LLM.
 - Support is a one-way idempotent signal, not a financially redeemable lead.
 - Optional complaint details are one sentence, moderated, and non-threaded.
-- Founder management uses email magic links rather than accounts.
+- Founder placement management uses secure email management links; problem posting uses Supabase email magic links.
 - Bids are full one-time payments; no wallet, incremental credit, subscription, or guaranteed results.
 - Five products receive rotation; additional products remain in the battlefield and may rebid.
 - USD is the MVP bidding currency.

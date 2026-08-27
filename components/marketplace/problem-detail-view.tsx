@@ -161,8 +161,7 @@ export function ProblemDetailView({ problem, duplicate, paymentCancelled }: { pr
               </div>
             </FramedSection>
 
-            {/* Post-publication safety valve: screening runs before a problem
-                goes live, this catches what got through. */}
+            {/* Post-publication safety valve for authenticated submissions. */}
             <FramedSection contentClassName="px-5 py-5 sm:px-8">
               <ReportProblem problemId={problem.id} />
             </FramedSection>

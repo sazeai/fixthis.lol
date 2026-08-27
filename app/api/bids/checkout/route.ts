@@ -51,6 +51,7 @@ export async function POST(request: Request) {
       customer: { name: parsed.data.productName, email: parsed.data.email },
       return_url: `${appUrl}/bid/success?quote=${encodeURIComponent(quote.quote_id)}`,
       cancel_url: `${appUrl}/problems/${problem.slug}?payment=cancelled`,
+      billing_currency: "USD",
       // No `confirm: true`. Confirming a session up front makes Dodo demand a
       // full customer record and billing address in this request, which we do
       // not collect; its hosted checkout gathers them instead.

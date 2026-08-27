@@ -65,7 +65,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <FoundingClaimForm problems={published.map((problem) => ({ id: problem.id, statement: problem.statement }))} />
         </Section>
 
-        <Section title={`Problems · ${problems.length}`} blurb="Pending rows were held back by automated screening and are not public.">
+        <Section title={`Problems · ${problems.length}`} blurb="Pending rows are not public and may be legacy submissions or items held for administrator review.">
           <div className="overflow-x-auto border border-[rgba(55,50,47,0.12)] bg-white">
             <table className="w-full min-w-[900px] text-left">
               <thead>

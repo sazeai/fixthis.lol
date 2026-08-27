@@ -74,7 +74,7 @@ export function BidModal({
       <ArrowRight size={13} className="transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
     </button>
 
-    <ModalShell open={open} onClose={close} labelledBy="bid-title">
+    <ModalShell open={open} onClose={close} labelledBy="bid-title" chromeLabel="CLAIM PLACEMENT">
       <div className="px-5 pb-6 pt-1 sm:px-7">
         <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Paid contextual placement</p>
         <h2 id="bid-title" className="mt-2 font-serif text-[23px] leading-[1.08] tracking-[-0.035em] text-[#111]">Claim this problem.</h2>

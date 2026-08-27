@@ -5,7 +5,7 @@ import { diceSimilarity, jsonError, mutationAllowed } from "@/lib/marketplace/ht
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
 import { tryGetVisitorKey } from "@/lib/marketplace/visitor"
-import { screenProblemStatement } from "@/lib/marketplace/moderation"
+import { getAuthenticatedUser } from "@/lib/marketplace/auth"
 import { firstZodError, problemSchema } from "@/lib/marketplace/validation"
 import { getProblemSummaries, invalidateProblemOrdering } from "@/lib/marketplace/queries"
 import { createAdminClient } from "@/utils/supabase/admin"
@@ -19,9 +19,13 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   if (!mutationAllowed(request)) return jsonError("Invalid request origin.", 403)
   if (isKnownBot(request)) return jsonError("Automated submissions are not accepted.", 403)
+  const user = await getAuthenticatedUser(request)
+  if (!user) return jsonError("Sign in with your email before posting a problem.", 401)
   const ip = getRequestIp(request)
   const limit = await checkMarketplaceRateLimit(`problem:${ip}`, 5)
   if (!limit.allowed) return jsonError("You have submitted several problems. Try again later.", 429)
+  const userLimit = await checkMarketplaceRateLimit(`problem-user:${user.id}`, 3)
+  if (!userLimit.allowed) return jsonError("You have submitted several problems. Try again later.", 429)
   const submitterKey = await tryGetVisitorKey()
   if (submitterKey) {
     const perVisitor = await checkMarketplaceRateLimit(`problem-visitor:${submitterKey}`, 3)
@@ -38,16 +42,14 @@ export async function POST(request: Request) {
   const duplicate = (existingRows || []).map((item) => ({ ...item, similarity: diceSimilarity(normalized, item.normalized_statement) })).sort((a, b) => b.similarity - a.similarity)[0]
   if (duplicate?.similarity >= 0.72) return NextResponse.json({ duplicate: true, slug: duplicate.slug, problemId: duplicate.id }, { status: 409 })
 
-  // Screening decides publish / queue / refuse. It fails closed: an
-  // unreachable classifier queues the submission rather than publishing it.
-  const screening = await screenProblemStatement(parsed.data.statement, parsed.data.category)
-  if (screening.verdict === "reject") return jsonError(screening.reason || "This problem could not be accepted.")
-  const status = screening.verdict === "publish" ? "published" : "pending"
+  // Authentication and bounded input/rate limits are the submission gate.
+  // There is no paid model call or automated classifier in this path.
+  const status = "published" as const
   for (let attempt = 0; attempt < 4; attempt += 1) {
     const slug = createProblemSlug(parsed.data.statement)
     const { data: problem, error } = await supabase.from("problems").insert({
       slug, statement: parsed.data.statement, normalized_statement: normalized, category: parsed.data.category,
-      origin: parsed.data.origin, status, published_at: status === "published" ? new Date().toISOString() : null,
+      origin: parsed.data.origin, submitted_by: user.id, status, published_at: new Date().toISOString(),
     }).select("id,slug").single()
     if (!error && problem) {
       if (status === "published" && parsed.data.origin === "user" && submitterKey) {
@@ -55,14 +57,8 @@ export async function POST(request: Request) {
         // discard a problem that was otherwise accepted.
         await supabase.rpc("support_problem", { p_problem_id: problem.id, p_visitor_key: submitterKey, p_detail: null, p_detail_status: "none" })
       }
-      if (status === "pending") {
-        await supabase.from("moderation_audit").insert({
-          entity_type: "problem", entity_id: problem.id, action: "queued", actor: "system",
-          reason: `${screening.source}: ${screening.reason || "no reason given"}`,
-        }).then(undefined, () => undefined)
-      }
       if (parsed.data.email) await createProblemSubscription(problem.id, parsed.data.email, new URL(request.url).origin).catch(console.error)
-      if (status === "published") invalidateProblemOrdering()
+      invalidateProblemOrdering()
       return NextResponse.json({ ...problem, status }, { status: 201 })
     }
     if (error?.code !== "23505") { console.error("Problem insert failed", error); return jsonError("The problem could not be published.", 500) }

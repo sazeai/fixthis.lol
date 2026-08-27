@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.121.0",
     "@supabase/supabase-js": "^2.56.1",
     "@upstash/ratelimit": "^2.0.6",
     "@upstash/redis": "^1.35.3",
@@ -35,7 +34,7 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "lint": "next lint",
+    "lint": "eslint .",
     "start": "next start"
   },
   "version": "0.1.0"

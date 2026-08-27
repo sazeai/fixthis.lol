@@ -1,9 +1,9 @@
 -- Post-publication reporting.
 --
--- Screening runs before a problem goes live, but no pre-publication check is
--- perfect on open, accountless submission. This is the layer that catches what
--- got through: readers flag a problem, and once enough distinct visitors agree,
--- it hides itself and waits for a human rather than staying public.
+-- Authentication and rate limits gate new submissions, but no pre-publication
+-- check is perfect. This is the layer that catches what got through: readers
+-- flag a problem, and once enough distinct visitors agree, it hides itself and
+-- waits for a human rather than staying public.
 
 create table public.problem_reports (
   id uuid primary key default gen_random_uuid(),
