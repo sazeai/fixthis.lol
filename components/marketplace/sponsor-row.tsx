@@ -159,7 +159,7 @@ export function SponsorRow({
           <ArrowUpRight size={11} className="shrink-0 text-[#a8a39c] transition-[transform,color] duration-200 group-hover/visit:-translate-y-px group-hover/visit:translate-x-px group-hover/visit:text-[#ef4e37]" />
         </a>
         <p className="mt-0.5 flex items-center gap-1.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[#bbb6ae]">
-          <span>{placement.claim_kind === "founding" ? "Founding claim" : "Sponsored"}</span>
+          <span>{placement.claim_kind === "founding" ? "Founding claim" : "ALTERNATIVE"}</span>
           {/* Live from the rotation RPC, not the cached board, so the number a
               founder sees here is the real one. */}
           {placement.click_count > 0 ? (

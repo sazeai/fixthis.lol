@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises"
 import { join } from "node:path"
 import { ImageResponse } from "next/og"
 
-export const alt = "FIXTHIS — call out the software that is failing you"
+export const alt = "FIXTHIS — where software complaints turn into customers"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
@@ -61,7 +61,7 @@ export default async function OpenGraphImage() {
               pissing you off?
             </div>
             <div style={{ display: "flex", marginTop: 26, fontFamily: "Inter", fontSize: 26, lineHeight: 1.45, color: "#5a5750" }}>
-              Name it. Others pile on with ME TOO. The alternatives bid to win you over.
+              People call out the software failing them. The alternatives bid to win them over.
             </div>
           </div>
 
