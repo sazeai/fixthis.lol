@@ -4,7 +4,7 @@ import { createProblemSlug, getRequestIp, isKnownBot, normalizeProblemStatement 
 import { diceSimilarity, jsonError, mutationAllowed } from "@/lib/marketplace/http"
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
-import { getVisitorKey } from "@/lib/marketplace/visitor"
+import { tryGetVisitorKey } from "@/lib/marketplace/visitor"
 import { assessUserContent, firstZodError, problemSchema } from "@/lib/marketplace/validation"
 import { getProblemSummaries, invalidateProblemOrdering } from "@/lib/marketplace/queries"
 import { createAdminClient } from "@/utils/supabase/admin"
@@ -43,8 +43,10 @@ export async function POST(request: Request) {
     }).select("id,slug").single()
     if (!error && problem) {
       if (status === "published" && parsed.data.origin === "user") {
-        const visitorKey = await getVisitorKey()
-        await supabase.rpc("support_problem", { p_problem_id: problem.id, p_visitor_key: visitorKey, p_detail: null, p_detail_status: "none" })
+        // The poster's own support is implicit, but a missing cookie must not
+        // discard a problem that was otherwise accepted.
+        const visitorKey = await tryGetVisitorKey()
+        if (visitorKey) await supabase.rpc("support_problem", { p_problem_id: problem.id, p_visitor_key: visitorKey, p_detail: null, p_detail_status: "none" })
       }
       if (parsed.data.email) await createProblemSubscription(problem.id, parsed.data.email, new URL(request.url).origin).catch(console.error)
       if (status === "published") invalidateProblemOrdering()

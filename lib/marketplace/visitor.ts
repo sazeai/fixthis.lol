@@ -11,10 +11,21 @@ function visitorSecret() {
 }
 
 export function hashVisitorToken(token: string) { return createHmac("sha256", visitorSecret()).update(token).digest("hex") }
+
 export async function getVisitorKey() {
   const token = (await cookies()).get(VISITOR_COOKIE)?.value
   if (!token || token.length < 32) throw new Error("Anonymous visitor cookie is missing")
   return hashVisitorToken(token)
+}
+
+/**
+ * Same as getVisitorKey but returns null instead of throwing when the browser
+ * sent no visitor cookie — blocked cookies, a privacy mode, or a request that
+ * raced the proxy. Callers decide whether that is fatal; for analytics it just
+ * means "do not count this", which must never surface as a 500.
+ */
+export async function tryGetVisitorKey() {
+  try { return await getVisitorKey() } catch { return null }
 }
 export function newVisitorToken() { return randomBytes(24).toString("base64url") }
 export function dailyIpKey(ip: string) {

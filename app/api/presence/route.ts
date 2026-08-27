@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server"
 import { isKnownBot } from "@/lib/marketplace/helpers"
 import { getPublicTrafficStats } from "@/lib/marketplace/queries"
-import { getVisitorKey } from "@/lib/marketplace/visitor"
+import { tryGetVisitorKey } from "@/lib/marketplace/visitor"
 import { createAdminClient } from "@/utils/supabase/admin"
 
 export async function GET() { return NextResponse.json(await getPublicTrafficStats()) }
 
 export async function POST(request: Request) {
   if (isKnownBot(request)) return new NextResponse(null, { status: 204 })
-  const visitorKey = await getVisitorKey()
+  const visitorKey = await tryGetVisitorKey()
+  if (!visitorKey) return new NextResponse(null, { status: 204 })
   const supabase = createAdminClient()
   const now = new Date().toISOString()
   await supabase.from("visitor_presence").upsert({ visitor_key: visitorKey, last_seen_at: now })

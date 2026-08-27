@@ -4,7 +4,7 @@ import { getRequestIp, isKnownBot } from "@/lib/marketplace/helpers"
 import { jsonError, mutationAllowed } from "@/lib/marketplace/http"
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
-import { getVisitorKey } from "@/lib/marketplace/visitor"
+import { tryGetVisitorKey } from "@/lib/marketplace/visitor"
 import { assessUserContent, firstZodError, supportSchema } from "@/lib/marketplace/validation"
 import { createAdminClient } from "@/utils/supabase/admin"
 
@@ -19,7 +19,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!parsed.success) return jsonError(firstZodError(parsed.error))
   if (parsed.data.website) return jsonError("This support could not be accepted.")
   if (!await verifyTurnstile(parsed.data.turnstileToken, ip)) return jsonError("Bot verification failed.", 403)
-  const visitorKey = await getVisitorKey()
+  const visitorKey = await tryGetVisitorKey()
+  // One support per visitor is enforced by the anonymous key; without it the
+  // vote cannot be deduped, so refuse it clearly instead of throwing a 500.
+  if (!visitorKey) return jsonError("Enable cookies to record your support.", 400)
   const assessment = parsed.data.detail ? assessUserContent(parsed.data.detail) : { safe: true, reason: null }
   const detailStatus = parsed.data.detail ? (assessment.safe ? "published" : "pending") : "none"
   const supabase = createAdminClient()
