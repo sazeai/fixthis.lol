@@ -37,8 +37,18 @@ function toBattlefield(rows: Row[]): BattlefieldEntry[] {
 }
 
 /** Icon URL carries the fetch timestamp so a refreshed icon busts its own cache. */
+/**
+ * Icon URL for a product, or null to render the monogram.
+ *
+ * A product that has never been fetched still gets a URL: requesting it is what
+ * triggers the lazy fetch in the icon route. Once a fetch has been attempted and
+ * found nothing, the URL goes away so we stop asking. The timestamp busts cache
+ * when an icon is refreshed.
+ */
 export function productIconUrl(product: Row | null | undefined): string | null {
-  if (!product?.icon_base64) return null
+  if (!product?.id) return null
+  const neverAttempted = !product.icon_attempted_at
+  if (!product.icon_base64 && !neverAttempted) return null
   const version = product.icon_fetched_at ? new Date(product.icon_fetched_at).getTime() : 0
   return `/api/products/${product.id}/icon?v=${version}`
 }
@@ -73,7 +83,7 @@ async function loadProblemSummaries(): Promise<ProblemSummary[]> {
   const ids = problems.map((item: Row) => item.id)
   const since = new Date(Date.now() - 86_400_000).toISOString()
   const [{ data: placements, error: placementError }, { data: supports }, { data: clicks }] = await Promise.all([
-    supabase.from("placements").select("id,problem_id,product_id,current_bid_cents,status,founding_claim,settled_at,products(id,name,registrable_domain,icon_base64,icon_fetched_at)").in("problem_id", ids).eq("status", "active"),
+    supabase.from("placements").select("id,problem_id,product_id,current_bid_cents,status,founding_claim,settled_at,products(id,name,registrable_domain,icon_base64,icon_fetched_at,icon_attempted_at)").in("problem_id", ids).eq("status", "active"),
     supabase.from("problem_supports").select("problem_id").in("problem_id", ids).gte("created_at", since),
     supabase.from("placement_clicks").select("problem_id").in("problem_id", ids).gte("created_at", since),
   ])

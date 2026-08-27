@@ -82,7 +82,8 @@ function readWidth(bytes: Buffer, contentType: string): number {
  * Fetch the best usable icon for a registrable domain.
  * Returns null when nothing suitable exists — the caller renders a monogram.
  */
-export async function fetchProductIcon(registrableDomain: string): Promise<FetchedIcon | null> {
+export async function fetchProductIcon(registrableDomain: string, budgetMs = 20_000): Promise<FetchedIcon | null> {
+  const deadline = Date.now() + budgetMs
   // https only, and the domain has already passed normalizeProductUrl's public
   // registrable-domain check before a placement can exist.
   const origin = `https://${registrableDomain}`
@@ -90,6 +91,8 @@ export async function fetchProductIcon(registrableDomain: string): Promise<Fetch
   try { candidates = await candidateUrls(origin) } catch { return null }
 
   for (const url of candidates) {
+    // Serving a card must never wait indefinitely on someone else's host.
+    if (Date.now() > deadline) break
     try {
       const response = await get(url, "image/*")
       if (!response.ok) continue
@@ -120,8 +123,9 @@ export async function refreshProductIcon(
   supabase: { from: (table: string) => any },
   productId: string,
   registrableDomain: string,
+  budgetMs?: number,
 ) {
-  const icon = await fetchProductIcon(registrableDomain).catch(() => null)
+  const icon = await fetchProductIcon(registrableDomain, budgetMs).catch(() => null)
   const now = new Date().toISOString()
   const patch = icon
     ? { icon_base64: icon.base64, icon_content_type: icon.contentType, icon_width: icon.width, icon_fetched_at: now, icon_attempted_at: now }
