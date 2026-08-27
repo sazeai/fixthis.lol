@@ -43,7 +43,7 @@ export function PresenceTracker({
   if (!badge) return null
 
   return (
-    <p className="mb-8 inline-flex items-baseline gap-2.5 font-mono sm:mb-9" aria-label={`${stats.visitors_24h.toLocaleString("en-US")} visitors in the last 24 hours`}>
+    <p className="mb-4 inline-flex items-baseline gap-2.5 font-mono sm:mb-6" aria-label={`${stats.visitors_24h.toLocaleString("en-US")} visitors in the last 24 hours`}>
       <span className="tabular-nums text-[21px] font-semibold leading-none tracking-[-0.05em] text-[#d84d37]">
         {stats.visitors_24h.toLocaleString("en-US")}
       </span>
