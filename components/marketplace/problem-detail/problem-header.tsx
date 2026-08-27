@@ -8,14 +8,14 @@ export function ProblemHeader({ problem, originLabel }: { problem: ProblemDetail
   return (
     <>
       <div className="border-b border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-5 py-3 sm:px-7">
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <Link href="/#problems" className="group inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.14em] text-[#8a857e] transition-colors hover:text-[#111]">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 sm:gap-x-4">
+          <Link href="/#problems" className="group inline-flex min-w-0 items-center gap-1.5 whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.14em] text-[#8a857e] transition-colors hover:text-[#111]">
             <ArrowLeft size={11} className="transition-transform duration-200 ease-out group-hover:-translate-x-0.5" /> All problems
           </Link>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center justify-self-end gap-2 whitespace-nowrap">
             <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#d84d37]">{problem.category}</span>
-            <span className="text-[#ccc]">·</span>
-            <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#999]">{originLabel}</span>
+            <span className="hidden text-[#ccc] sm:inline">·</span>
+            <span className="hidden font-mono text-[9px] uppercase tracking-[0.14em] text-[#999] sm:inline">{originLabel}</span>
           </div>
         </div>
       </div>
@@ -25,7 +25,7 @@ export function ProblemHeader({ problem, originLabel }: { problem: ProblemDetail
           “{problem.statement}”
         </h1>
 
-        <div className="mt-6 flex flex-wrap items-center gap-2.5">
+        <div className="mt-5 flex flex-wrap items-center gap-1.5 sm:mt-6">
           <SupportProblem problemId={problem.id} initialCount={problem.support_count} />
           <BidModal problemId={problem.id} statement={problem.statement} nextBidCents={problem.next_bid_cents} />
         </div>

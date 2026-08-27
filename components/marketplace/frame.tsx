@@ -19,7 +19,13 @@ function PatternRail({ extendTop = false }: { extendTop?: boolean }) {
       className="relative w-4 shrink-0 self-stretch sm:w-6 md:w-8 lg:w-12"
       style={{ backgroundImage: RAIL_PATTERN }}
     >
-      {extendTop ? <span className="absolute -top-[52px] left-0 h-[52px] w-full" style={{ backgroundImage: RAIL_PATTERN }} /> : null}
+      {extendTop ? (
+        <span
+          aria-hidden="true"
+          className="absolute -top-[52px] left-0 box-border h-[52px] w-full border-x border-[rgba(55,50,47,0.12)]"
+          style={{ backgroundImage: RAIL_PATTERN }}
+        />
+      ) : null}
     </div>
   )
 }

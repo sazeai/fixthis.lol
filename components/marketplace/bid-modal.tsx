@@ -62,8 +62,8 @@ export function BidModal({
 
   const label = triggerLabel || (nextBidCents === 500 ? "CLAIM" : "TAKE #1")
   const triggerBase = compact
-    ? "inline-flex h-8 items-center gap-1.5 rounded-full px-4 text-[10px] font-bold"
-    : "inline-flex h-11 items-center justify-center gap-2 rounded-full px-5 text-[11px] font-bold uppercase tracking-[0.08em]"
+    ? "inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[10px] font-bold"
+    : "inline-flex h-10 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-full px-2 text-[10px] font-bold uppercase tracking-[0.04em] sm:h-11 sm:gap-2 sm:px-5 sm:text-[11px] sm:tracking-[0.08em]"
   const triggerSkin = variant === "outline"
     ? "border border-[rgba(55,50,47,0.14)] bg-white text-[#111] transition-colors duration-200 ease-out hover:border-[#777] active:scale-[0.97]"
     : "bg-[#111] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.97]"

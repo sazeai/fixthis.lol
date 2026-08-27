@@ -7,7 +7,7 @@ export function Header() {
   return (
     <nav className="absolute top-8 z-40 flex w-full items-center justify-center px-3">
       <div className="absolute left-0 top-1/2 -z-10 h-px w-full -translate-y-1/2 bg-[rgba(55,50,47,0.12)]" />
-      <div className="flex w-full max-w-[calc(100%-16px)] items-center rounded-full border border-black/5 bg-[#efefef]/85 p-2 backdrop-blur-md sm:w-auto sm:max-w-[calc(100%-24px)]">
+      <div className="flex w-full max-w-[calc(100%-16px)] items-center rounded-full border border-black/5 bg-[#efefef]/85 p-1 backdrop-blur-md sm:w-auto sm:max-w-[calc(100%-24px)]">
         <Link href="/" aria-label="FIXTHIS home" className="group flex shrink-0 items-center gap-2 rounded-full px-1.5 py-1 text-[#111] transition-colors hover:bg-white/60">
           <span className="grid size-9 place-items-center rounded-full border border-[rgba(55,50,47,0.08)] bg-[#fafafa] transition-transform group-hover:scale-105"><Mark /></span>
           <span className="text-[12px] font-extrabold tracking-[-0.04em] sm:text-[13px]">FIXTHIS</span>
