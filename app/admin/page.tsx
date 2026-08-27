@@ -1,15 +1,197 @@
+import type { ReactNode } from "react"
 import { AdminActionButton } from "@/components/marketplace/admin-action-button"
 import { FoundingClaimForm } from "@/components/marketplace/founding-claim-form"
 import { loginAdmin } from "@/app/admin/actions"
 import { formatMoney } from "@/lib/marketplace/helpers"
 import { isAdminAuthenticated } from "@/lib/marketplace/admin-auth"
-import { getAdminMarketplaceData } from "@/lib/marketplace/queries"
+import { getAdminComplaints, getAdminMarketplaceData } from "@/lib/marketplace/queries"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Admin", robots: { index: false, follow: false } }
+
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const query = await searchParams
-  if (!await isAdminAuthenticated()) return <main className="grid min-h-screen place-items-center bg-[#f4f1ea] p-5"><form action={loginAdmin} className="w-full max-w-sm rounded-3xl border border-black/10 bg-white p-7"><p className="font-[var(--font-clash)] text-3xl">FIXTHIS admin</p><input name="password" type="password" required autoFocus placeholder="Admin password" className="mt-6 min-h-12 w-full rounded-xl border border-black/15 px-3" />{query.error && <p className="mt-2 text-sm text-red-700">Wrong password.</p>}<button className="mt-4 min-h-11 w-full rounded-xl bg-black text-sm font-bold text-white">ENTER</button></form></main>
-  const { problems, placements } = await getAdminMarketplaceData()
-  return <main className="min-h-screen bg-[#f4f1ea] px-5 py-10"><div className="mx-auto max-w-7xl"><h1 className="font-[var(--font-clash)] text-5xl tracking-[-.05em]">Market operations.</h1><p className="mt-2 text-sm text-black/50">Moderation, founding inventory, placements, and honest traffic.</p><section className="mt-10"><h2 className="font-[var(--font-clash)] text-2xl">Add founding claim</h2><div className="mt-4"><FoundingClaimForm problems={problems.filter((p) => p.status === "published").map((p) => ({ id: p.id, statement: p.statement }))} /></div></section><section className="mt-12"><h2 className="font-[var(--font-clash)] text-2xl">Problems · {problems.length}</h2><div className="mt-4 overflow-x-auto rounded-2xl border border-black/10 bg-white"><table className="w-full min-w-[900px] text-left text-xs"><thead className="bg-black/5"><tr>{["Problem","Origin","Demand","Traffic","Status","Actions"].map((x) => <th key={x} className="p-3">{x}</th>)}</tr></thead><tbody>{problems.map((p) => <tr key={p.id} className="border-t border-black/10"><td className="max-w-md p-3 font-semibold">{p.statement}</td><td className="p-3">{p.origin}</td><td className="p-3">{p.support_count}</td><td className="p-3">{p.impression_count} / {p.click_count}</td><td className="p-3">{p.status}</td><td className="flex gap-2 p-3">{p.status === "published" ? <AdminActionButton entity="problem" id={p.id} action="hide" /> : <AdminActionButton entity="problem" id={p.id} action="publish" />}</td></tr>)}</tbody></table></div></section><section className="mt-12"><h2 className="font-[var(--font-clash)] text-2xl">Placements · {placements.length}</h2><div className="mt-4 overflow-x-auto rounded-2xl border border-black/10 bg-white"><table className="w-full min-w-[1000px] text-left text-xs"><thead className="bg-black/5"><tr>{["Product","Problem","Rank / bid","Traffic","Owner","Status","Actions"].map((x) => <th key={x} className="p-3">{x}</th>)}</tr></thead><tbody>{placements.map((p) => <tr key={p.placement_id} className="border-t border-black/10"><td className="p-3 font-semibold">{p.product_name}</td><td className="max-w-sm p-3">{p.problem_statement}</td><td className="p-3">#{p.rank} · {p.founding_claim ? "$0 founding" : formatMoney(p.current_bid_cents)}</td><td className="p-3">{p.impression_count} / {p.click_count}</td><td className="p-3">{p.owner_email}</td><td className="p-3">{p.status}</td><td className="flex gap-2 p-3">{p.status === "active" ? <AdminActionButton entity="placement" id={p.placement_id} action="suspend" /> : <AdminActionButton entity="placement" id={p.placement_id} action="restore" />}</td></tr>)}</tbody></table></div></section></div></main>
+
+  if (!await isAdminAuthenticated()) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-[#fafafa] p-5 font-sans text-[#111]">
+        <form action={loginAdmin} className="w-full max-w-sm border border-[rgba(55,50,47,0.12)] bg-white p-7">
+          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Restricted</p>
+          <h1 className="mt-3 font-serif text-[28px] leading-none tracking-[-0.04em] text-[#111]">FIXTHIS admin</h1>
+          <input
+            name="password"
+            type="password"
+            required
+            autoFocus
+            placeholder="Admin password"
+            className="mt-6 h-11 w-full border border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-3 text-[14px] text-[#111] outline-none transition placeholder:text-[#bbb] focus:border-[#777]"
+          />
+          {query.error ? <p className="mt-3 border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">Wrong password.</p> : null}
+          <button className="mt-4 h-11 w-full bg-[#111] text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#ef4e37]">
+            Enter
+          </button>
+        </form>
+      </main>
+    )
+  }
+
+  const [{ problems, placements }, complaints] = await Promise.all([getAdminMarketplaceData(), getAdminComplaints()])
+  const pendingComplaints = complaints.filter((complaint) => complaint.detail_status === "pending")
+  const published = problems.filter((problem) => problem.status === "published")
+  const pending = problems.filter((problem) => problem.status === "pending")
+  const activePlacements = placements.filter((placement) => placement.status === "active")
+  const totalDemand = problems.reduce((total, problem) => total + problem.support_count, 0)
+
+  return (
+    <main className="min-h-screen bg-[#fafafa] px-5 py-10 font-sans text-[#111] sm:px-8">
+      <div className="mx-auto max-w-[1240px]">
+
+        <header className="flex flex-wrap items-end justify-between gap-5 border-b border-[rgba(55,50,47,0.12)] pb-7">
+          <div>
+            <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Market operations</p>
+            <h1 className="mt-3 font-serif text-[36px] leading-none tracking-[-0.04em] text-[#111] sm:text-[44px]">Control room.</h1>
+            <p className="mt-3 text-[13px] text-[#777]">Moderation, founding inventory, placements, and honest traffic.</p>
+          </div>
+          <div className="grid grid-cols-2 divide-x divide-[rgba(55,50,47,.1)] sm:grid-cols-5">
+            <HeadStat value={published.length} label="Published" />
+            <HeadStat value={pending.length} label="Pending" middle accent={pending.length > 0} />
+            <HeadStat value={activePlacements.length} label="Active claims" middle />
+            <HeadStat value={pendingComplaints.length} label="Complaints to review" middle accent={pendingComplaints.length > 0} />
+            <HeadStat value={totalDemand} label="Total demand" last />
+          </div>
+        </header>
+
+        <Section title="Add founding claim" blurb="Genuine launch partners only. Publicly labelled, $0 bid, displaced by any settled $5+ bid.">
+          <FoundingClaimForm problems={published.map((problem) => ({ id: problem.id, statement: problem.statement }))} />
+        </Section>
+
+        <Section title={`Problems · ${problems.length}`} blurb="Pending rows were held back by automated screening and are not public.">
+          <div className="overflow-x-auto border border-[rgba(55,50,47,0.12)] bg-white">
+            <table className="w-full min-w-[900px] text-left">
+              <thead>
+                <tr className="border-b border-[rgba(55,50,47,0.12)] bg-[#fafafa]">
+                  {["Problem", "Origin", "Demand", "Views / clicks", "Status", ""].map((label) => (
+                    <th key={label} className="px-4 py-2.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[#999]">{label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {problems.map((problem) => (
+                  <tr key={problem.id} className="border-b border-[rgba(55,50,47,0.08)] last:border-0 hover:bg-[#fafafa]">
+                    <td className="max-w-md px-4 py-3 text-[12px] font-medium text-[#111]">{problem.statement}</td>
+                    <td className="px-4 py-3 font-mono text-[9px] uppercase tracking-[0.1em] text-[#999]">{problem.origin}</td>
+                    <td className="px-4 py-3 font-mono text-[11px] text-[#555]">{problem.support_count.toLocaleString("en-US")}</td>
+                    <td className="px-4 py-3 font-mono text-[11px] text-[#555]">{problem.impression_count.toLocaleString("en-US")} / {problem.click_count.toLocaleString("en-US")}</td>
+                    <td className="px-4 py-3"><StatusPill status={problem.status} /></td>
+                    <td className="px-4 py-3">
+                      {problem.status === "published"
+                        ? <AdminActionButton entity="problem" id={problem.id} action="hide" />
+                        : <AdminActionButton entity="problem" id={problem.id} action="publish" />}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Section>
+
+        <Section title={`Complaint details · ${complaints.length}`} blurb="One moderated sentence per supporter. Pending details are not public until approved.">
+          {complaints.length ? (
+            <div className="border border-[rgba(55,50,47,0.12)] bg-white">
+              {complaints.map((complaint) => (
+                <div key={complaint.id} className="flex flex-wrap items-start justify-between gap-3 border-b border-[rgba(55,50,47,0.08)] p-4 last:border-0 hover:bg-[#fafafa]">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] leading-6 text-[#333]">“{complaint.detail}”</p>
+                    <p className="mt-1.5 truncate font-mono text-[8px] uppercase tracking-[0.1em] text-[#aaa]">on “{complaint.problem_statement}”</p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <StatusPill status={complaint.detail_status} />
+                    {complaint.detail_status === "published"
+                      ? <AdminActionButton entity="complaint" id={complaint.id} action="hide" />
+                      : <AdminActionButton entity="complaint" id={complaint.id} action="publish" />}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="border border-dashed border-[rgba(55,50,47,0.16)] bg-[#fafafa] px-6 py-12 text-center text-[13px] text-[#888]">
+              No one has added a complaint detail yet.
+            </p>
+          )}
+        </Section>
+
+        <Section title={`Placements · ${placements.length}`} blurb="Suspending a placement recalculates rankings and starts a new rotation epoch.">
+          {placements.length ? (
+            <div className="overflow-x-auto border border-[rgba(55,50,47,0.12)] bg-white">
+              <table className="w-full min-w-[1040px] text-left">
+                <thead>
+                  <tr className="border-b border-[rgba(55,50,47,0.12)] bg-[#fafafa]">
+                    {["Product", "Problem", "Rank / bid", "Views / clicks", "Owner", "Status", ""].map((label) => (
+                      <th key={label} className="px-4 py-2.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[#999]">{label}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {placements.map((placement) => (
+                    <tr key={placement.placement_id} className="border-b border-[rgba(55,50,47,0.08)] last:border-0 hover:bg-[#fafafa]">
+                      <td className="px-4 py-3 text-[12px] font-semibold text-[#111]">{placement.product_name}</td>
+                      <td className="max-w-sm px-4 py-3 text-[12px] text-[#666]">{placement.problem_statement}</td>
+                      <td className="px-4 py-3 font-mono text-[11px] text-[#555]">
+                        <span className={placement.rank === 1 ? "text-[#d84d37]" : ""}>#{placement.rank}</span>
+                        {" · "}
+                        {placement.founding_claim ? "$0 founding" : formatMoney(placement.current_bid_cents)}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-[11px] text-[#555]">{placement.impression_count.toLocaleString("en-US")} / {placement.click_count.toLocaleString("en-US")}</td>
+                      <td className="px-4 py-3 font-mono text-[10px] text-[#888]">{placement.owner_email}</td>
+                      <td className="px-4 py-3"><StatusPill status={placement.status} /></td>
+                      <td className="px-4 py-3">
+                        {placement.status === "active"
+                          ? <AdminActionButton entity="placement" id={placement.placement_id} action="suspend" />
+                          : <AdminActionButton entity="placement" id={placement.placement_id} action="restore" />}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="border border-dashed border-[rgba(55,50,47,0.16)] bg-[#fafafa] px-6 py-12 text-center text-[13px] text-[#888]">
+              No placements yet. Create a founding claim or wait for the first settled bid.
+            </p>
+          )}
+        </Section>
+
+      </div>
+    </main>
+  )
+}
+
+function Section({ title, blurb, children }: { title: string; blurb: string; children: ReactNode }) {
+  return (
+    <section className="mt-12">
+      <h2 className="font-serif text-[22px] tracking-[-0.02em] text-[#111]">{title}</h2>
+      <p className="mt-1.5 text-[12px] text-[#888]">{blurb}</p>
+      <div className="mt-4">{children}</div>
+    </section>
+  )
+}
+
+function HeadStat({ value, label, middle = false, last = false, accent = false }: { value: number; label: string; middle?: boolean; last?: boolean; accent?: boolean }) {
+  return (
+    <p className={middle ? "px-4" : last ? "pl-4" : "pr-4"}>
+      <span className={`block font-serif text-[22px] leading-none tracking-[-0.03em] ${accent ? "text-[#db4e38]" : "text-[#111]"}`}>
+        {value.toLocaleString("en-US")}
+      </span>
+      <span className="mt-1.5 block font-mono text-[7px] uppercase tracking-[0.12em] text-[#999]">{label}</span>
+    </p>
+  )
+}
+
+function StatusPill({ status }: { status: string }) {
+  const tone = status === "published" || status === "active"
+    ? "bg-[#eef7f0] text-[#2f7d4f]"
+    : status === "pending"
+      ? "bg-[#fff0eb] text-[#d84d37]"
+      : "bg-[rgba(55,50,47,.06)] text-[#888]"
+  return <span className={`inline-flex items-center px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.1em] ${tone}`}>{status}</span>
 }

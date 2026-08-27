@@ -105,6 +105,16 @@ export type AdminProblem = ProblemSummary & {
   updated_at: string
 }
 
+export type AdminComplaint = {
+  id: string
+  detail: string
+  detail_status: "none" | "published" | "pending" | "hidden"
+  created_at: string
+  problem_id: string
+  problem_statement: string
+  problem_slug: string
+}
+
 export type AdminPlacement = BattlefieldEntry & {
   problem_id: string
   problem_statement: string

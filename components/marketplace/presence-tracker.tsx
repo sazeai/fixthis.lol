@@ -5,14 +5,41 @@ import type { PublicTrafficStats } from "@/types/marketplace"
 
 export function PresenceTracker({ initial }: { initial: PublicTrafficStats }) {
   const [stats, setStats] = useState(initial)
+
   useEffect(() => {
-    let poll: ReturnType<typeof setInterval> | undefined, heartbeat: ReturnType<typeof setInterval> | undefined
-    const beat = () => { if (document.visibilityState === "visible") fetch("/api/presence", { method: "POST", keepalive: true }).catch(() => undefined) }
-    const refresh = () => fetch("/api/presence").then((r) => r.json()).then(setStats).catch(() => undefined)
-    beat(); heartbeat = setInterval(beat, 20_000); poll = setInterval(refresh, 15_000)
+    // Heartbeat only while the tab is actually visible, so backgrounded tabs
+    // never inflate the live count.
+    const beat = () => {
+      if (document.visibilityState === "visible") {
+        fetch("/api/presence", { method: "POST", keepalive: true }).catch(() => undefined)
+      }
+    }
+    const refresh = () => fetch("/api/presence").then((response) => response.json()).then(setStats).catch(() => undefined)
+
+    beat()
+    const heartbeat = setInterval(beat, 20_000)
+    const poll = setInterval(refresh, 15_000)
     document.addEventListener("visibilitychange", beat)
-    return () => { clearInterval(poll); clearInterval(heartbeat); document.removeEventListener("visibilitychange", beat) }
+    return () => {
+      clearInterval(poll)
+      clearInterval(heartbeat)
+      document.removeEventListener("visibilitychange", beat)
+    }
   }, [])
+
+  // Nothing real to show yet — never render a fabricated counter.
   if (!stats.live_visitors && stats.visitors_24h === 0) return null
-  return <div className="fixed bottom-4 left-4 z-30 flex items-center gap-3 rounded-full border border-black/10 bg-white/90 px-4 py-2 font-mono text-[9px] uppercase tracking-wider shadow-lg backdrop-blur"><span>{stats.live_visitors ? <><i className="mr-1.5 inline-block size-1.5 rounded-full bg-emerald-500" />{stats.live_visitors} live</> : null}</span><span>{stats.visitors_24h.toLocaleString()} visitors / 24h</span></div>
+
+  return (
+    <div className="fixed bottom-4 left-4 z-30 flex items-center gap-2.5 border border-[rgba(55,50,47,0.12)] bg-white/92 px-3 py-2 font-mono text-[8px] uppercase tracking-[0.12em] text-[#777] shadow-[0_6px_20px_rgba(55,50,47,.08)] backdrop-blur">
+      {stats.live_visitors ? (
+        <span className="flex items-center gap-1.5 text-[#111]">
+          <span className="size-1.5 rounded-full bg-[#ef4e37] shadow-[0_0_0_3px_rgba(239,78,55,.12)]" />
+          {stats.live_visitors} live
+        </span>
+      ) : null}
+      {stats.live_visitors ? <span className="text-[#ddd]">·</span> : null}
+      <span>{stats.visitors_24h.toLocaleString("en-US")} visitors / 24h</span>
+    </div>
+  )
 }

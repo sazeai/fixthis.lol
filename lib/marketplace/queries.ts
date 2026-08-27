@@ -2,7 +2,7 @@ import "server-only"
 
 import { cache } from "react"
 import { rotationPercentages } from "@/lib/marketplace/helpers"
-import type { AdminPlacement, AdminProblem, BattlefieldEntry, FounderPlacementStats, ProblemDetail, ProblemSummary, PublicTrafficStats } from "@/types/marketplace"
+import type { AdminComplaint, AdminPlacement, AdminProblem, BattlefieldEntry, FounderPlacementStats, ProblemDetail, ProblemSummary, PublicTrafficStats } from "@/types/marketplace"
 import { createAdminClient } from "@/utils/supabase/admin"
 
 type Row = Record<string, any>
@@ -130,19 +130,53 @@ export async function getProblemBySlug(slug: string): Promise<ProblemDetail | nu
   const { data: problem, error } = await supabase.from("problems").select("*").eq("slug", slug).eq("status", "published").maybeSingle()
   if (error) throw error
   if (!problem) return null
-  const [summaries, sourceResult, complaintResult, placementResult] = await Promise.all([
-    getProblemSummaries(),
+
+  const since = new Date(Date.now() - 86_400_000).toISOString()
+  // Derived counts are computed for this one problem rather than looked up in
+  // the cached board. The cache is up to two minutes stale and capped at 200
+  // rows, so reading it here would 404 a problem that was just posted.
+  const [sourceResult, complaintResult, placementResult, supportResult, clickResult] = await Promise.all([
     supabase.from("problem_sources").select("id,source_url,source_label").eq("problem_id", problem.id).order("created_at"),
     supabase.from("problem_supports").select("id,detail,created_at").eq("problem_id", problem.id).eq("detail_status", "published").not("detail", "is", null).order("created_at", { ascending: false }).limit(30),
     supabase.from("placements").select("id,problem_id,product_id,current_bid_cents,status,founding_claim,settled_at,impression_count,click_count,products(id,name,tagline,destination_url,registrable_domain)").eq("problem_id", problem.id).eq("status", "active"),
+    supabase.from("problem_supports").select("id", { count: "exact", head: true }).eq("problem_id", problem.id).gte("created_at", since),
+    supabase.from("placement_clicks").select("id", { count: "exact", head: true }).eq("problem_id", problem.id).gte("created_at", since),
   ])
-  const summary = summaries.find((item) => item.id === problem.id)
-  if (!summary) return null
+
+  const activePlacements = placementResult.data || []
+  const placementIds = activePlacements.map((item: Row) => item.id)
+  const { count: bids24h } = placementIds.length
+    ? await supabase.from("bids").select("id", { count: "exact", head: true }).in("placement_id", placementIds).eq("status", "settled").gte("settled_at", since)
+    : { count: 0 }
+
+  const topBid = activePlacements.reduce((max: number, item: Row) => Math.max(max, number(item.current_bid_cents)), 0)
+  const supports24h = supportResult.count || 0
+  const clicks24h = clickResult.count || 0
+  const hoursOld = (Date.now() - new Date(problem.published_at || problem.created_at).getTime()) / 3_600_000
+  const freshness = Math.max(0, 24 - hoursOld) / 6
+
   return {
-    ...summary,
+    id: problem.id,
+    slug: problem.slug,
+    statement: problem.statement,
+    category: problem.category,
+    origin: problem.origin,
+    launch_priority: problem.launch_priority,
+    support_count: number(problem.support_count),
+    impression_count: number(problem.impression_count),
+    click_count: number(problem.click_count),
+    competitor_count: activePlacements.length,
+    top_bid_cents: topBid,
+    next_bid_cents: topBid > 0 ? topBid + 500 : 500,
+    supports_24h: supports24h,
+    clicks_24h: clicks24h,
+    bids_24h: bids24h || 0,
+    trending_score: supports24h * 5 + clicks24h + (bids24h || 0) * 10 + freshness,
+    created_at: problem.created_at,
+    published_at: problem.published_at,
     sources: sourceResult.data || [],
     complaints: (complaintResult.data || []).map((item: Row) => ({ id: item.id, detail: item.detail, created_at: item.created_at })),
-    battlefield: toBattlefield(placementResult.data || []),
+    battlefield: toBattlefield(activePlacements),
   }
 }
 
@@ -173,6 +207,32 @@ export async function getBidStatus(quoteId: string) {
   return { ...quote, bid, rank }
 }
 
+export async function getAdminComplaints(): Promise<AdminComplaint[]> {
+  const supabase = createAdminClient()
+  // Pending first: those are the ones holding up a visitor's contribution.
+  const { data } = await supabase
+    .from("problem_supports")
+    .select("id,detail,detail_status,created_at,problem_id,problems(statement,slug)")
+    .not("detail", "is", null)
+    .in("detail_status", ["pending", "published", "hidden"])
+    .order("created_at", { ascending: false })
+    .limit(200)
+  const rows = (data || []).map((row: Row) => {
+    const problem = Array.isArray(row.problems) ? row.problems[0] : row.problems
+    return {
+      id: row.id,
+      detail: row.detail,
+      detail_status: row.detail_status,
+      created_at: row.created_at,
+      problem_id: row.problem_id,
+      problem_statement: problem?.statement || "",
+      problem_slug: problem?.slug || "",
+    } as AdminComplaint
+  })
+  const rank = { pending: 0, published: 1, hidden: 2, none: 3 } as Record<string, number>
+  return rows.sort((a, b) => (rank[a.detail_status] ?? 9) - (rank[b.detail_status] ?? 9))
+}
+
 export async function getAdminMarketplaceData(): Promise<{ problems: AdminProblem[]; placements: AdminPlacement[] }> {
   const [summaries, supabase] = await Promise.all([getProblemSummaries(), Promise.resolve(createAdminClient())])
   const [{ data: problemRows }, { data: placementRows }] = await Promise.all([
@@ -197,7 +257,7 @@ export async function getAdminMarketplaceData(): Promise<{ problems: AdminProble
   const placements: AdminPlacement[] = []
   for (const rows of grouped.values()) {
     const battlefield = toBattlefield(rows)
-    battlefield.forEach((entry, index) => {
+    battlefield.forEach((entry) => {
       const row = rows.find((item: Row) => item.id === entry.placement_id)
       if (!row) return
       const product = Array.isArray(row.products) ? row.products[0] : row.products

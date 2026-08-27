@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 import { Webhook } from "standardwebhooks"
 import { notifyProblemSubscribers, sendManagementLink } from "@/lib/marketplace/email"
 import { createManagementToken } from "@/lib/marketplace/management"
+import { invalidateProblemOrdering } from "@/lib/marketplace/queries"
 import { createAdminClient } from "@/utils/supabase/admin"
 
 export const runtime = "nodejs"
@@ -53,6 +54,7 @@ export async function POST(request: Request) {
         p_amount_cents: quote.amount_cents, p_settled_at: settledAt,
       })
       if (error) throw error
+      invalidateProblemOrdering()
       const { data: product } = await supabase.from("products").select("id,name,owner_email").eq("registrable_domain", quote.registrable_domain).single()
       if (product) {
         await sendManagementLink(product.owner_email, createManagementToken(product.id, product.owner_email), product.name, new URL(request.url).origin).catch(console.error)
@@ -68,6 +70,7 @@ export async function POST(request: Request) {
       : ["dispute.cancelled", "dispute.won"].includes(eventType) ? "settled" : "revoked"
     const { error } = await supabase.rpc("reconcile_bid_state", { p_payment_id: paymentId, p_status: state })
     if (error) throw error
+    invalidateProblemOrdering()
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error("FIXTHIS webhook processing failed", error)

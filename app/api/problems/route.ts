@@ -6,7 +6,7 @@ import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
 import { getVisitorKey } from "@/lib/marketplace/visitor"
 import { assessUserContent, firstZodError, problemSchema } from "@/lib/marketplace/validation"
-import { getProblemSummaries } from "@/lib/marketplace/queries"
+import { getProblemSummaries, invalidateProblemOrdering } from "@/lib/marketplace/queries"
 import { createAdminClient } from "@/utils/supabase/admin"
 
 export async function GET(request: Request) {
@@ -47,6 +47,7 @@ export async function POST(request: Request) {
         await supabase.rpc("support_problem", { p_problem_id: problem.id, p_visitor_key: visitorKey, p_detail: null, p_detail_status: "none" })
       }
       if (parsed.data.email) await createProblemSubscription(problem.id, parsed.data.email, new URL(request.url).origin).catch(console.error)
+      if (status === "published") invalidateProblemOrdering()
       return NextResponse.json({ ...problem, status }, { status: 201 })
     }
     if (error?.code !== "23505") { console.error("Problem insert failed", error); return jsonError("The problem could not be published.", 500) }
