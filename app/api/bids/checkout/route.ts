@@ -46,10 +46,14 @@ export async function POST(request: Request) {
     const appUrl = getAppUrl(request.url)
     const session = await getDodoClient().checkoutSessions.create({
       product_cart: [{ product_id: productId, quantity: 1, amount: parsed.data.amountCents }],
-      customer: { email: parsed.data.email },
+      // Dodo names the payer from the product, since FIXTHIS never asks an
+      // advertiser for a personal name — the placement belongs to the product.
+      customer: { name: parsed.data.productName, email: parsed.data.email },
       return_url: `${appUrl}/bid/success?quote=${encodeURIComponent(quote.quote_id)}`,
       cancel_url: `${appUrl}/problems/${problem.slug}?payment=cancelled`,
-      confirm: true,
+      // No `confirm: true`. Confirming a session up front makes Dodo demand a
+      // full customer record and billing address in this request, which we do
+      // not collect; its hosted checkout gathers them instead.
       minimal_address: true,
       metadata: { checkout_type: "fixthis_bid", quote_id: quote.quote_id, problem_id: problem.id, bid_amount_cents: String(parsed.data.amountCents) },
       feature_flags: { allow_discount_code: false, allow_phone_number_collection: false, redirect_immediately: true },
@@ -60,7 +64,8 @@ export async function POST(request: Request) {
     if (updateError) throw updateError
     return NextResponse.json({ quoteId: quote.quote_id, minimumCents: quote.minimum_cents, amountCents: parsed.data.amountCents, expiresAt: quote.expires_at, checkoutUrl: session.checkout_url })
   } catch (error) {
-    console.error("Dodo bid checkout failed", error)
+    const detail = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : String(error)
+    console.error("Dodo bid checkout failed", { status: (error as { status?: number })?.status, detail })
     await supabase.from("bid_quotes").update({ status: "cancelled" }).eq("id", quote.quote_id)
     return jsonError("Payment checkout could not be started.", 502)
   }

@@ -87,11 +87,11 @@ export function SupportProblem({ problemId, initialCount, compact = false }: { p
         }}
         aria-label={supported ? "You have this problem too" : "I have this problem too"}
         className={`inline-flex items-center rounded-full font-bold transition-all duration-200 ease-out active:scale-[0.97] disabled:cursor-default ${
-          compact ? "min-h-9 gap-1.5 px-3 text-[10px]" : "min-h-11 gap-2 px-5 text-[11px] uppercase tracking-[0.08em]"
+          compact ? "h-8 gap-1.5 px-3.5 text-[10px]" : "h-11 gap-2 px-5 text-[11px] uppercase tracking-[0.08em]"
         } ${
           supported
-            ? "bg-[#eef7f0] text-[#2f7d4f]"
-            : "bg-[#fff0eb] text-[#d84d37] hover:bg-[#ffe0d4] hover:shadow-[0_2px_10px_rgba(239,78,55,.16)]"
+            ? "bg-[#eef7f0] text-[#2f7d4f] ring-1 ring-inset ring-[rgba(47,125,79,.22)]"
+            : "bg-white text-[#d84d37] ring-1 ring-inset ring-[rgba(216,77,55,.22)] hover:bg-[#fff0eb] hover:ring-[rgba(216,77,55,.4)]"
         }`}
       >
         <span className="grid size-3.5 shrink-0 place-items-center">
