@@ -43,11 +43,12 @@ export function PresenceTracker({
   if (!badge) return null
 
   return (
-    <p className="mb-4 inline-flex items-baseline gap-2 rounded-full border border-black/[0.07] bg-white/75 px-3.5 py-1.5 font-mono shadow-[0_1px_0_rgba(255,255,255,.8),0_5px_16px_rgba(55,50,47,.05)] backdrop-blur-sm">
-      <span className="tabular-nums text-[13px] font-semibold tracking-[-0.03em] text-[#24211f]">
+    <p className="mb-8 inline-flex items-center font-mono sm:mb-9" aria-label={`${stats.visitors_24h.toLocaleString("en-US")} visitors in the last 24 hours`}>
+      <span className="mr-3 h-7 w-0.5 rounded-full bg-[#ef4e37] shadow-[0_0_0_3px_rgba(239,78,55,.08)]" aria-hidden="true" />
+      <span className="tabular-nums text-[21px] font-semibold leading-none tracking-[-0.05em] text-[#171513]">
         {stats.visitors_24h.toLocaleString("en-US")}
       </span>
-      <span className="text-[9px] uppercase tracking-[0.14em] text-[#8a857e]">visitors / 24h</span>
+      <span className="ml-2.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-[#6f6a63]">visitors / 24h</span>
     </p>
   )
 }
