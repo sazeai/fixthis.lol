@@ -134,7 +134,7 @@ export function PostProblemModal({
     : inverted
     ? "group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-[#111] transition-colors duration-200 ease-out hover:bg-[#fafafa] active:scale-[0.98]"
     : compact
-      ? "group inline-flex min-h-9 items-center gap-2 rounded-full bg-[#111] px-4 text-[10px] font-bold uppercase tracking-[0.08em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.97]"
+      ? "group inline-flex min-h-9 items-center gap-2 whitespace-nowrap rounded-full bg-[#111] px-4 text-[10px] font-bold uppercase tracking-[0.08em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.97]"
       : "group inline-flex min-h-11 items-center gap-2 rounded-full bg-[#111] px-6 text-[12px] font-bold uppercase tracking-[0.08em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.98]"
 
   return <>

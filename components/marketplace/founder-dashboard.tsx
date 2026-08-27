@@ -45,7 +45,7 @@ export function FounderDashboard({ token, product, stats }: { token: string; pro
     <div className="relative flex min-h-screen w-full flex-col bg-[#fafafa] font-sans text-[#111]">
       <div className="flex min-h-screen flex-col items-center">
         <MarketplaceFrame wide>
-          <Header back />
+          <Header />
           <main className="relative z-10 mt-28 flex w-full flex-col items-center">
 
             <FramedSection contentClassName="px-5 py-9 sm:px-8 sm:py-12">

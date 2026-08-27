@@ -16,7 +16,7 @@ export default function ManageRequestPage() {
     <div className="relative flex min-h-screen w-full flex-col bg-[#fafafa] font-sans text-[#111]">
       <div className="flex min-h-screen flex-col items-center">
         <MarketplaceFrame>
-          <Header back />
+          <Header />
           <main className="relative z-10 mt-28 flex w-full flex-col items-center">
             <FramedSection contentClassName="px-5 py-14 sm:px-10 sm:py-20">
               <div className="mx-auto max-w-md">

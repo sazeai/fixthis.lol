@@ -6,7 +6,7 @@ import { MarketplaceFrame } from "@/components/marketplace/frame"
 export function LegalPage({ eyebrow, title, intro, children }: { eyebrow: string; title: string; intro: string; children: ReactNode }) {
   return (
     <main className="flex min-h-screen justify-center bg-[#fafafa] text-[#111]">
-      <MarketplaceFrame><Header back />
+      <MarketplaceFrame><Header />
         <article className="mx-auto mt-40 max-w-3xl border-x border-[rgba(55,50,47,.12)] px-6 py-16 sm:px-12 sm:py-24">
           <p className="text-xs font-extrabold tracking-[0.15em] text-[#e4573e]">{eyebrow}</p>
           <h1 className="mt-4 font-serif text-5xl tracking-[-0.04em] sm:text-7xl">{title}</h1>

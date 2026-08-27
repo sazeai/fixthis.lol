@@ -48,7 +48,7 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
       <header className="border-y border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-5 py-5 sm:px-7">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 justify-center pt-2.5">
               <span className="size-2 rounded-full bg-[#ef4e37] shadow-[0_0_0_3px_rgba(239,78,55,.11)]" />
               <h2 className="whitespace-nowrap font-serif text-[16px] tracking-[-0.02em] text-[#111] sm:text-[18px]">Problems up for grabs</h2>
               <span className="whitespace-nowrap rounded-full border border-[rgba(55,50,47,.12)] bg-white px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.08em] text-[#777]">{problems.length} real</span>

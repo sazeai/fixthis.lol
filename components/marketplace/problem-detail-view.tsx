@@ -16,12 +16,12 @@ export function ProblemDetailView({ problem, duplicate, paymentCancelled }: { pr
     <div className="relative flex min-h-screen w-full flex-col bg-[#fafafa] font-sans text-[#111]">
       <div className="flex min-h-screen flex-col items-center">
         <MarketplaceFrame>
-          <Header back />
+          <Header />
           <main className="relative z-10 mt-28 flex w-full flex-col items-center">
             {duplicate ? <Banner>We found this existing problem instead of creating a duplicate. Add your support below.</Banner> : null}
             {paymentCancelled ? <Banner>Payment was cancelled. No bid or placement was published.</Banner> : null}
 
-            <FramedSection contentClassName="py-0">
+            <FramedSection contentClassName="py-0" extendRailTop>
               <ProblemHeader problem={problem} originLabel={originLabel} />
               <ProblemMetrics problem={problem} />
             </FramedSection>
