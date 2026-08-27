@@ -10,6 +10,10 @@ export type FloatingEvent = {
   tone: FloatingTone
   /** Horizontal drift in pixels, randomised so repeats do not stack. */
   drift: number
+  /** Start offset along the anchor, so simultaneous spawns do not overlap. */
+  offset: number
+  /** Start height, for the same reason. */
+  lift: number
 }
 
 const TONE: Record<FloatingTone, string> = {
@@ -20,12 +24,14 @@ const TONE: Record<FloatingTone, string> = {
   bid: "bg-[#fdf4e3] text-[#8a5a12] ring-[rgba(138,90,18,.2)]",
 }
 
+/** Matches the animation length, so a node is gone before it could pile up. */
+const LIFETIME_MS = 1650
+
 /**
  * Queue of short-lived floating labels.
  *
- * Each spawn lives for the length of its animation and is then dropped from
- * state, so nothing accumulates in the DOM. The cap exists because several real
- * events can land at once and a card should never become a wall of text.
+ * The cap exists because several real events can land at once and a card should
+ * never become a wall of text.
  */
 export function useFloatingEvents(max = 3) {
   const [events, setEvents] = useState<FloatingEvent[]>([])
@@ -33,10 +39,12 @@ export function useFloatingEvents(max = 3) {
 
   const spawn = useCallback((text: string, tone: FloatingTone = "pain") => {
     const id = (nextId.current += 1)
-    const drift = Math.round((Math.random() * 2 - 1) * 18)
-    setEvents((current) => [...current.slice(-(max - 1)), { id, text, tone, drift }])
-    // Matches the animation length; the node is gone before it could pile up.
-    setTimeout(() => setEvents((current) => current.filter((event) => event.id !== id)), 1500)
+    const random = (spread: number) => Math.round((Math.random() * 2 - 1) * spread)
+    setEvents((current) => [
+      ...current.slice(-(max - 1)),
+      { id, text, tone, drift: random(20), offset: random(14), lift: Math.round(Math.random() * 10) },
+    ])
+    setTimeout(() => setEvents((current) => current.filter((event) => event.id !== id)), LIFETIME_MS)
   }, [max])
 
   return { events, spawn }
@@ -44,6 +52,11 @@ export function useFloatingEvents(max = 3) {
 
 /**
  * Renders floating labels above an anchor.
+ *
+ * Each label is positioned absolutely and animates alone. They used to sit in a
+ * flex column, which meant a second spawn pushed the first down and a removal
+ * made the survivors jump - the movement read as the labels swapping places
+ * rather than each one rising from where it was born.
  *
  * The parent must be `relative`. This layer is `pointer-events-none` and
  * `aria-hidden` — it is atmosphere over a real number that is already announced
@@ -59,17 +72,24 @@ export function FloatingEventLayer({
 }) {
   if (!events.length) return null
 
-  const position = align === "left" ? "left-0" : align === "right" ? "right-0" : "left-1/2 -translate-x-1/2"
+  // The anchor wrapper carries the placement; the label inside carries the
+  // animation, so centring never fights the animated transform.
+  const anchor = align === "left" ? "left-0" : align === "right" ? "right-0" : "left-1/2 -translate-x-1/2"
 
   return (
-    <span aria-hidden="true" className={`pointer-events-none absolute bottom-full z-30 ${position} mb-1 flex flex-col items-center gap-1`}>
+    <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-full z-30 block h-0">
       {events.map((event) => (
         <span
           key={event.id}
-          style={{ ["--fx-drift" as string]: `${event.drift}px` }}
-          className={`fx-float whitespace-nowrap rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.1em] ring-1 ring-inset ${TONE[event.tone]}`}
+          className={`absolute bottom-0 ${anchor}`}
+          style={{ marginLeft: `${event.offset}px`, marginBottom: `${event.lift + 4}px` }}
         >
-          {event.text}
+          <span
+            style={{ ["--fx-drift" as string]: `${event.drift}px` }}
+            className={`fx-float block whitespace-nowrap rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.1em] ring-1 ring-inset ${TONE[event.tone]}`}
+          >
+            {event.text}
+          </span>
         </span>
       ))}
     </span>

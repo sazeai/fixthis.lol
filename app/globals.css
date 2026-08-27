@@ -1355,35 +1355,71 @@ input[type="range"].slider::-moz-range-thumb {
 /* Floating marketplace events — game-style damage/XP indicators.
    Spawns from an anchor, rises with an overshoot, fades while still moving.
    Kept in CSS rather than a motion library: one keyframe, no bundle cost. */
+/*
+ * Game-style floating combat text.
+ *
+ * The previous version ran one easing curve across every keyframe, so the
+ * "pop" was a decelerating wobble rather than a snap, and it only scaled from
+ * 0.7 - too shallow to read as an impact at this size. Each segment now
+ * carries its own timing function: a hard overshoot on the way in, two
+ * decaying bounces to settle, then a long steady rise that fades out.
+ */
 @keyframes fx-float-up {
   0% {
     opacity: 0;
-    transform: translate3d(0, 6px, 0) scale(0.7);
+    transform: translate3d(0, 10px, 0) scale(0.35);
+    /* Overshoots past 1 - this is the punch. */
+    animation-timing-function: cubic-bezier(0.34, 1.9, 0.44, 1);
   }
-  16% {
+  13% {
     opacity: 1;
-    transform: translate3d(calc(var(--fx-drift, 0px) * 0.25), -16px, 0) scale(1.08);
+    transform: translate3d(calc(var(--fx-drift, 0px) * 0.1), -13px, 0) scale(1.22);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.5, 1);
   }
-  30% {
-    transform: translate3d(calc(var(--fx-drift, 0px) * 0.45), -26px, 0) scale(1);
+  23% {
+    transform: translate3d(calc(var(--fx-drift, 0px) * 0.2), -19px, 0) scale(0.92);
+    animation-timing-function: cubic-bezier(0.34, 1.5, 0.5, 1);
   }
-  70% {
+  33% {
+    transform: translate3d(calc(var(--fx-drift, 0px) * 0.29), -25px, 0) scale(1.06);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.5, 1);
+  }
+  42% {
+    transform: translate3d(calc(var(--fx-drift, 0px) * 0.37), -30px, 0) scale(0.99);
+    animation-timing-function: cubic-bezier(0.33, 1.2, 0.55, 1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate3d(calc(var(--fx-drift, 0px) * 0.45), -35px, 0) scale(1);
+    /* Settled. From here it just rises and goes. */
+    animation-timing-function: cubic-bezier(0.25, 0.6, 0.35, 1);
+  }
+  74% {
     opacity: 1;
   }
   100% {
     opacity: 0;
-    transform: translate3d(var(--fx-drift, 0px), -72px, 0) scale(1);
+    transform: translate3d(var(--fx-drift, 0px), -88px, 0) scale(0.94);
   }
 }
 
 .fx-float {
-  animation: fx-float-up 1450ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: fx-float-up 1600ms forwards;
   will-change: transform, opacity;
+}
+
+/* Movement is the point of this effect, so there is nothing to tone down -
+   it fades in place instead, carrying the same text for the same duration. */
+@keyframes fx-float-fade {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  74% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .fx-float {
-    animation: fx-float-up 900ms linear forwards;
+    animation: fx-float-fade 1600ms linear forwards;
     --fx-drift: 0px;
   }
 }
