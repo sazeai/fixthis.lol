@@ -30,7 +30,7 @@ export function ProblemCard({
     <article
       className={`group relative isolate flex h-full min-h-[180px] flex-col overflow-hidden transition-[background-color,box-shadow] duration-200 ease-out ${
         isFirst
-          ? "bg-[#fff6f2] shadow-[inset_0_0_0_1px_rgba(216,77,55,.16)] hover:shadow-[inset_0_0_0_1px_rgba(216,77,55,.26)]"
+          ? "bg-[#fff6f2] hover:shadow-[inset_0_0_0_1px_rgba(216,77,55,.26)]"
           : "bg-[#fafafa] hover:bg-white hover:shadow-[inset_0_0_0_1px_rgba(55,50,47,.09)]"
       }`}
     >

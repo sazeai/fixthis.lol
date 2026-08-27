@@ -14,7 +14,7 @@ export function LiveFightsStrip({ fights }: { fights: ProblemSummary[] }) {
   if (!fights.length) return null
 
   return (
-    <section aria-label="Live fights" className="bg-[#f4f2f0]">
+    <section aria-label="Live fights" className="border-t border-[rgba(55,50,47,0.12)] bg-[#f4f2f0]">
       <div className="flex items-stretch overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <p className="flex shrink-0 items-center gap-1.5 border-r border-[rgba(55,50,47,0.12)] px-5 py-2.5 font-mono text-[9px] uppercase tracking-[0.14em] text-[#d84d37] sm:px-7">
           <Zap size={11} className="shrink-0" />
