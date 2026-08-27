@@ -27,7 +27,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             className="mt-6 h-11 w-full border border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-3 text-[14px] text-[#111] outline-none transition placeholder:text-[#bbb] focus:border-[#777]"
           />
           {query.error ? <p className="mt-3 border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">Wrong password.</p> : null}
-          <button className="mt-4 h-11 w-full bg-[#111] text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-all duration-200 ease-out hover:bg-[#ef4e37] hover:shadow-[0_4px_18px_rgba(239,78,55,.3)] active:scale-[0.99]">
+          <button className="mt-4 h-11 w-full bg-[#111] text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.99]">
             Enter
           </button>
         </form>

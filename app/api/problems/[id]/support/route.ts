@@ -18,7 +18,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const parsed = supportSchema.safeParse(await request.json().catch(() => ({})))
   if (!parsed.success) return jsonError(firstZodError(parsed.error))
   if (parsed.data.website) return jsonError("This support could not be accepted.")
-  if (!await verifyTurnstile(parsed.data.turnstileToken, ip)) return jsonError("Bot verification failed.", 403)
+  // Support is deliberately frictionless: one click, no account, no challenge.
+  // A vote is not redeemable for anything, and it is already bounded by one
+  // lifetime support per anonymous visitor, an IP rate limit, bot-UA filtering,
+  // a honeypot and a same-origin check. A token is still honoured when a caller
+  // supplies one, but never demanded.
+  if (parsed.data.turnstileToken && !await verifyTurnstile(parsed.data.turnstileToken, ip)) {
+    return jsonError("Bot verification failed.", 403)
+  }
   const visitorKey = await tryGetVisitorKey()
   // One support per visitor is enforced by the anonymous key; without it the
   // vote cannot be deduped, so refuse it clearly instead of throwing a 500.

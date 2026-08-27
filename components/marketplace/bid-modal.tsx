@@ -65,8 +65,8 @@ export function BidModal({
     ? "inline-flex h-8 items-center gap-1.5 rounded-full px-4 text-[10px] font-bold"
     : "inline-flex h-11 items-center justify-center gap-2 rounded-full px-5 text-[11px] font-bold uppercase tracking-[0.08em]"
   const triggerSkin = variant === "outline"
-    ? "border border-[rgba(55,50,47,0.14)] bg-white text-[#111] transition-all duration-200 ease-out hover:border-[#777] hover:shadow-[0_2px_10px_rgba(55,50,47,.09)] active:scale-[0.97]"
-    : "bg-[#111] text-white transition-all duration-200 ease-out hover:bg-[#ef4e37] hover:shadow-[0_3px_14px_rgba(239,78,55,.28)] active:scale-[0.97]"
+    ? "border border-[rgba(55,50,47,0.14)] bg-white text-[#111] transition-colors duration-200 ease-out hover:border-[#777] active:scale-[0.97]"
+    : "bg-[#111] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.97]"
 
   return <>
     <button type="button" onClick={() => setOpen(true)} className={`group ${triggerBase} ${triggerSkin}`}>
@@ -117,7 +117,7 @@ export function BidModal({
           </p>
           {error ? <p role="alert" className="border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</p> : null}
 
-          <button disabled={loading} className="group/cta flex h-12 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all duration-200 ease-out hover:bg-[#ef4e37] hover:shadow-[0_4px_18px_rgba(239,78,55,.3)] active:scale-[0.99] disabled:opacity-60 disabled:hover:bg-[#111] disabled:hover:shadow-none">
+          <button disabled={loading} className="group/cta flex h-12 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.99] disabled:opacity-60 disabled:hover:bg-[#111]">
             {loading ? <><LoaderCircle className="animate-spin" size={15} /> Opening checkout…</> : <>Continue to secure checkout <ArrowRight size={14} className="transition-transform duration-200 ease-out group-hover/cta:translate-x-0.5" /></>}
           </button>
         </form>

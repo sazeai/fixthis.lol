@@ -11,10 +11,10 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
 
   return (
     <article
-      className={`group relative isolate flex h-full min-h-[180px] flex-col overflow-hidden transition-[background-color,box-shadow,transform] duration-300 ease-out hover:z-10 hover:-translate-y-px ${
+      className={`group relative isolate flex h-full min-h-[180px] flex-col overflow-hidden transition-[background-color,box-shadow] duration-200 ease-out ${
         isFirst
-          ? "bg-[#fff6f2] shadow-[inset_0_0_0_1px_rgba(216,77,55,.16)] hover:shadow-[inset_0_0_0_1px_rgba(216,77,55,.28),0_14px_30px_-18px_rgba(216,77,55,.45)]"
-          : "bg-[#fafafa] hover:bg-white hover:shadow-[0_1px_2px_rgba(55,50,47,.04),0_14px_30px_-18px_rgba(55,50,47,.42)]"
+          ? "bg-[#fff6f2] shadow-[inset_0_0_0_1px_rgba(216,77,55,.16)] hover:shadow-[inset_0_0_0_1px_rgba(216,77,55,.26)]"
+          : "bg-[#fafafa] hover:bg-white hover:shadow-[inset_0_0_0_1px_rgba(55,50,47,.09)]"
       }`}
     >
 

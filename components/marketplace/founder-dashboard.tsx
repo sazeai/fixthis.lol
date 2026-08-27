@@ -81,7 +81,7 @@ export function FounderDashboard({ token, product, stats }: { token: string; pro
                       <TextInput name="url" type="url" defaultValue={product.destination_url} required />
                     </FormField>
                     {error ? <p role="alert" className="border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</p> : null}
-                    <button disabled={state === "saving"} className="flex h-11 w-full items-center justify-center gap-2 bg-[#111] text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-all duration-200 ease-out hover:bg-[#ef4e37] hover:shadow-[0_3px_14px_rgba(239,78,55,.26)] active:scale-[0.99] disabled:opacity-60">
+                    <button disabled={state === "saving"} className="flex h-11 w-full items-center justify-center gap-2 bg-[#111] text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.99] disabled:opacity-60">
                       {state === "saving" ? <><LoaderCircle size={13} className="animate-spin" /> Saving…</>
                         : state === "saved" ? <><Check size={13} /> Saved</>
                         : "Save product"}
@@ -99,7 +99,7 @@ export function FounderDashboard({ token, product, stats }: { token: string; pro
                     {stats.length ? stats.map((item) => {
                       const isLead = item.placement.rank === 1
                       return (
-                        <article key={item.placement.placement_id} className="group border border-[rgba(55,50,47,0.12)] bg-white transition-shadow duration-300 ease-out hover:shadow-[0_4px_22px_rgba(55,50,47,.07)]">
+                        <article key={item.placement.placement_id} className="group border border-[rgba(55,50,47,0.12)] bg-white transition-colors duration-200 ease-out hover:border-[rgba(55,50,47,0.2)]">
                           <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[rgba(55,50,47,0.1)] p-5">
                             <div className="min-w-0 flex-1">
                               <Link href={`/problems/${item.problem.slug}`} className="group/link inline-flex items-start gap-1.5">

@@ -82,10 +82,10 @@ export function PostProblemModal({
   const triggerClass = asLink
     ? "text-[10px] text-[#999] underline underline-offset-2 transition-colors hover:text-[#d84d37]"
     : inverted
-    ? "group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-[#111] shadow-[0_4px_18px_rgba(255,255,255,.13)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#fafafa] hover:shadow-[0_10px_30px_rgba(255,255,255,.22)] active:translate-y-0 active:scale-[0.98]"
+    ? "group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-[#111] transition-colors duration-200 ease-out hover:bg-[#fafafa] active:scale-[0.98]"
     : compact
-      ? "group inline-flex min-h-9 items-center gap-2 rounded-full bg-[#111] px-4 text-[10px] font-bold uppercase tracking-[0.08em] text-white transition-all duration-200 ease-out hover:bg-[#ef4e37] hover:shadow-[0_3px_14px_rgba(239,78,55,.28)] active:scale-[0.97]"
-      : "group inline-flex min-h-11 items-center gap-2 rounded-full bg-[#111] px-6 text-[12px] font-bold uppercase tracking-[0.08em] text-white shadow-[0_8px_24px_rgba(0,0,0,.14)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#ef4e37] hover:shadow-[0_10px_28px_rgba(239,78,55,.32)] active:translate-y-0 active:scale-[0.98]"
+      ? "group inline-flex min-h-9 items-center gap-2 rounded-full bg-[#111] px-4 text-[10px] font-bold uppercase tracking-[0.08em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.97]"
+      : "group inline-flex min-h-11 items-center gap-2 rounded-full bg-[#111] px-6 text-[12px] font-bold uppercase tracking-[0.08em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.98]"
 
   return <>
     <button type="button" onClick={() => { setOpen(true); setSuccess(""); setError("") }} className={triggerClass}>
@@ -150,7 +150,7 @@ export function PostProblemModal({
 
             {error ? <p role="alert" className="border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</p> : null}
 
-            <button disabled={loading} className="group/cta flex h-12 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all duration-200 ease-out hover:bg-[#ef4e37] hover:shadow-[0_4px_18px_rgba(239,78,55,.3)] active:scale-[0.99] disabled:opacity-60 disabled:hover:bg-[#111] disabled:hover:shadow-none">
+            <button disabled={loading} className="group/cta flex h-12 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.99] disabled:opacity-60 disabled:hover:bg-[#111]">
               {loading ? <><LoaderCircle className="animate-spin" size={15} /> Publishing…</>
                 : <>{founder ? "Add problem & continue" : "Publish problem"} <ArrowRight size={14} className="transition-transform duration-200 ease-out group-hover/cta:translate-x-0.5" /></>}
             </button>

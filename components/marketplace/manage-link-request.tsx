@@ -63,7 +63,7 @@ export function ManageLinkRequest() {
       {error ? <p role="alert" className="mt-4 border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</p> : null}
       <button
         disabled={state === "sending"}
-        className="group mt-5 flex h-11 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-all duration-200 ease-out hover:bg-[#ef4e37] hover:shadow-[0_4px_18px_rgba(239,78,55,.3)] active:scale-[0.99] disabled:opacity-60"
+        className="group mt-5 flex h-11 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.99] disabled:opacity-60"
       >
         {state === "sending" ? <><LoaderCircle size={14} className="animate-spin" /> Sending…</> : <>Email me the link <ArrowRight size={14} className="transition-transform duration-200 ease-out group-hover:translate-x-0.5" /></>}
       </button>
