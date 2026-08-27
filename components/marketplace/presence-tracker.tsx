@@ -8,9 +8,8 @@ import type { PublicTrafficStats } from "@/types/marketplace"
  *
  * Sends a presence heartbeat only while the tab is actually visible, so
  * backgrounded tabs never inflate the live count, and polls the public figures
- * back. Numbers are never invented: the live figure stays hidden below five
- * visitors, and with no traffic at all the badge falls back to naming what the
- * site is rather than showing a zero.
+ * back. The hero shows only the useful 24-hour total; the live count remains
+ * available to the rest of the application without adding visual noise here.
  */
 export function PresenceTracker({
   initial,
@@ -41,25 +40,14 @@ export function PresenceTracker({
     }
   }, [])
 
-  const hasTraffic = Boolean(stats.live_visitors) || stats.visitors_24h > 0
   if (!badge) return null
 
   return (
-    <p className="mb-3 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-[#8a857e]">
-      <span className="flex items-center gap-2">
-        <span className={`size-1.5 rounded-full bg-[#ef4e37] shadow-[0_0_0_3px_rgba(239,78,55,.11)] ${stats.live_visitors ? "animate-pulse" : ""}`} />
-        {stats.live_visitors ? (
-          <span className="text-[#111]"><span className="tabular-nums">{stats.live_visitors}</span> live now</span>
-        ) : (
-          <span>Live problem marketplace</span>
-        )}
+    <p className="mb-4 inline-flex items-baseline gap-2 rounded-full border border-black/[0.07] bg-white/75 px-3.5 py-1.5 font-mono shadow-[0_1px_0_rgba(255,255,255,.8),0_5px_16px_rgba(55,50,47,.05)] backdrop-blur-sm">
+      <span className="tabular-nums text-[13px] font-semibold tracking-[-0.03em] text-[#24211f]">
+        {stats.visitors_24h.toLocaleString("en-US")}
       </span>
-      {hasTraffic && stats.visitors_24h > 0 ? (
-        <>
-          <span className="text-[#d6d2cc]">·</span>
-          <span><span className="tabular-nums text-[#111]">{stats.visitors_24h.toLocaleString("en-US")}</span> visitors / 24h</span>
-        </>
-      ) : null}
+      <span className="text-[9px] uppercase tracking-[0.14em] text-[#8a857e]">visitors / 24h</span>
     </p>
   )
 }

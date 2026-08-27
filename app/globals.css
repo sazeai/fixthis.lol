@@ -382,21 +382,16 @@ html {
 }
 
 .problem-highlight-word {
-  border-radius: 0.18em;
   animation: problem-word-wave var(--wave-duration) ease-in-out var(--word-delay) infinite;
 }
 
 @keyframes problem-word-wave {
-  0%, 8%, 100% {
+  0%, 5%, 100% {
     color: inherit;
-    background-color: transparent;
-    text-shadow: none;
   }
 
-  3.5% {
-    color: var(--word-accent);
-    background-color: color-mix(in srgb, var(--word-accent) 9%, transparent);
-    text-shadow: 0 0 11px color-mix(in srgb, var(--word-accent) 24%, transparent);
+  2% {
+    color: #9b5145;
   }
 }
 
