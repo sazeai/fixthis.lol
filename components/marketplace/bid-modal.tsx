@@ -75,37 +75,39 @@ export function BidModal({
     </button>
 
     <ModalShell open={open} onClose={close} labelledBy="bid-title">
-      <div className="px-6 pb-9 pt-3 sm:px-8">
+      <div className="px-5 pb-6 pt-1 sm:px-7">
         <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Paid contextual placement</p>
-        <h2 id="bid-title" className="mt-3 font-serif text-[30px] leading-[1.06] tracking-[-0.04em] text-[#111]">Claim this problem.</h2>
-        <blockquote className="mt-4 border-l-2 border-[#ef654f] pl-4 text-[13px] leading-6 text-[#666]">“{statement}”</blockquote>
+        <h2 id="bid-title" className="mt-2 font-serif text-[23px] leading-[1.08] tracking-[-0.035em] text-[#111]">Claim this problem.</h2>
+        <blockquote className="mt-3 line-clamp-2 border-l-2 border-[#ef654f] pl-3 text-[12px] leading-5 text-[#77726a]">“{statement}”</blockquote>
 
-        <div className="mt-6">
-          <p className="mb-2 font-mono text-[8px] uppercase tracking-[0.14em] text-[#999]">What each position gets</p>
-          <div className="grid grid-cols-3 gap-px bg-[rgba(55,50,47,0.12)] text-center">
+        <div className="mt-4">
+          <p className="mb-1.5 font-mono text-[8px] uppercase tracking-[0.14em] text-[#a8a39c]">What each position gets</p>
+          <div className="grid grid-cols-3 gap-px border border-[rgba(55,50,47,0.12)] bg-[rgba(55,50,47,0.12)] text-center">
             <Share value="60%" label="#1" lead />
             <Share value="25%" label="#2" />
             <Share value="15%" label="#3–5 share" />
           </div>
         </div>
 
-        <form onSubmit={submit} className="mt-7 space-y-4">
-          <FormField label="Product name">
-            <TextInput name="productName" maxLength={80} required defaultValue={prefill?.productName} placeholder="Plausible" />
-          </FormField>
+        <form onSubmit={submit} className="mt-5 space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField label="Product name">
+              <TextInput name="productName" maxLength={80} required defaultValue={prefill?.productName} placeholder="Plausible" />
+            </FormField>
+            <FormField label="Management email">
+              <TextInput name="email" type="email" required defaultValue={prefill?.email} placeholder="founder@company.com" />
+            </FormField>
+          </div>
           <FormField label="One-sentence fit">
             <TextArea name="productTagline" minLength={3} maxLength={180} required defaultValue={prefill?.productTagline} placeholder="Simple, privacy-friendly analytics without the GA4 learning curve." />
           </FormField>
           <FormField label="HTTPS product URL">
             <TextInput name="destinationUrl" type="url" required defaultValue={prefill?.destinationUrl} placeholder="https://plausible.io" />
           </FormField>
-          <FormField label="Management email" helper="This email receives the private stats and editing link.">
-            <TextInput name="email" type="email" required defaultValue={prefill?.email} placeholder="founder@company.com" />
-          </FormField>
-          <FormField label={`Bid · minimum ${formatMoney(nextBidCents)}`}>
-            <div className="flex h-11 items-center border border-[rgba(55,50,47,0.12)] bg-white focus-within:border-[#777]">
-              <span className="pl-3 font-mono text-[13px] text-[#999]">$</span>
-              <TextInput name="amount" type="number" min={nextBidCents / 100} step="1" defaultValue={nextBidCents / 100} required className="!border-0 !h-auto flex-1 focus:!border-0" />
+          <FormField label={`Bid · minimum ${formatMoney(nextBidCents)}`} helper="Your email receives the private stats and editing link.">
+            <div className="flex h-10 items-center border border-[rgba(55,50,47,0.14)] bg-white focus-within:border-[#111]">
+              <span className="pl-3 font-mono text-[13px] text-[#a8a39c]">$</span>
+              <TextInput name="amount" type="number" min={nextBidCents / 100} step="1" defaultValue={nextBidCents / 100} required className="!h-auto flex-1 !border-0 focus:!border-0" />
             </div>
           </FormField>
 
@@ -117,7 +119,7 @@ export function BidModal({
           </p>
           {error ? <p role="alert" className="border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</p> : null}
 
-          <button disabled={loading} className="group/cta flex h-12 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.99] disabled:opacity-60 disabled:hover:bg-[#111]">
+          <button disabled={loading} className="group/cta flex h-11 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.99] disabled:opacity-60 disabled:hover:bg-[#111]">
             {loading ? <><LoaderCircle className="animate-spin" size={15} /> Opening checkout…</> : <>Continue to secure checkout <ArrowRight size={14} className="transition-transform duration-200 ease-out group-hover/cta:translate-x-0.5" /></>}
           </button>
         </form>
@@ -128,8 +130,8 @@ export function BidModal({
 
 function Share({ value, label, lead = false }: { value: string; label: string; lead?: boolean }) {
   return (
-    <div className="bg-[#fafafa] px-2 py-3 transition-colors duration-300 hover:bg-white">
-      <p className={`font-serif text-[19px] leading-none tracking-[-0.03em] ${lead ? "text-[#db4e38]" : "text-[#111]"}`}>{value}</p>
+    <div className="bg-[#fafafa] px-2 py-2.5 transition-colors duration-200 hover:bg-white">
+      <p className={`font-serif text-[17px] leading-none tracking-[-0.03em] ${lead ? "text-[#db4e38]" : "text-[#111]"}`}>{value}</p>
       <p className="mt-1.5 font-mono text-[7px] uppercase tracking-[0.12em] text-[#999]">{label}</p>
     </div>
   )

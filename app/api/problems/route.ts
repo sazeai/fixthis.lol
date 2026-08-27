@@ -5,7 +5,8 @@ import { diceSimilarity, jsonError, mutationAllowed } from "@/lib/marketplace/ht
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
 import { tryGetVisitorKey } from "@/lib/marketplace/visitor"
-import { assessUserContent, firstZodError, problemSchema } from "@/lib/marketplace/validation"
+import { screenProblemStatement } from "@/lib/marketplace/moderation"
+import { firstZodError, problemSchema } from "@/lib/marketplace/validation"
 import { getProblemSummaries, invalidateProblemOrdering } from "@/lib/marketplace/queries"
 import { createAdminClient } from "@/utils/supabase/admin"
 
@@ -21,6 +22,11 @@ export async function POST(request: Request) {
   const ip = getRequestIp(request)
   const limit = await checkMarketplaceRateLimit(`problem:${ip}`, 5)
   if (!limit.allowed) return jsonError("You have submitted several problems. Try again later.", 429)
+  const submitterKey = await tryGetVisitorKey()
+  if (submitterKey) {
+    const perVisitor = await checkMarketplaceRateLimit(`problem-visitor:${submitterKey}`, 3)
+    if (!perVisitor.allowed) return jsonError("You have submitted several problems. Try again later.", 429)
+  }
   const parsed = problemSchema.safeParse(await request.json().catch(() => null))
   if (!parsed.success) return jsonError(firstZodError(parsed.error))
   if (parsed.data.website) return jsonError("This submission could not be accepted.")
@@ -32,9 +38,11 @@ export async function POST(request: Request) {
   const duplicate = (existingRows || []).map((item) => ({ ...item, similarity: diceSimilarity(normalized, item.normalized_statement) })).sort((a, b) => b.similarity - a.similarity)[0]
   if (duplicate?.similarity >= 0.72) return NextResponse.json({ duplicate: true, slug: duplicate.slug, problemId: duplicate.id }, { status: 409 })
 
-  const assessment = assessUserContent(parsed.data.statement)
-  if (!assessment.safe && assessment.reason?.includes("not allowed")) return jsonError(assessment.reason)
-  const status = assessment.safe ? "published" : "pending"
+  // Screening decides publish / queue / refuse. It fails closed: an
+  // unreachable classifier queues the submission rather than publishing it.
+  const screening = await screenProblemStatement(parsed.data.statement, parsed.data.category)
+  if (screening.verdict === "reject") return jsonError(screening.reason || "This problem could not be accepted.")
+  const status = screening.verdict === "publish" ? "published" : "pending"
   for (let attempt = 0; attempt < 4; attempt += 1) {
     const slug = createProblemSlug(parsed.data.statement)
     const { data: problem, error } = await supabase.from("problems").insert({
@@ -42,11 +50,16 @@ export async function POST(request: Request) {
       origin: parsed.data.origin, status, published_at: status === "published" ? new Date().toISOString() : null,
     }).select("id,slug").single()
     if (!error && problem) {
-      if (status === "published" && parsed.data.origin === "user") {
+      if (status === "published" && parsed.data.origin === "user" && submitterKey) {
         // The poster's own support is implicit, but a missing cookie must not
         // discard a problem that was otherwise accepted.
-        const visitorKey = await tryGetVisitorKey()
-        if (visitorKey) await supabase.rpc("support_problem", { p_problem_id: problem.id, p_visitor_key: visitorKey, p_detail: null, p_detail_status: "none" })
+        await supabase.rpc("support_problem", { p_problem_id: problem.id, p_visitor_key: submitterKey, p_detail: null, p_detail_status: "none" })
+      }
+      if (status === "pending") {
+        await supabase.from("moderation_audit").insert({
+          entity_type: "problem", entity_id: problem.id, action: "queued", actor: "system",
+          reason: `${screening.source}: ${screening.reason || "no reason given"}`,
+        }).then(undefined, () => undefined)
       }
       if (parsed.data.email) await createProblemSubscription(problem.id, parsed.data.email, new URL(request.url).origin).catch(console.error)
       if (status === "published") invalidateProblemOrdering()

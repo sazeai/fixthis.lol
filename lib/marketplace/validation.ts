@@ -39,10 +39,15 @@ export const productEditSchema = z.object({
 
 export function firstZodError(error: z.ZodError) { return error.issues[0]?.message || "Check the form and try again." }
 
+/**
+ * Quick screen for the optional one-sentence complaint detail. Problems get the
+ * full pipeline in lib/marketplace/moderation.ts; a complaint is far lower
+ * stakes, so anything suspicious simply waits for moderation instead.
+ */
 export function assessUserContent(value: string) {
   if (/https?:\/\/|www\.|\b[\w.+-]+@[\w.-]+\.[a-z]{2,}\b/i.test(value)) return { safe: false, reason: "Links and contact details are not allowed." }
   const promotional = /\b(best|number one|#1|leading|buy now|sign up|use my|my product|guaranteed)\b/i.test(value)
-  const dangerous = /\b(kill yourself|terrorist threat)\b/i.test(value)
+  const dangerous = /\b(kill yourself|kys|rape|terrorist threat)\b/i.test(value)
   if (dangerous) return { safe: false, reason: "This content requires moderation." }
   return { safe: !promotional, reason: promotional ? "Promotional language requires moderation." : null }
 }

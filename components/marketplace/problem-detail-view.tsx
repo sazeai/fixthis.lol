@@ -6,6 +6,7 @@ import { FeaturedSolution } from "@/components/marketplace/featured-solution"
 import { Footer } from "@/components/marketplace/footer"
 import { FramedSection, MarketplaceFrame } from "@/components/marketplace/frame"
 import { Header } from "@/components/marketplace/header"
+import { ReportProblem } from "@/components/marketplace/report-problem"
 import { SupportProblem } from "@/components/marketplace/support-problem"
 import { formatMoney } from "@/lib/marketplace/helpers"
 import type { ProblemDetail } from "@/types/marketplace"
@@ -158,6 +159,12 @@ export function ProblemDetailView({ problem, duplicate, paymentCancelled }: { pr
                   </div>
                 </div>
               </div>
+            </FramedSection>
+
+            {/* Post-publication safety valve: screening runs before a problem
+                goes live, this catches what got through. */}
+            <FramedSection contentClassName="px-5 py-5 sm:px-8">
+              <ReportProblem problemId={problem.id} />
             </FramedSection>
 
             <FramedSection><Footer /></FramedSection>

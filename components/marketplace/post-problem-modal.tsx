@@ -94,9 +94,9 @@ export function PostProblemModal({
 
     <ModalShell open={open} onClose={close} labelledBy="post-problem-title">
       {success ? (
-        <div className="px-6 pb-10 pt-4 text-center sm:px-10">
+        <div className="px-5 pb-8 pt-2 text-center sm:px-8">
           <span className="mx-auto grid size-12 place-items-center rounded-full bg-[#eef7f0] text-[#2f7d4f]"><Check size={22} /></span>
-          <h2 id="post-problem-title" className="mt-6 font-serif text-[30px] leading-[1.06] tracking-[-0.04em] text-[#111]">
+          <h2 id="post-problem-title" className="mt-4 font-serif text-[24px] leading-[1.08] tracking-[-0.035em] text-[#111]">
             {success === "published" ? "Problem published." : "Sent for review."}
           </h2>
           <p className="mx-auto mt-3 max-w-sm text-[13px] leading-6 text-[#666]">
@@ -116,22 +116,22 @@ export function PostProblemModal({
           </div>
         </div>
       ) : (
-        <div className="px-6 pb-9 pt-3 sm:px-8">
+        <div className="px-5 pb-6 pt-1 sm:px-7">
           <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">
             {founder ? "Add and claim" : "No account required"}
           </p>
-          <h2 id="post-problem-title" className="mt-3 font-serif text-[30px] leading-[1.06] tracking-[-0.04em] text-[#111]">
+          <h2 id="post-problem-title" className="mt-2 font-serif text-[23px] leading-[1.08] tracking-[-0.035em] text-[#111]">
             {founder ? "Add the problem you solve." : "What is pissing you off?"}
           </h2>
-          <p className="mt-3 text-[13px] leading-6 text-[#666]">
+          <p className="mt-2 text-[12px] leading-5 text-[#77726a]">
             {founder
               ? "Write it from the buyer's perspective, not as a pitch. It starts at zero supporters — the market decides if anyone agrees. You can claim it on the next screen."
               : "Write the pain from the buyer's perspective. Do not pitch a product."}
           </p>
 
-          <form onSubmit={submit} className="mt-7 space-y-4">
+          <form onSubmit={submit} className="mt-5 space-y-3">
             <FormField label="I need…">
-              <TextArea name="statement" minLength={20} maxLength={280} required placeholder="I need an analytics tool that makes sense without a training course…" />
+              <TextArea name="statement" minLength={20} maxLength={280} required rows={3} placeholder="I need an analytics tool that makes sense without a training course…" />
             </FormField>
             <FormField label="Category">
               <SelectInput name="category" defaultValue="Productivity">
@@ -150,7 +150,7 @@ export function PostProblemModal({
 
             {error ? <p role="alert" className="border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</p> : null}
 
-            <button disabled={loading} className="group/cta flex h-12 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.99] disabled:opacity-60 disabled:hover:bg-[#111]">
+            <button disabled={loading} className="group/cta flex h-11 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.99] disabled:opacity-60 disabled:hover:bg-[#111]">
               {loading ? <><LoaderCircle className="animate-spin" size={15} /> Publishing…</>
                 : <>{founder ? "Add problem & continue" : "Publish problem"} <ArrowRight size={14} className="transition-transform duration-200 ease-out group-hover/cta:translate-x-0.5" /></>}
             </button>
