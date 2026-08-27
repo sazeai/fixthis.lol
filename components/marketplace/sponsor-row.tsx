@@ -92,62 +92,60 @@ export function SponsorRow({
   const otherNames = others.map((item) => item.name).join(", ")
 
   return (
-    <div ref={ref} className={`group/band ${band} py-2.5`}>
-      <div className="flex min-w-0 items-center gap-2">
-        <ProductIcon
-          name={placement.product_name}
-          seed={placement.registrable_domain}
-          iconUrl={featured?.icon_url ?? null}
-          size={18}
-        />
-        <span className="truncate text-[13px] font-semibold leading-tight text-[#111]">{placement.product_name}</span>
+    <div ref={ref} className={`group/band ${band} flex items-center gap-2.5 py-2.5`}>
+      <ProductIcon
+        name={placement.product_name}
+        seed={placement.registrable_domain}
+        iconUrl={featured?.icon_url ?? null}
+        size={22}
+      />
+
+      <div className="min-w-0 flex-1">
+        {/* The name is the link. A separate "visit" label sat detached from the
+            thing it acted on; making the product itself clickable is the
+            stronger affordance and gives the name the weight it was paid for. */}
         <a
           href={placement.destination_url}
           target="_blank"
           rel="sponsored nofollow noopener"
           onClick={trackClick}
-          className="group/visit ml-auto inline-flex shrink-0 items-center gap-0.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[#a8a39c] transition-colors hover:text-[#ef4e37]"
+          className="group/visit inline-flex max-w-full items-center gap-1 text-[13px] font-semibold leading-tight text-[#111] transition-colors hover:text-[#ef4e37]"
         >
-          Visit
-          <ArrowUpRight size={9} className="transition-transform duration-200 group-hover/visit:-translate-y-px group-hover/visit:translate-x-px" />
-        </a>
-      </div>
-
-      <div className="mt-1 flex min-w-0 items-center gap-2">
-        <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.12em] text-[#bbb6ae]">
-          {placement.claim_kind === "founding" ? "Founding claim" : "Sponsored"}
-        </span>
-
-        {others.length ? (
-          <span className="ml-auto flex min-w-0 items-center gap-1" title={`Also competing: ${otherNames}`}>
-            {/* At rest the icons are a tight overlapped stack. On hover each one
-                separates, comes up to full colour, and its own name unfurls out
-                of it — so a name is attached to the product it belongs to
-                rather than floating as a list beside them. */}
-            {others.slice(0, 3).map((item, index) => (
-              <span
-                key={item.placement_id}
-                className={`flex items-center overflow-hidden rounded-full transition-[margin,background-color] duration-300 ease-out group-hover/band:bg-[rgba(55,50,47,.05)] ${index ? "-ml-2 group-hover/band:ml-0" : ""}`}
-              >
-                <ProductIcon
-                  name={item.name}
-                  seed={item.registrable_domain}
-                  iconUrl={item.icon_url}
-                  size={14}
-                  className="shrink-0 opacity-60 saturate-[.3] ring-2 ring-white transition-[opacity,filter] duration-300 ease-out group-hover/band:opacity-100 group-hover/band:saturate-100 group-hover/band:ring-0"
-                />
-                <span className="max-w-0 overflow-hidden whitespace-nowrap font-mono text-[8px] uppercase tracking-[0.1em] text-[#77726a] opacity-0 transition-all duration-300 ease-out group-hover/band:max-w-[86px] group-hover/band:pl-1 group-hover/band:pr-1.5 group-hover/band:opacity-100">
-                  <span className="block truncate">{item.name}</span>
-                </span>
-              </span>
-            ))}
-            {/* The count holds the line at rest and steps aside for the names. */}
-            <span className="ml-0.5 max-w-[70px] shrink-0 overflow-hidden whitespace-nowrap font-mono text-[8px] uppercase tracking-[0.12em] text-[#a8a39c] transition-all duration-300 ease-out group-hover/band:ml-0 group-hover/band:max-w-0 group-hover/band:opacity-0">
-              {others.length} competing
-            </span>
+          <span className="truncate underline decoration-[rgba(55,50,47,.2)] decoration-1 underline-offset-[3px] transition-colors group-hover/visit:decoration-[#ef4e37]">
+            {placement.product_name}
           </span>
-        ) : null}
+          <ArrowUpRight size={11} className="shrink-0 text-[#a8a39c] transition-[transform,color] duration-200 group-hover/visit:-translate-y-px group-hover/visit:translate-x-px group-hover/visit:text-[#ef4e37]" />
+        </a>
+        <p className="mt-0.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[#bbb6ae]">
+          {placement.claim_kind === "founding" ? "Founding claim" : "Sponsored"}
+        </p>
       </div>
+
+      {others.length ? (
+        <span className="flex shrink-0 items-center" title={`Also competing: ${otherNames}`}>
+          {/* Overlapped and desaturated at rest. On hover each icon separates,
+              comes up to full colour and unfurls its own name, so a name is
+              attached to the product it belongs to. All width and opacity, so
+              the row's height never changes and nothing can clip. */}
+          {others.slice(0, 3).map((item, index) => (
+            <span
+              key={item.placement_id}
+              className={`flex items-center overflow-hidden rounded-full transition-[margin,background-color] duration-300 ease-out group-hover/band:bg-[rgba(55,50,47,.05)] ${index ? "-ml-2.5 group-hover/band:ml-1" : ""}`}
+            >
+              <ProductIcon
+                name={item.name}
+                seed={item.registrable_domain}
+                iconUrl={item.icon_url}
+                size={18}
+                className="shrink-0 opacity-60 saturate-[.3] ring-2 ring-white transition-[opacity,filter] duration-300 ease-out group-hover/band:opacity-100 group-hover/band:saturate-100 group-hover/band:ring-0"
+              />
+              <span className="max-w-0 overflow-hidden whitespace-nowrap font-mono text-[8px] uppercase tracking-[0.1em] text-[#77726a] opacity-0 transition-all duration-300 ease-out group-hover/band:max-w-[74px] group-hover/band:pl-1 group-hover/band:pr-1.5 group-hover/band:opacity-100">
+                <span className="block truncate">{item.name}</span>
+              </span>
+            </span>
+          ))}
+        </span>
+      ) : null}
     </div>
   )
 }
