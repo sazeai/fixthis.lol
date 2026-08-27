@@ -25,9 +25,13 @@ export function ProblemHeader({ problem, originLabel }: { problem: ProblemDetail
           “{problem.statement}”
         </h1>
 
-        <div className="mt-5 flex flex-wrap items-center gap-1.5 sm:mt-6">
-          <SupportProblem problemId={problem.id} initialCount={problem.support_count} />
-          <BidModal problemId={problem.id} statement={problem.statement} nextBidCents={problem.next_bid_cents} />
+        {/* The bid CTA is passed through SupportProblem so the optional detail
+            form opens BELOW the action row instead of expanding beside it and
+            shoving the CTA sideways. */}
+        <div className="mt-5 sm:mt-6">
+          <SupportProblem problemId={problem.id} initialCount={problem.support_count}>
+            <BidModal problemId={problem.id} statement={problem.statement} nextBidCents={problem.next_bid_cents} />
+          </SupportProblem>
         </div>
       </div>
     </>

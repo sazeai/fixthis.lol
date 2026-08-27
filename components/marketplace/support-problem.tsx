@@ -89,7 +89,7 @@ export function SupportProblem({
 
   return (
     <div className="flex flex-col gap-2.5">
-      <div className="flex flex-wrap items-center gap-2.5">
+      <div className="flex flex-wrap items-center gap-1.5">
         {button}
         {children}
         {/* The optional detail is offered quietly, after the vote has already
