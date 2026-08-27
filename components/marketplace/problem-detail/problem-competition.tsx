@@ -4,8 +4,8 @@ import type { ProblemDetail } from "@/types/marketplace"
 
 export function ProblemCompetition({ problem }: { problem: ProblemDetail }) {
   return (
-    <div className="grid gap-7 lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.15fr)] lg:gap-8">
-      <section>
+    <div className="grid gap-px border-b border-[rgba(55,50,47,0.12)] bg-[rgba(55,50,47,0.12)] lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.15fr)]">
+      <section className="bg-[#fafafa] px-5 py-5 sm:px-7 sm:py-6">
         <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Currently claiming this problem</p>
         <h2 className="mt-1.5 font-serif text-[21px] tracking-[-0.02em] text-[#111]">Featured solution</h2>
         <div className="mt-3 border border-[rgba(55,50,47,0.12)]">
@@ -16,7 +16,7 @@ export function ProblemCompetition({ problem }: { problem: ProblemDetail }) {
         </p>
       </section>
 
-      <section className="lg:border-l lg:border-[rgba(55,50,47,0.12)] lg:pl-8">
+      <section className="bg-[#fafafa] px-5 py-5 sm:px-7 sm:py-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div>
             <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">The battlefield</p>

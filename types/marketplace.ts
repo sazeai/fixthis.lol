@@ -4,7 +4,6 @@ export type PlacementStatus = "active" | "suspended" | "hidden"
 export type BidStatus = "settled" | "suspended" | "revoked"
 export type PaymentState = "processing" | "settled" | "failed" | "cancelled"
 
-export type ProblemSource = { id: string; source_url: string; source_label: string }
 export type ProblemComplaint = { id: string; detail: string; created_at: string }
 
 export type ProblemSummary = {
@@ -70,7 +69,6 @@ export type BattlefieldEntry = {
 }
 
 export type ProblemDetail = ProblemSummary & {
-  sources: ProblemSource[]
   complaints: ProblemComplaint[]
   battlefield: BattlefieldEntry[]
 }

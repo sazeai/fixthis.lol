@@ -4,7 +4,7 @@ import type { ProblemDetail } from "@/types/marketplace"
 
 export function ProblemMetrics({ problem }: { problem: ProblemDetail }) {
   return (
-    <div className="mt-7 grid grid-cols-2 gap-px border-y border-[rgba(55,50,47,0.12)] bg-[rgba(55,50,47,0.12)] sm:grid-cols-4">
+    <div className="grid grid-cols-2 gap-px border-y border-[rgba(55,50,47,0.12)] bg-[rgba(55,50,47,0.12)] sm:grid-cols-4">
       <Metric icon={<Flame size={12} />} value={problem.support_count} label="have this problem" accent />
       <Metric icon={<Eye size={12} />} value={problem.impression_count} label="solution impressions" />
       <Metric icon={<MousePointerClick size={12} />} value={problem.click_count} label="solution clicks" />

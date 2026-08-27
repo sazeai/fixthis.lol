@@ -28,13 +28,13 @@ The implementation will reuse the current visual system, Next.js foundation, Sup
 
 ### Data and public experience
 
-- Create `problems`, `problem_sources`, and category/status fields supporting `curated`, `user`, and `founder` origins.
-- Seed all 30 researched problems and their cleaned provenance URLs. Mark the strongest 16 with launch priority rather than inventing engagement.
-- Curated problems begin with zero supporters and display **Curated by FIXTHIS** plus expandable source links.
+- Create `problems` and category/status fields supporting `curated`, `user`, and `founder` origins.
+- Seed all 30 researched problems. Mark the strongest 16 with launch priority rather than inventing engagement.
+- Curated problems begin with zero supporters and display **Curated by FIXTHIS**.
 - Build:
   - Homepage sections for **Trending problems**, **Being fought over**, **New pains**, and **Unclaimed**.
   - Search and category filtering.
-  - Indexable `/problems/[slug]` pages with demand, complaints, traffic, competition, provenance, and share metadata.
+  - Indexable `/problems/[slug]` pages with demand, complaints, traffic, competition, and share metadata.
   - Honest empty states such as “No solution has claimed this yet.”
 - Use **Featured solution**, **Currently claiming this problem**, and **Paid placement** language. Never use “best” or “recommended.”
 - Product links use `rel="sponsored nofollow noopener"`.
@@ -168,7 +168,7 @@ The implementation will reuse the current visual system, Next.js foundation, Sup
   - Bid quote/checkout and signed Dodo webhook.
   - Founder magic-link request and authenticated placement management.
 - Shared types:
-  - `ProblemSummary`, `ProblemDetail`, `ProblemSource`, `ProblemSupport`
+  - `ProblemSummary`, `ProblemDetail`, `ProblemSupport`
   - `FeaturedPlacement`, `BattlefieldEntry`, `RotationShare`
   - `BidQuote`, `Bid`, `PaymentState`
   - `PublicTrafficStats`, `FounderPlacementStats`

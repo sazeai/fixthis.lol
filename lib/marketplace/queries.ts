@@ -135,8 +135,7 @@ export async function getProblemBySlug(slug: string): Promise<ProblemDetail | nu
   // Derived counts are computed for this one problem rather than looked up in
   // the cached board. The cache is up to two minutes stale and capped at 200
   // rows, so reading it here would 404 a problem that was just posted.
-  const [sourceResult, complaintResult, placementResult, supportResult, clickResult] = await Promise.all([
-    supabase.from("problem_sources").select("id,source_url,source_label").eq("problem_id", problem.id).order("created_at"),
+  const [complaintResult, placementResult, supportResult, clickResult] = await Promise.all([
     supabase.from("problem_supports").select("id,detail,created_at").eq("problem_id", problem.id).eq("detail_status", "published").not("detail", "is", null).order("created_at", { ascending: false }).limit(30),
     supabase.from("placements").select("id,problem_id,product_id,current_bid_cents,status,founding_claim,settled_at,impression_count,click_count,products(id,name,tagline,destination_url,registrable_domain)").eq("problem_id", problem.id).eq("status", "active"),
     supabase.from("problem_supports").select("id", { count: "exact", head: true }).eq("problem_id", problem.id).gte("created_at", since),
@@ -174,7 +173,6 @@ export async function getProblemBySlug(slug: string): Promise<ProblemDetail | nu
     trending_score: supports24h * 5 + clicks24h + (bids24h || 0) * 10 + freshness,
     created_at: problem.created_at,
     published_at: problem.published_at,
-    sources: sourceResult.data || [],
     complaints: (complaintResult.data || []).map((item: Row) => ({ id: item.id, detail: item.detail, created_at: item.created_at })),
     battlefield: toBattlefield(activePlacements),
   }

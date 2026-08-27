@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Check, Flag, LoaderCircle } from "lucide-react"
+import { TurnstileField } from "@/components/marketplace/turnstile-field"
 
 const REASONS = [
   { value: "advertising", label: "It is an advert or a pitch" },
@@ -27,6 +28,7 @@ export function ReportProblem({ problemId }: { problemId: string }) {
       body: JSON.stringify({
         reason: form.get("reason"),
         detail: form.get("detail"),
+        turnstileToken: form.get("cf-turnstile-response") || "",
         website: form.get("website"),
       }),
     })
@@ -76,6 +78,7 @@ export function ReportProblem({ problemId }: { problemId: string }) {
         placeholder="Anything else? (optional)"
         className="mt-3 h-9 w-full border border-[rgba(55,50,47,0.14)] bg-white px-2.5 text-[12px] text-[#111] outline-none transition-colors placeholder:text-[#bbb6ae] focus:border-[#111]"
       />
+      <div className="mt-3"><TurnstileField /></div>
       <input name="website" className="hidden" tabIndex={-1} autoComplete="off" />
       {error ? <p className="mt-2 text-[11px] text-red-700">{error}</p> : null}
       <div className="mt-3 flex items-center gap-2">

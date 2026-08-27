@@ -4,6 +4,7 @@ import { getRequestIp, isKnownBot } from "@/lib/marketplace/helpers"
 import { jsonError, mutationAllowed } from "@/lib/marketplace/http"
 import { invalidateProblemOrdering } from "@/lib/marketplace/queries"
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
+import { verifyTurnstile } from "@/lib/marketplace/turnstile"
 import { firstZodError } from "@/lib/marketplace/validation"
 import { tryGetVisitorKey } from "@/lib/marketplace/visitor"
 import { createAdminClient } from "@/utils/supabase/admin"
@@ -11,6 +12,7 @@ import { createAdminClient } from "@/utils/supabase/admin"
 const schema = z.object({
   reason: z.enum(["spam", "advertising", "abusive", "nonsense", "other"]),
   detail: z.string().trim().max(280).optional().default(""),
+  turnstileToken: z.string().optional().default(""),
   website: z.string().max(0).optional().default(""),
 })
 
@@ -26,6 +28,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const parsed = schema.safeParse(await request.json().catch(() => null))
   if (!parsed.success) return jsonError(firstZodError(parsed.error))
   if (parsed.data.website) return NextResponse.json({ recorded: true })
+  if (!await verifyTurnstile(parsed.data.turnstileToken, ip)) return jsonError("Bot verification failed.", 403)
 
   // One report per visitor per problem is enforced on the anonymous key, so a
   // report without one cannot be deduped and is refused rather than counted.
