@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next"
+import { SITE_URL } from "@/lib/site"
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://fixthis.example").replace(/\/$/, "")
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/api/"] },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/manage/", "/bid/"] },
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   }
 }

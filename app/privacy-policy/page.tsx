@@ -2,9 +2,14 @@ import type { Metadata } from "next"
 
 import { LegalPage } from "@/components/marketplace/legal-page"
 
+const description = "What FIXTHIS collects, why it is collected, how long it is kept, and the privacy rights available to you."
+
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "What FIXTHIS collects, why, how long it is kept, and the rights you have over it.",
+  description,
+  alternates: { canonical: "/privacy-policy" },
+  openGraph: { title: "Privacy Policy", description, url: "/privacy-policy" },
+  twitter: { title: "Privacy Policy", description },
 }
 
 const CONTACT = "privacy@fixthis.lol"

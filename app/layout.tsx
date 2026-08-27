@@ -1,5 +1,6 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import localFont from "next/font/local"
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site"
 import "./globals.css"
 
 const inter = localFont({ src: "../public/fonts/Inter.ttf", variable: "--font-inter", display: "swap" })
@@ -7,12 +8,52 @@ const oxanium = localFont({ src: "../public/fonts/Oxanium.ttf", variable: "--fon
 const fineNoise = `data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E`
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://fixthis.example"),
-  title: { default: "FIXTHIS — Problems worth solving", template: "%s — FIXTHIS" },
-  description: "Real problems accumulate demand. Products compete for paid exposure as the featured solution.",
-  applicationName: "FIXTHIS",
-  icons: { icon: "/icon.svg" },
-  openGraph: { type: "website", siteName: "FIXTHIS", title: "FIXTHIS — Problems worth solving", description: "A live market for problems, demand, and the products competing to solve them." },
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_TITLE, template: `%s — ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: ["problem marketplace", "startup ideas", "customer pain points", "product validation", "problems worth solving"],
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: "technology",
+  referrer: "origin-when-cross-origin",
+  formatDetection: { email: false, address: false, telephone: false },
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "16x16" },
+      { url: "/icon1.png", type: "image/png", sizes: "96x96" },
+      { url: "/icon0.svg", type: "image/svg+xml", sizes: "any" },
+    ],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
+  },
+  appleWebApp: { capable: true, title: SITE_NAME, statusBarStyle: "default" },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [{ url: "/og-img.png", width: 1412, height: 809, alt: "FIXTHIS problem marketplace" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [{ url: "/og-img.png", alt: "FIXTHIS problem marketplace" }],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: "#fafafa",
+  colorScheme: "light",
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -1,11 +1,27 @@
 {
-  "name": "FIXTHIS",
+  "name": "FIXTHIS — Problem Marketplace",
   "short_name": "FIXTHIS",
-  "description": "Real problems collect demand. Products compete for paid exposure as the featured solution.",
+  "description": "Find real problems worth solving, validate demand, and discover the products competing to solve them.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
   "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+    {
+      "src": "/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ],
-  "theme_color": "#111111",
+  "theme_color": "#fafafa",
   "background_color": "#fafafa",
-  "display": "standalone"
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "categories": ["business", "productivity"]
 }

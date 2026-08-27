@@ -1,13 +1,22 @@
+import type { Metadata } from "next"
 import { Footer } from "@/components/marketplace/footer"
 import { FramedSection, MarketplaceFrame } from "@/components/marketplace/frame"
 import { Header } from "@/components/marketplace/header"
 import { Hero } from "@/components/marketplace/hero"
 import { MarketplaceHome } from "@/components/marketplace/marketplace-home"
+import { HomeJsonLd } from "@/components/seo/home-json-ld"
 import { getProblemSummaries, getPublicTrafficStats } from "@/lib/marketplace/queries"
 import { buildProblemSections } from "@/lib/marketplace/sections"
+import { SITE_DESCRIPTION, SITE_TITLE } from "@/lib/site"
 import type { ProblemSummary, PublicTrafficStats } from "@/types/marketplace"
 
 export const dynamic = "force-dynamic"
+
+export const metadata: Metadata = {
+  title: { absolute: SITE_TITLE },
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+}
 
 /** Errors log as "{}" when passed as a console.error argument; unwrap them. */
 function describeError(reason: unknown) {
@@ -39,5 +48,5 @@ export default async function HomePage() {
   if (trafficResult.status === "fulfilled") traffic = trafficResult.value
   else console.error("FIXTHIS traffic stats query failed:", describeError(trafficResult.reason))
   const sections = buildProblemSections(problems)
-  return <div className="relative flex min-h-screen w-full flex-col bg-[#fafafa] font-sans text-[#111]"><div className="flex min-h-screen flex-col items-center"><MarketplaceFrame><Header /><main className="relative z-10 mt-28 flex w-full flex-col items-center"><Hero traffic={traffic} /><FramedSection><MarketplaceHome problems={problems} sections={sections} /></FramedSection><FramedSection contentClassName="pb-16"><HowItWorks /></FramedSection><FramedSection><Footer /></FramedSection></main></MarketplaceFrame></div></div>
+  return <div className="relative flex min-h-screen w-full flex-col bg-[#fafafa] font-sans text-[#111]"><HomeJsonLd /><div className="flex min-h-screen flex-col items-center"><MarketplaceFrame><Header /><main className="relative z-10 mt-28 flex w-full flex-col items-center"><Hero traffic={traffic} /><FramedSection><MarketplaceHome problems={problems} sections={sections} /></FramedSection><FramedSection contentClassName="pb-16"><HowItWorks /></FramedSection><FramedSection><Footer /></FramedSection></main></MarketplaceFrame></div></div>
 }

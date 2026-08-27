@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { BidModal } from "@/components/marketplace/bid-modal"
+import { ProblemHighlight } from "@/components/marketplace/problem-highlight"
 import { SupportProblem } from "@/components/marketplace/support-problem"
 import type { ProblemDetail } from "@/types/marketplace"
 
@@ -22,7 +23,7 @@ export function ProblemHeader({ problem, originLabel }: { problem: ProblemDetail
 
       <div className="px-5 pb-5 pt-5 sm:px-7 sm:pb-6 sm:pt-6">
         <h1 className="max-w-4xl font-serif text-[28px] leading-[1.06] tracking-[-0.04em] text-[#111] sm:text-[38px] lg:text-[42px]">
-          “{problem.statement}”
+          <ProblemHighlight statement={problem.statement} />
         </h1>
 
         {/* The bid CTA is passed through SupportProblem so the optional detail

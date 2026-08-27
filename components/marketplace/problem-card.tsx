@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 import { BidModal } from "@/components/marketplace/bid-modal"
+import { ProblemHighlight } from "@/components/marketplace/problem-highlight"
 import { SponsorRow } from "@/components/marketplace/sponsor-row"
 import { SupportProblem } from "@/components/marketplace/support-problem"
 import type { ProblemSummary } from "@/types/marketplace"
@@ -53,7 +54,7 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
 
         {/* The statement is the headline and owns the full width. */}
         <p className="mt-2.5 line-clamp-3 text-[14px] font-medium leading-[1.45] tracking-[-0.011em] text-[#2f2c28]">
-          “{problem.statement}”
+          <ProblemHighlight statement={problem.statement} sequence={index} />
         </p>
 
         {/* The band and the actions sit together at the foot of the card, so the

@@ -2,7 +2,15 @@ import type { Metadata } from "next"
 
 import { LegalPage } from "@/components/marketplace/legal-page"
 
-export const metadata: Metadata = { title: "Terms of Service" }
+const description = "The terms for posting problems, validating demand, and buying rotating featured-solution placements on FIXTHIS."
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description,
+  alternates: { canonical: "/terms" },
+  openGraph: { title: "Terms of Service", description, url: "/terms" },
+  twitter: { title: "Terms of Service", description },
+}
 
 export default function TermsPage() {
   return <LegalPage eyebrow="LEGAL" title="Terms of use." intro="FIXTHIS sells rotating paid exposure against a specific problem. It does not sell customers, leads, endorsements, exclusivity, or guaranteed results.">

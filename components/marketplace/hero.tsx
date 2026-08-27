@@ -11,10 +11,10 @@ export function Hero({ traffic }: { traffic: PublicTrafficStats }) {
         <PresenceTracker initial={traffic} />
 
         <h1 className="font-serif text-[30px] leading-[1.06] tracking-[-0.04em] text-[#111] sm:text-[46px] lg:text-[60px] lg:leading-[1.02]">
-          What are people trying to solve?
+          Find real problems worth solving.
         </h1>
         <p className="mt-4 max-w-2xl text-[14px] font-normal leading-[1.6] tracking-tight text-[#555] sm:text-[15px] lg:text-[1rem]">
-          Real problems collect demand. Products compete for paid exposure as the featured solution.
+          FIXTHIS is a public problem marketplace where people post pain points, others validate the demand, and products compete to become the featured solution.
         </p>
       </div>
 
