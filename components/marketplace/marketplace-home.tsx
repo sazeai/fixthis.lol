@@ -77,19 +77,18 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
       <header className="border-y border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-5 py-5 sm:px-7">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="flex items-center gap-2.5 justify-center pt-2.5">
+            <div className="flex items-center gap-2.5">
               <span className="size-2 rounded-full bg-[#ef4e37] shadow-[0_0_0_3px_rgba(239,78,55,.11)]" />
               <h2 className="whitespace-nowrap font-serif text-[16px] tracking-[-0.02em] text-[#111] sm:text-[18px]">What people are sick of</h2>
-              <span className="whitespace-nowrap rounded-full border border-[rgba(55,50,47,.12)] bg-white px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.08em] text-[#777]">{problems.length} real</span>
             </div>
             <p className="mt-1.5 text-[10px] text-[#888]">
               Real software frustrations. Pile onto the ones you have too.
                  </p>
           </div>
           <div className="grid grid-cols-3 divide-x divide-[rgba(55,50,47,.1)] border-t border-[rgba(55,50,47,.1)] pt-3 sm:min-w-[48%] sm:border-t-0 sm:pt-0">
-            <Stat value={totalDemand.toLocaleString("en-US")} label="People with this" />
-            <Stat value={totalClaims.toLocaleString("en-US")} label="Claims competing" middle />
-            <Stat value="$5" label="First claim" last />
+            <Stat value={problems.length.toLocaleString("en-US")} label="Problems" />
+            <Stat value={totalDemand.toLocaleString("en-US")} label="Me toos" middle />
+            <Stat value={totalClaims.toLocaleString("en-US")} label="Products competing" last />
           </div>
         </div>
       </header>
