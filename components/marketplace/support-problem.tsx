@@ -8,6 +8,7 @@ export function SupportProblem({ problemId, initialCount, compact = false }: { p
   const [state, setState] = useState<"idle" | "loading" | "supported">("idle")
   const [details, setDetails] = useState(false)
   const [message, setMessage] = useState("")
+  const [bumped, setBumped] = useState(false)
 
   async function send(body: Record<string, unknown> = {}) {
     setState("loading")
@@ -23,12 +24,19 @@ export function SupportProblem({ problemId, initialCount, compact = false }: { p
       setMessage(result.error || "Could not record this.")
       return false
     }
-    if (result.inserted) setCount(result.support_count)
+    if (result.inserted) {
+      setCount(result.support_count)
+      // Brief pop on the number so the vote lands visibly.
+      setBumped(true)
+      setTimeout(() => setBumped(false), 420)
+    }
     setState("supported")
     return true
   }
 
-  if (details) {
+  // The one-sentence detail form only appears on the problem page. Opening it
+  // inside a board card would blow the card's fixed height apart.
+  if (details && !compact) {
     return (
       <form
         className="w-full max-w-md space-y-2"
@@ -65,24 +73,39 @@ export function SupportProblem({ problemId, initialCount, compact = false }: { p
   }
 
   const supported = state === "supported"
+  const busy = state === "loading"
 
   return (
-    <div>
+    <div className="min-w-0">
       <button
         type="button"
-        disabled={state === "loading"}
+        disabled={busy || (compact && supported)}
         onClick={async () => {
-          if (supported) { setDetails(true); return }
-          if (await send()) setDetails(true)
+          if (supported) { if (!compact) setDetails(true); return }
+          const ok = await send()
+          if (ok && !compact) setDetails(true)
         }}
-        className={`inline-flex items-center gap-1.5 rounded-full font-bold transition-colors ${compact ? "min-h-9 px-3 text-[10px]" : "min-h-11 px-5 text-[11px] uppercase tracking-[0.08em]"} ${supported ? "bg-[#eef7f0] text-[#2f7d4f]" : "bg-[#fff0eb] text-[#d84d37] hover:bg-[#ffe4da]"}`}
+        aria-label={supported ? "You have this problem too" : "I have this problem too"}
+        className={`inline-flex items-center rounded-full font-bold transition-all duration-200 ease-out active:scale-[0.97] disabled:cursor-default ${
+          compact ? "min-h-9 gap-1.5 px-3 text-[10px]" : "min-h-11 gap-2 px-5 text-[11px] uppercase tracking-[0.08em]"
+        } ${
+          supported
+            ? "bg-[#eef7f0] text-[#2f7d4f]"
+            : "bg-[#fff0eb] text-[#d84d37] hover:bg-[#ffe0d4] hover:shadow-[0_2px_10px_rgba(239,78,55,.16)]"
+        }`}
       >
-        {state === "loading" ? <LoaderCircle size={compact ? 11 : 13} className="animate-spin" />
-          : supported ? <Check size={compact ? 11 : 13} />
-          : <Flame size={compact ? 11 : 13} />}
-        {supported ? "ME TOO" : compact ? `ME TOO · ${count}` : `I HAVE THIS TOO · ${count}`}
+        <span className="grid size-3.5 shrink-0 place-items-center">
+          {busy ? <LoaderCircle size={compact ? 11 : 13} className="animate-spin" />
+            : supported ? <Check size={compact ? 11 : 13} />
+            : <Flame size={compact ? 11 : 13} />}
+        </span>
+        <span className="whitespace-nowrap">{supported ? "Counted" : compact ? "Me too" : "I have this too"}</span>
+        <span className="h-3 w-px shrink-0 bg-current opacity-25" />
+        <span className={`tabular-nums transition-transform duration-300 ease-out ${bumped ? "scale-125" : "scale-100"}`}>
+          {count.toLocaleString("en-US")}
+        </span>
       </button>
-      {message ? <p className="mt-2 text-[11px] text-red-700">{message}</p> : null}
+      {message ? <p className={`mt-1.5 text-red-700 ${compact ? "text-[10px]" : "text-[11px]"}`}>{message}</p> : null}
     </div>
   )
 }

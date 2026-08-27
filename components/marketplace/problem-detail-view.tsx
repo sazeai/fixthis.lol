@@ -25,8 +25,8 @@ export function ProblemDetailView({ problem, duplicate, paymentCancelled }: { pr
 
             {/* Statement */}
             <FramedSection contentClassName="px-5 pb-9 pt-8 sm:px-8 sm:pt-12">
-              <Link href="/#problems" className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.14em] text-[#999] transition-colors hover:text-[#111]">
-                <ArrowLeft size={11} /> All problems
+              <Link href="/#problems" className="group inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.14em] text-[#8a857e] transition-colors hover:text-[#111]">
+                <ArrowLeft size={11} className="transition-transform duration-200 ease-out group-hover:-translate-x-0.5" /> All problems
               </Link>
 
               <div className="mt-7 flex flex-wrap items-center gap-2">
@@ -62,7 +62,7 @@ export function ProblemDetailView({ problem, duplicate, paymentCancelled }: { pr
                   <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Currently claiming this problem</p>
                   <h2 className="mt-2 font-serif text-[22px] tracking-[-0.02em] text-[#111]">Featured solution</h2>
                   <div className="mt-4 border border-[rgba(55,50,47,0.12)]">
-                    <FeaturedSolution problemId={problem.id} />
+                    <FeaturedSolution problemId={problem.id} nextBidCents={problem.next_bid_cents} />
                   </div>
                   <p className="mt-3 text-[11px] leading-5 text-[#999]">
                     A paid rotating placement, not an endorsement. Different visitors may see different products.
@@ -81,7 +81,7 @@ export function ProblemDetailView({ problem, duplicate, paymentCancelled }: { pr
                   {problem.battlefield.length ? (
                     <div className="mt-4 border border-[rgba(55,50,47,0.12)] bg-white">
                       {problem.battlefield.map((entry) => (
-                        <div key={entry.placement_id} className="grid grid-cols-[32px_minmax(0,1fr)_auto] items-center gap-3 border-b border-[rgba(55,50,47,0.1)] px-4 py-3 last:border-0">
+                        <div key={entry.placement_id} className="group grid grid-cols-[32px_minmax(0,1fr)_auto] items-center gap-3 border-b border-[rgba(55,50,47,0.1)] px-4 py-3 transition-colors duration-200 last:border-0 hover:bg-[#fdfcfb]">
                           <span className={`grid size-7 place-items-center rounded-full font-mono text-[9px] font-semibold ${entry.rank === 1 ? "bg-[#ef654f] text-white" : "border border-[rgba(55,50,47,.13)] bg-[#fafafa] text-[#777]"}`}>
                             {entry.rank}
                           </span>
@@ -145,10 +145,10 @@ export function ProblemDetailView({ problem, duplicate, paymentCancelled }: { pr
                         href={source.source_url}
                         rel="noopener noreferrer nofollow"
                         target="_blank"
-                        className="flex items-center justify-between gap-3 border border-[rgba(55,50,47,0.12)] bg-white px-4 py-3 text-[12px] text-[#555] transition-colors hover:border-[#777] hover:text-[#111]"
+                        className="group flex items-center justify-between gap-3 border border-[rgba(55,50,47,0.12)] bg-white px-4 py-3 text-[12px] text-[#555] transition-colors duration-200 hover:border-[#777] hover:text-[#111]"
                       >
                         <span className="truncate">{source.source_label}</span>
-                        <ArrowUpRight size={13} className="shrink-0 text-[#aaa]" />
+                        <ArrowUpRight size={13} className="shrink-0 text-[#c4c0ba] transition-all duration-200 ease-out group-hover:-translate-y-px group-hover:translate-x-px group-hover:text-[#ef4e37]" />
                       </a>
                     )) : (
                       <p className="border border-dashed border-[rgba(55,50,47,0.16)] bg-[#fafafa] px-5 py-8 text-[12px] text-[#888]">
@@ -178,12 +178,16 @@ function Banner({ children }: { children: ReactNode }) {
 
 function Metric({ icon, value, label, accent = false }: { icon: ReactNode; value: number; label: string; accent?: boolean }) {
   return (
-    <div className="bg-[#fafafa] px-4 py-5 transition-colors hover:bg-white">
-      <span className={accent ? "text-[#d84d37]" : "text-[#bbb]"}>{icon}</span>
-      <p className={`mt-2 font-serif text-[26px] leading-none tracking-[-0.04em] ${accent ? "text-[#db4e38]" : "text-[#111]"}`}>
+    <div className="group relative overflow-hidden bg-[#fafafa] px-4 py-5 transition-colors duration-300 ease-out hover:bg-white">
+      <span
+        aria-hidden="true"
+        className={`absolute inset-x-0 bottom-0 h-[2px] origin-left transition-transform duration-300 ease-out ${accent ? "bg-[#ef654f]" : "bg-[rgba(55,50,47,.18)]"} scale-x-0 group-hover:scale-x-100`}
+      />
+      <span className={`block transition-colors duration-300 ${accent ? "text-[#d84d37]" : "text-[#c4c0ba] group-hover:text-[#8a857e]"}`}>{icon}</span>
+      <p className={`mt-2 font-serif text-[26px] leading-none tracking-[-0.04em] tabular-nums ${accent ? "text-[#db4e38]" : "text-[#111]"}`}>
         {value.toLocaleString("en-US")}
       </p>
-      <p className="mt-1.5 font-mono text-[7px] uppercase tracking-[0.12em] text-[#999]">{label}</p>
+      <p className="mt-1.5 font-mono text-[7px] uppercase tracking-[0.12em] text-[#8a857e]">{label}</p>
     </div>
   )
 }

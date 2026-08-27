@@ -27,7 +27,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             className="mt-6 h-11 w-full border border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-3 text-[14px] text-[#111] outline-none transition placeholder:text-[#bbb] focus:border-[#777]"
           />
           {query.error ? <p className="mt-3 border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">Wrong password.</p> : null}
-          <button className="mt-4 h-11 w-full bg-[#111] text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#ef4e37]">
+          <button className="mt-4 h-11 w-full bg-[#111] text-[10px] font-bold uppercase tracking-[0.1em] text-white transition-all duration-200 ease-out hover:bg-[#ef4e37] hover:shadow-[0_4px_18px_rgba(239,78,55,.3)] active:scale-[0.99]">
             Enter
           </button>
         </form>
@@ -77,7 +77,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
               </thead>
               <tbody>
                 {problems.map((problem) => (
-                  <tr key={problem.id} className="border-b border-[rgba(55,50,47,0.08)] last:border-0 hover:bg-[#fafafa]">
+                  <tr key={problem.id} className="border-b border-[rgba(55,50,47,0.08)] transition-colors duration-200 last:border-0 hover:bg-[#fafafa]">
                     <td className="max-w-md px-4 py-3 text-[12px] font-medium text-[#111]">{problem.statement}</td>
                     <td className="px-4 py-3 font-mono text-[9px] uppercase tracking-[0.1em] text-[#999]">{problem.origin}</td>
                     <td className="px-4 py-3 font-mono text-[11px] text-[#555]">{problem.support_count.toLocaleString("en-US")}</td>
@@ -99,7 +99,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           {complaints.length ? (
             <div className="border border-[rgba(55,50,47,0.12)] bg-white">
               {complaints.map((complaint) => (
-                <div key={complaint.id} className="flex flex-wrap items-start justify-between gap-3 border-b border-[rgba(55,50,47,0.08)] p-4 last:border-0 hover:bg-[#fafafa]">
+                <div key={complaint.id} className="flex flex-wrap items-start justify-between gap-3 border-b border-[rgba(55,50,47,0.08)] p-4 transition-colors duration-200 last:border-0 hover:bg-[#fafafa]">
                   <div className="min-w-0 flex-1">
                     <p className="text-[13px] leading-6 text-[#333]">“{complaint.detail}”</p>
                     <p className="mt-1.5 truncate font-mono text-[8px] uppercase tracking-[0.1em] text-[#aaa]">on “{complaint.problem_statement}”</p>
@@ -133,7 +133,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                 </thead>
                 <tbody>
                   {placements.map((placement) => (
-                    <tr key={placement.placement_id} className="border-b border-[rgba(55,50,47,0.08)] last:border-0 hover:bg-[#fafafa]">
+                    <tr key={placement.placement_id} className="border-b border-[rgba(55,50,47,0.08)] transition-colors duration-200 last:border-0 hover:bg-[#fafafa]">
                       <td className="px-4 py-3 text-[12px] font-semibold text-[#111]">{placement.product_name}</td>
                       <td className="max-w-sm px-4 py-3 text-[12px] text-[#666]">{placement.problem_statement}</td>
                       <td className="px-4 py-3 font-mono text-[11px] text-[#555]">

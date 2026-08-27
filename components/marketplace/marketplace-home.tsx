@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { ChevronDown, Search, X } from "lucide-react"
 import { PostProblemModal } from "@/components/marketplace/post-problem-modal"
 import { ProblemCard } from "@/components/marketplace/problem-card"
 import type { ProblemSection, ProblemSectionId, ProblemSummary } from "@/types/marketplace"
@@ -44,7 +45,7 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
 
   return (
     <section id="problems" className="w-full">
-      <header className="border-y border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-5 py-4 sm:px-7">
+      <header className="border-y border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-5 py-5 sm:px-7">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2.5">
@@ -64,18 +65,48 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
             <Stat value="$5" label="First claim" last />
           </div>
         </div>
-        <div className="mt-4 grid gap-2 border-t border-[rgba(55,50,47,.1)] pt-3 sm:grid-cols-[1fr_180px]">
-          <label className="sr-only" htmlFor="problem-search">Search problems</label>
-          <input id="problem-search" value={search} onChange={(event) => setSearch(event.target.value)} className="h-9 border border-[rgba(55,50,47,.12)] bg-white px-3 text-[12px] text-[#333] outline-none transition focus:border-[#777]" placeholder="Search the board…" />
-          <label className="sr-only" htmlFor="problem-category">Filter by category</label>
-          <select id="problem-category" value={category} onChange={(event) => setCategory(event.target.value)} className="h-9 border border-[rgba(55,50,47,.12)] bg-white px-3 text-[11px] text-[#555] outline-none transition focus:border-[#777]">
-            {categories.map((item) => <option key={item}>{item}</option>)}
-          </select>
-        </div>
       </header>
 
+      {/* Full-bleed filter bar: the rules run edge to edge instead of stopping
+          short inside the header padding. */}
+      <div className="grid border-b border-[rgba(55,50,47,0.12)] bg-white sm:grid-cols-[1fr_auto]">
+        <div className="group relative flex items-center">
+          <Search size={13} className="pointer-events-none absolute left-5 text-[#c4c0ba] transition-colors duration-200 group-focus-within:text-[#ef4e37] sm:left-7" />
+          <label className="sr-only" htmlFor="problem-search">Search problems</label>
+          <input
+            id="problem-search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="h-12 w-full bg-transparent pl-12 pr-5 text-[13px] text-[#2f2c28] outline-none transition-colors placeholder:text-[#b5b0a9] focus:bg-[#fdfcfb] sm:pl-14 sm:pr-7"
+            placeholder="Search the board…"
+          />
+          {search ? (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              aria-label="Clear search"
+              className="absolute right-4 grid size-6 place-items-center rounded-full text-[#b5b0a9] transition-colors hover:bg-[rgba(55,50,47,.06)] hover:text-[#111] sm:right-6"
+            >
+              <X size={13} />
+            </button>
+          ) : null}
+        </div>
+        <div className="relative border-t border-[rgba(55,50,47,0.12)] sm:border-l sm:border-t-0">
+          <label className="sr-only" htmlFor="problem-category">Filter by category</label>
+          <select
+            id="problem-category"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            className="h-12 w-full cursor-pointer appearance-none bg-transparent pl-5 pr-11 font-mono text-[10px] uppercase tracking-[0.1em] text-[#77726a] outline-none transition-colors hover:text-[#111] focus:bg-[#fdfcfb] sm:min-w-[220px] sm:pl-7 sm:pr-12"
+          >
+            {categories.map((item) => <option key={item}>{item}</option>)}
+          </select>
+          <ChevronDown size={13} className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-[#c4c0ba] sm:right-6" />
+        </div>
+      </div>
+
       {filtering ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(55,50,47,0.12)] bg-[#f9f8f7] px-5 py-2.5 sm:px-7">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(55,50,47,0.12)] bg-[#f4f2f0] px-5 py-3 sm:px-7">
           <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#777]">
             {results.length} {results.length === 1 ? "match" : "matches"}
             {category !== "All" ? <span className="text-[#aaa]"> · {category}</span> : null}
@@ -85,7 +116,7 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
           </button>
         </div>
       ) : (
-        <nav aria-label="Problem sections" className="flex overflow-x-auto border-b border-[rgba(55,50,47,0.12)] bg-[#f9f8f7]">
+        <nav aria-label="Problem sections" className="flex overflow-x-auto border-b border-[rgba(55,50,47,0.12)] bg-[#f4f2f0] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {sections.map((section) => {
             const selected = section.id === activeSection?.id
             return (
@@ -94,12 +125,15 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
                 type="button"
                 aria-current={selected ? "true" : undefined}
                 onClick={() => setActive(section.id)}
-                className={`group relative flex shrink-0 items-center gap-2 border-r border-[rgba(55,50,47,0.12)] px-4 py-2.5 text-left transition-colors sm:px-5 ${selected ? "bg-[#fafafa]" : "hover:bg-[#fafafa]/60"}`}
+                className={`group relative flex shrink-0 items-center gap-2 border-r border-[rgba(55,50,47,0.12)] px-5 py-3 text-left transition-colors duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ef4e37] sm:px-6 ${selected ? "bg-[#fafafa]" : "hover:bg-[#fafafa]"}`}
               >
-                {selected ? <span className="absolute inset-x-0 top-0 h-[2px] bg-[#ef4e37]" /> : null}
-                <span className={`font-mono text-[8px] tracking-[0.14em] ${selected ? "text-[#d84d37]" : "text-[#bbb]"}`}>{SECTION_MARK[section.id]}</span>
-                <span className={`whitespace-nowrap text-[12px] font-medium ${selected ? "text-[#111]" : "text-[#777] group-hover:text-[#111]"}`}>{section.title}</span>
-                <span className={`rounded-full px-1.5 py-0.5 font-mono text-[8px] ${selected ? "bg-[#fff0eb] text-[#d84d37]" : "bg-[rgba(55,50,47,.06)] text-[#999]"}`}>{section.problems.length}</span>
+                <span
+                  aria-hidden="true"
+                  className={`absolute inset-x-0 top-0 h-[2px] origin-left bg-[#ef4e37] transition-transform duration-300 ease-out ${selected ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`}
+                />
+                <span className={`font-mono text-[8px] tabular-nums tracking-[0.14em] transition-colors duration-300 ${selected ? "text-[#d84d37]" : "text-[#c4c0ba]"}`}>{SECTION_MARK[section.id]}</span>
+                <span className={`whitespace-nowrap text-[12px] font-medium transition-colors duration-300 ${selected ? "text-[#111]" : "text-[#77726a] group-hover:text-[#111]"}`}>{section.title}</span>
+                <span className={`rounded-full px-1.5 py-0.5 font-mono text-[8px] tabular-nums transition-colors duration-300 ${selected ? "bg-[#fff0eb] text-[#d84d37]" : "bg-[rgba(55,50,47,.06)] text-[#a8a39c]"}`}>{section.problems.length}</span>
               </button>
             )
           })}
@@ -107,7 +141,7 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
       )}
 
       {!filtering && activeSection ? (
-        <p className="border-b border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-5 py-2.5 text-[11px] text-[#888] sm:px-7">{activeSection.blurb}</p>
+        <p className="border-b border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-5 py-3 text-[11px] text-[#8a857e] sm:px-7">{activeSection.blurb}</p>
       ) : null}
 
       {visible.length ? (

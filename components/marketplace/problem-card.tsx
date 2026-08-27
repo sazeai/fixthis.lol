@@ -7,38 +7,78 @@ import type { ProblemSummary } from "@/types/marketplace"
 
 export function ProblemCard({ problem, index }: { problem: ProblemSummary; index: number }) {
   const isFirst = index === 0
-  const claimLabel = problem.competitor_count === 0
-    ? "Open lane — no solution yet"
-    : `${problem.competitor_count} solution${problem.competitor_count === 1 ? "" : "s"} competing`
+  const contested = problem.competitor_count > 0
 
   return (
-    <article className={`relative flex min-h-[196px] h-full flex-col overflow-hidden px-5 py-3.5 transition-colors duration-200 sm:px-6 ${isFirst ? "bg-[#fff3ee] shadow-[inset_0_0_0_1px_rgba(239,78,55,.72)]" : "bg-[#fafafa]"}`}>
-      {isFirst ? <div className="absolute inset-x-0 top-0 h-[3px] bg-[#ef654f]" /> : null}
-      <div className="flex items-start gap-3">
-        <span className={`grid h-8 min-w-8 shrink-0 place-items-center rounded-full font-mono text-[9px] font-semibold ${isFirst ? "bg-[#ef654f] text-white" : "border border-[rgba(55,50,47,.13)] bg-white text-[#777]"}`}>#{String(index + 1).padStart(2, "0")}</span>
-        <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-2">
-            <p className="truncate text-[15px] font-semibold text-[#111]">{problem.category}</p>
-            {isFirst ? <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.12em] text-[#d84d37]">Trending</span> : null}
-            {problem.origin === "curated" ? <span className="shrink-0 border border-[rgba(55,50,47,.12)] bg-white/70 px-1.5 py-0.5 font-mono text-[7px] uppercase tracking-[0.1em] text-[#999]">Curated</span> : null}
+    <article
+      className={`group relative isolate flex h-full min-h-[188px] flex-col overflow-hidden transition-colors duration-300 ease-out ${
+        isFirst ? "bg-[#fff3ee]" : "bg-[#fafafa] hover:bg-white"
+      }`}
+    >
+      {/* Accent rail: always present on the leader, wipes in on hover for the rest. */}
+      <span
+        aria-hidden="true"
+        className={`absolute inset-y-0 left-0 w-[3px] origin-top bg-[#ef654f] transition-transform duration-300 ease-out ${
+          isFirst ? "scale-y-100" : "scale-y-0 group-hover:scale-y-100"
+        }`}
+      />
+
+      {/* Whole card is the target; interactive controls sit above it on z-10. */}
+      <Link
+        href={`/problems/${problem.slug}`}
+        className="absolute inset-0 z-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ef4e37]"
+      >
+        <span className="sr-only">Open “{problem.statement}”</span>
+      </Link>
+
+      <div className="pointer-events-none relative z-10 flex h-full flex-col px-5 py-4 sm:px-6">
+
+        {/* Meta */}
+        <div className="flex items-center gap-2">
+          <span
+            className={`font-mono text-[9px] font-semibold tabular-nums transition-colors duration-300 ${
+              isFirst ? "text-[#d84d37]" : "text-[#c4c0ba] group-hover:text-[#777]"
+            }`}
+          >
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <span className="h-2.5 w-px bg-[rgba(55,50,47,.16)]" />
+          <span className="truncate font-mono text-[9px] uppercase tracking-[0.13em] text-[#8a857e]">{problem.category}</span>
+          {problem.origin === "curated" ? (
+            <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.1em] text-[#bbb6ae]">Curated</span>
+          ) : null}
+          {isFirst ? (
+            <span className="ml-auto shrink-0 font-mono text-[8px] uppercase tracking-[0.12em] text-[#d84d37]">Trending</span>
+          ) : (
+            <ArrowUpRight
+              size={12}
+              className="ml-auto shrink-0 -translate-x-0.5 translate-y-0.5 text-[#c4c0ba] opacity-0 transition-all duration-300 ease-out group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100"
+            />
+          )}
+        </div>
+
+        {/* The statement is the headline and owns the full width. */}
+        <p className="mt-2.5 line-clamp-3 text-[14px] font-medium leading-[1.45] tracking-[-0.011em] text-[#2f2c28]">
+          “{problem.statement}”
+        </p>
+
+        {/* One status line: the featured solution, or an honest unclaimed note. */}
+        <div className="mt-3 flex min-w-0 items-center gap-2">
+          <div className="pointer-events-auto min-w-0 flex-1">
+            <FeaturedSolution problemId={problem.id} compact nextBidCents={problem.next_bid_cents} />
           </div>
-          <p className="mt-0.5 font-mono text-[8px] font-medium uppercase tracking-[0.13em] text-[#999]">Problem on the board</p>
+          {contested ? (
+            <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.1em] text-[#8a857e]">
+              {problem.competitor_count} competing
+            </span>
+          ) : null}
         </div>
-        <div className="shrink-0 text-right">
-          <p className={`font-serif text-[27px] leading-none tracking-[-0.04em] ${isFirst ? "text-[#db4e38]" : "text-[#111]"}`}>{problem.support_count.toLocaleString("en-US")}</p>
-          <p className="mt-0.5 font-mono text-[7px] uppercase tracking-[0.1em] text-[#999]">have this</p>
-        </div>
-      </div>
 
-      <Link href={`/problems/${problem.slug}`} className="mt-2 line-clamp-2 pl-11 text-[13px] leading-5 text-[#5e5952] transition-colors hover:text-[#111]">“{problem.statement}”</Link>
-      <div className="mt-2 pl-11"><FeaturedSolution problemId={problem.id} compact /></div>
-
-      <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-[rgba(55,50,47,0.1)] pt-2.5">
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[10px] font-medium text-[#555]"><span className={`mr-1.5 inline-block size-1.5 rounded-full ${problem.competitor_count ? "bg-emerald-500" : "bg-[#bbb]"}`} />{claimLabel}</p>
-          <Link href={`/problems/${problem.slug}`} className="mt-0.5 inline-flex items-center gap-1 font-mono text-[8px] uppercase tracking-wide text-[#aaa] hover:text-[#555]">Open battlefield <ArrowUpRight size={9} /></Link>
+        {/* Actions */}
+        <div className="pointer-events-auto mt-auto flex items-center justify-between gap-2 border-t border-[rgba(55,50,47,0.1)] pt-3">
+          <SupportProblem problemId={problem.id} initialCount={problem.support_count} compact />
+          <BidModal problemId={problem.id} statement={problem.statement} nextBidCents={problem.next_bid_cents} compact />
         </div>
-        <div className="flex items-center gap-1.5"><SupportProblem problemId={problem.id} initialCount={problem.support_count} compact /><BidModal problemId={problem.id} statement={problem.statement} nextBidCents={problem.next_bid_cents} compact /></div>
       </div>
     </article>
   )
