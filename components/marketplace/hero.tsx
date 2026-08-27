@@ -4,7 +4,12 @@ import type { PublicTrafficStats } from "@/types/marketplace"
 
 export function Hero({ traffic }: { traffic: PublicTrafficStats }) {
   return (
-    <section className="relative flex w-full flex-col items-center border-b border-[rgba(55,50,47,0.12)] pb-9 text-center">
+    // mb-7 reserves the CTA's overhang. The button straddles the hero's bottom
+    // rule, hanging half its own height below the section, and nothing else
+    // should have to know that: left unreserved it lands on whatever renders
+    // next and swallows its clicks, which is what happened to the live-fight
+    // strip.
+    <section className="relative mb-10 flex w-full flex-col items-center border-b border-[rgba(55,50,47,0.12)] pb-9 text-center">
       <div className="z-10 flex w-full max-w-3xl flex-col items-center px-5 sm:px-6">
         {/* Live traffic replaces the static badge — the marketplace states its
             own pulse instead of asserting that it has one. */}
