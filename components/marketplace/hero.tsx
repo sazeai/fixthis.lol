@@ -15,7 +15,7 @@ export function Hero({ traffic }: { traffic: PublicTrafficStats }) {
             own pulse instead of asserting that it has one. */}
         <PresenceTracker initial={traffic} />
 
-        <h1 className="font-serif text-[30px] leading-[1.06] tracking-[-0.04em] text-[#111] sm:text-[46px] lg:text-[60px] lg:leading-[1.02]">
+        <h1 className="font-serif text-[36px] leading-[1.06] tracking-[-0.04em] text-[#111] sm:text-[46px] lg:text-[60px] lg:leading-[1.02]">
           What software is pissing you off?
         </h1>
         <p className="mt-4 max-w-2xl text-[14px] font-normal leading-[1.6] tracking-tight text-[#555] sm:text-[15px] lg:text-[1rem]">
