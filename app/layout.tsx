@@ -36,13 +36,11 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: [{ url: "/og-img.png", width: 1412, height: 809, alt: "FIXTHIS problem marketplace" }],
   },
   twitter: {
     card: "summary_large_image",
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: [{ url: "/og-img.png", alt: "FIXTHIS problem marketplace" }],
   },
   robots: {
     index: true,
