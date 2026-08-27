@@ -47,79 +47,12 @@ begin
 end;
 $$;
 
-create or replace function public.assign_featured_placement(p_problem_id uuid, p_visitor_key text)
-returns table(
-  placement_id uuid,
-  product_id uuid,
-  product_name text,
-  product_tagline text,
-  destination_url text,
-  registrable_domain text,
-  claim_kind text,
-  impression_count bigint,
-  click_count bigint
-)
-language plpgsql security definer set search_path = public as $$
-declare
-  v_assignment public.visitor_assignments%rowtype;
-  v_epoch public.rotation_epochs%rowtype;
-  v_placement_id uuid;
-  v_assignment_id uuid;
-begin
-  -- A visitor keeps the same featured solution for 30 minutes, so refreshing
-  -- neither inflates impressions nor makes the page look schizophrenic.
-  select a.* into v_assignment
-  from public.visitor_assignments a
-  join public.placements pl on pl.id = a.placement_id and pl.status = 'active'
-  join public.products pr on pr.id = pl.product_id and pr.status = 'active'
-  where a.problem_id = p_problem_id and a.visitor_key = p_visitor_key and a.expires_at > now()
-  order by a.assigned_at desc limit 1;
-
-  if v_assignment.id is not null then
-    return query
-      select pl.id, pr.id, pr.name, pr.tagline, pr.destination_url, pr.registrable_domain,
-             case when pl.founding_claim and pl.current_bid_cents = 0 then 'founding' else 'paid' end,
-             pl.impression_count, pl.click_count
-      from public.placements pl join public.products pr on pr.id = pl.product_id
-      where pl.id = v_assignment.placement_id;
-    return;
-  end if;
-
-  select * into v_epoch from public.rotation_epochs
-  where problem_id = p_problem_id and active for update;
-
-  if v_epoch.id is null then
-    perform public.rebuild_rotation(p_problem_id);
-    select * into v_epoch from public.rotation_epochs
-    where problem_id = p_problem_id and active for update;
-  end if;
-  if v_epoch.id is null then return; end if;
-
-  v_placement_id := v_epoch.slots[v_epoch.cursor + 1];
-  update public.rotation_epochs set cursor = mod(rotation_epochs.cursor + 1, 100) where id = v_epoch.id;
-
-  insert into public.visitor_assignments(problem_id, placement_id, epoch_id, visitor_key, expires_at)
-  values (p_problem_id, v_placement_id, v_epoch.id, p_visitor_key, now() + interval '30 minutes')
-  returning id into v_assignment_id;
-
-  insert into public.placement_impressions(assignment_id, problem_id, placement_id, visitor_key)
-  values (v_assignment_id, p_problem_id, v_placement_id, p_visitor_key);
-
-  update public.placements set impression_count = placements.impression_count + 1 where id = v_placement_id;
-  update public.problems set impression_count = problems.impression_count + 1 where id = p_problem_id;
-
-  insert into public.daily_traffic(traffic_date, problem_id, placement_id, impressions)
-    values (current_date, p_problem_id, v_placement_id, 1)
-    on conflict (traffic_date, placement_id) do update set impressions = public.daily_traffic.impressions + 1;
-
-  return query
-    select pl.id, pr.id, pr.name, pr.tagline, pr.destination_url, pr.registrable_domain,
-           case when pl.founding_claim and pl.current_bid_cents = 0 then 'founding' else 'paid' end,
-           pl.impression_count, pl.click_count
-    from public.placements pl join public.products pr on pr.id = pl.product_id
-    where pl.id = v_placement_id;
-end;
-$$;
+-- NOTE: this migration originally redefined assign_featured_placement here.
+-- That version was still broken: it qualified the UPDATE ... SET references but
+-- not the ON CONFLICT conflict target, which PL/pgSQL also resolves against
+-- declared variables. The definition has been removed so that re-running this
+-- file on its own cannot reinstall the broken function. The correct definition
+-- lives in 00000000000004_rotation_conflict_target.sql.
 
 create or replace function public.create_bid_quote(
   p_problem_id uuid,

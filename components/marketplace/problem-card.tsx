@@ -36,7 +36,7 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
         {/* Meta */}
         <div className="flex items-center gap-2">
           <span
-            className={`font-mono text-[9px] font-semibold tabular-nums transition-colors duration-300 ${
+            className={`font-mono text-[9px] font-semibold tabular-nums transition-colors duration-300 bg-white ${
               isFirst ? "text-[#d84d37]" : "text-[#c4c0ba] group-hover:text-[#777]"
             }`}
           >
