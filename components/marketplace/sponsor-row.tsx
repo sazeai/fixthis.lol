@@ -77,6 +77,29 @@ export function SponsorRow({
     })
   }, [events, spawn])
 
+  // The featured advertiser's standing offer, floated slowly rather than
+  // recorded as an event. It is given the distinct "offer" tone and never goes
+  // through market_events, so it cannot read as a thing that just happened.
+  // Skipped entirely under reduced motion: a label that reappears on a timer is
+  // harder to tolerate than one tied to a real arrival.
+  useEffect(() => {
+    const offer = placement?.offer
+    if (!offer) return
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
+
+    let timer: ReturnType<typeof setTimeout>
+    const schedule = (delay: number) => {
+      timer = setTimeout(() => {
+        spawn(offer, "offer")
+        // Jittered so cards carrying the same advertiser do not pulse in
+        // lockstep down the board.
+        schedule(52_000 + Math.random() * 16_000)
+      }, delay)
+    }
+    schedule(9_000 + Math.random() * 4_000)
+    return () => clearTimeout(timer)
+  }, [placement?.offer, spawn])
+
   function trackClick() {
     if (!placement) return
     navigator.sendBeacon?.(`/api/placements/${placement.placement_id}/click`)

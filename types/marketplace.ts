@@ -68,6 +68,12 @@ export type FeaturedPlacement = {
   claim_kind: "founding" | "paid"
   impression_count: number
   click_count: number
+  /**
+   * The advertiser's own standing hook, e.g. "FREE MIGRATION". Ad copy, not a
+   * recorded event - it is never written to market_events, so it cannot be
+   * mistaken for something that just happened on the board.
+   */
+  offer: string | null
 }
 
 export type BattlefieldEntry = {
