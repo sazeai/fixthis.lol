@@ -1306,3 +1306,39 @@ input[type="range"].slider::-moz-range-thumb {
   mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
 }
+
+/* Floating marketplace events — game-style damage/XP indicators.
+   Spawns from an anchor, rises with an overshoot, fades while still moving.
+   Kept in CSS rather than a motion library: one keyframe, no bundle cost. */
+@keyframes fx-float-up {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0) scale(0.7);
+  }
+  16% {
+    opacity: 1;
+    transform: translate3d(calc(var(--fx-drift, 0px) * 0.25), -16px, 0) scale(1.08);
+  }
+  30% {
+    transform: translate3d(calc(var(--fx-drift, 0px) * 0.45), -26px, 0) scale(1);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--fx-drift, 0px), -72px, 0) scale(1);
+  }
+}
+
+.fx-float {
+  animation: fx-float-up 1450ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-float {
+    animation: fx-float-up 900ms linear forwards;
+    --fx-drift: 0px;
+  }
+}

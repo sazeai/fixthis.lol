@@ -1,12 +1,29 @@
 import Link from "next/link"
-import { ArrowUpRight } from "lucide-react"
+import { ArrowUpRight, Zap } from "lucide-react"
 import { BidModal } from "@/components/marketplace/bid-modal"
 import { ProblemHighlight } from "@/components/marketplace/problem-highlight"
+import type { MarketEvent } from "@/components/marketplace/market-event-feed"
 import { SponsorRow } from "@/components/marketplace/sponsor-row"
 import { SupportProblem } from "@/components/marketplace/support-problem"
 import type { ProblemSummary } from "@/types/marketplace"
 
-export function ProblemCard({ problem, index }: { problem: ProblemSummary; index: number }) {
+export function ProblemCard({
+  problem,
+  index,
+  liveFight = false,
+  events,
+}: {
+  problem: ProblemSummary
+  index: number
+  /**
+   * Injected because companies are paying to fight over it, not because it
+   * ranked here organically. Always labelled — a reader is entitled to know
+   * why a card is in front of them.
+   */
+  liveFight?: boolean
+  /** Real events recorded for this problem since the page opened. */
+  events?: MarketEvent[]
+}) {
   const isFirst = index === 0
 
   return (
@@ -35,14 +52,23 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
               isFirst ? "text-[#d84d37]" : "text-[#929292] group-hover:text-[#777]"
             }`}
           >
-            {String(index + 1).padStart(2, "0")}
+            {liveFight ? "⚡" : String(index + 1).padStart(2, "0")}
           </span>
           <span className="h-2.5 w-px bg-[rgba(55,50,47,.16)]" />
-          <span className="truncate font-mono text-[12px] uppercase tracking-[0.05em] font-semibold text-[#8a857e]">{problem.category}</span>
+          {/* The software being complained about leads, because that is what a
+              reader is scanning for. Category falls back for curated rows that
+              predate the field. */}
+          <span className="truncate font-mono text-[12px] font-semibold uppercase tracking-[0.05em] text-[#5f5a54]">
+            {problem.target_product_name || problem.category}
+          </span>
           {problem.origin === "curated" ? (
             <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.1em] text-[#7d7d7d]">Curated</span>
           ) : null}
-          {isFirst ? (
+          {liveFight ? (
+            <span className="ml-auto flex shrink-0 items-center gap-1 font-mono text-[8px] uppercase tracking-[0.12em] text-[#d84d37]">
+              <Zap size={9} className="shrink-0" /> Live fight
+            </span>
+          ) : isFirst ? (
             <span className="ml-auto shrink-0 font-mono text-[8px] uppercase tracking-[0.12em] text-[#d84d37]">Trending</span>
           ) : (
             <ArrowUpRight
@@ -65,6 +91,7 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
             problemId={problem.id}
             competitors={problem.competitors}
             nextBidCents={problem.next_bid_cents}
+            events={events}
           />
         </div>
 

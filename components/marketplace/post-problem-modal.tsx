@@ -1,13 +1,12 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { ArrowRight, Check, LoaderCircle } from "lucide-react"
+import { ArrowRight, ArrowUpRight, Check, LoaderCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { FormField, SelectInput, TextArea, TextInput } from "@/components/marketplace/form-field"
+import { FormField, TextArea, TextInput } from "@/components/marketplace/form-field"
 import { MagicLinkAuth } from "@/components/marketplace/magic-link-auth"
 import { ModalShell } from "@/components/marketplace/modal-shell"
 import { TurnstileField } from "@/components/marketplace/turnstile-field"
-import { PROBLEM_CATEGORIES } from "@/lib/marketplace/helpers"
 import { getSupabaseBrowserClient } from "@/utils/supabase/client"
 
 type Mode = "user" | "founder"
@@ -35,11 +34,20 @@ export function PostProblemModal({
   const [error, setError] = useState("")
   const [success, setSuccess] = useState<"published" | "">("")
   const [createdSlug, setCreatedSlug] = useState("")
+  const [posted, setPosted] = useState<{ product: string; statement: string }>({ product: "", statement: "" })
   const [authChecked, setAuthChecked] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const router = useRouter()
   const close = useCallback(() => !loading && setOpen(false), [loading])
   const founder = mode === "founder"
+
+  // Quotes the complaint back rather than describing the site, so the tweet
+  // reads like a person venting and lands strangers on the ME TOO button.
+  const problemUrl = createdSlug && typeof window !== "undefined" ? `${window.location.origin}/problems/${createdSlug}` : ""
+  const shareText = posted.product
+    ? `I'm sick of ${posted.product}. ${posted.statement}\n\nAnyone else?`
+    : posted.statement
+  const shareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(problemUrl)}`
 
   useEffect(() => {
     let active = true
@@ -87,8 +95,9 @@ export function PostProblemModal({
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
+          targetProductName: form.get("targetProductName"),
           statement: form.get("statement"),
-          category: form.get("category"),
+          switchCondition: form.get("switchCondition"),
           origin: mode,
           email: form.get("email"),
           website: form.get("website"),
@@ -114,6 +123,7 @@ export function PostProblemModal({
       }
 
       setCreatedSlug(result.slug || "")
+      setPosted({ product: String(form.get("targetProductName") || ""), statement: String(form.get("statement") || "") })
       // Founders go straight to the problem page, where the claim CTA lives.
       if (founder && result.status === "published" && result.slug) {
         router.push(`/problems/${result.slug}`)
@@ -151,18 +161,40 @@ export function PostProblemModal({
         <div className="px-5 pb-8 pt-2 text-center sm:px-8">
           <span className="mx-auto grid size-12 place-items-center rounded-full bg-[#eef7f0] text-[#2f7d4f]"><Check size={22} /></span>
           <h2 id="post-problem-title" className="mt-4 font-serif text-[24px] leading-[1.08] tracking-[-0.035em] text-[#111]">
-            Problem published.
+            {success === "published" ? "Let's see who else is sick of this." : "Sent for review."}
           </h2>
           <p className="mx-auto mt-3 max-w-sm text-[13px] leading-6 text-[#666]">
-            Your support is already counted. Products can now compete to solve it.
+            {success === "published"
+              ? "You are counted as the first. Now find everyone else who feels the same."
+              : "The wording needs a quick moderation pass before it becomes public."}
           </p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-2.5">
-            {success === "published" && createdSlug ? (
-              <a href={`/problems/${createdSlug}`} className="inline-flex h-11 items-center bg-[#111] px-5 font-mono text-[10px] uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#ef4e37]">
+
+          {success === "published" && createdSlug ? (
+            <div className="mt-6">
+              {/* The point of posting is not the post — it is bringing other
+                  people to press ME TOO. Share is the primary action here. */}
+              <a
+                href={shareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group/share inline-flex h-11 w-full items-center justify-center gap-2 bg-[#111] px-5 font-mono text-[10px] uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#ef4e37] sm:w-auto"
+              >
+                Share on X
+                <ArrowUpRight size={13} className="transition-transform duration-200 ease-out group-hover/share:-translate-y-px group-hover/share:translate-x-px" />
+              </a>
+              <p className="mx-auto mt-3 max-w-sm border border-[rgba(55,50,47,0.12)] bg-white px-3 py-2.5 text-left text-[12px] leading-5 text-[#55504a]">
+                {shareText}
+              </p>
+            </div>
+          ) : null}
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+            {createdSlug ? (
+              <a href={`/problems/${createdSlug}`} className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#77726a] underline underline-offset-4 transition-colors hover:text-[#111]">
                 See the problem
               </a>
             ) : null}
-            <button onClick={close} className="inline-flex h-11 items-center border border-[rgba(55,50,47,0.12)] bg-white px-5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#111] transition-colors hover:border-[#777]">
+            <button onClick={close} className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#a8a39c] underline underline-offset-4 transition-colors hover:text-[#111]">
               Done
             </button>
           </div>
@@ -182,13 +214,14 @@ export function PostProblemModal({
           </p>
 
           <form onSubmit={submit} className="mt-5 space-y-3">
-            <FormField label="I need…">
-              <TextArea name="statement" minLength={20} maxLength={280} required rows={3} placeholder="I need an analytics tool that makes sense without a training course…" />
+            <FormField label="Software / product">
+              <TextInput name="targetProductName" maxLength={60} required placeholder="Intercom" />
             </FormField>
-            <FormField label="Category">
-              <SelectInput name="category" defaultValue="Productivity">
-                {PROBLEM_CATEGORIES.map((item) => <option key={item}>{item}</option>)}
-              </SelectInput>
+            <FormField label="What's pissing you off?">
+              <TextArea name="statement" minLength={20} maxLength={280} required rows={3} placeholder="Every time we add teammates the bill gets ridiculous." />
+            </FormField>
+            <FormField label="What would make you switch?" helper="Optional. This is what an alternative reads before deciding to compete for you.">
+              <TextInput name="switchCondition" maxLength={160} placeholder="Similar features under $100/month." />
             </FormField>
             <FormField
               label="Email (optional)"

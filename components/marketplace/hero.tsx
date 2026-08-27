@@ -11,15 +11,15 @@ export function Hero({ traffic }: { traffic: PublicTrafficStats }) {
         <PresenceTracker initial={traffic} />
 
         <h1 className="font-serif text-[30px] leading-[1.06] tracking-[-0.04em] text-[#111] sm:text-[46px] lg:text-[60px] lg:leading-[1.02]">
-          Find real problems worth solving.
+          What software is pissing you off?
         </h1>
         <p className="mt-4 max-w-2xl text-[14px] font-normal leading-[1.6] tracking-tight text-[#555] sm:text-[15px] lg:text-[1rem]">
-          FIXTHIS is a public problem marketplace where people post pain points, others validate the demand, and products compete to become the featured solution.
+          Call out what sucks about the software you use. See who else is dealing with it. Let alternatives fight to win you over.
         </p>
       </div>
 
       <div className="absolute bottom-0 z-20 flex w-full translate-y-1/2 justify-center">
-        <PostProblemModal trigger="POST YOUR PROBLEM" />
+        <PostProblemModal trigger="CALL IT OUT" />
       </div>
     </section>
   )

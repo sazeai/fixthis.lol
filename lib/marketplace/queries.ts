@@ -77,7 +77,28 @@ function toCompetitors(rows: Row[]): ProblemCompetitor[] {
 
 async function loadProblemSummaries(): Promise<ProblemSummary[]> {
   const supabase = createAdminClient()
-  const { data: problems, error } = await supabase.from("problems").select("id,slug,statement,category,origin,launch_priority,support_count,impression_count,click_count,created_at,published_at").eq("status", "published").limit(200)
+  // PostgREST tolerates unknown columns inside an embedded select but rejects
+  // them at top level, so a deploy landing before its migration would take the
+  // whole board down. Ask for the new columns, and fall back to the old shape
+  // if the database has not caught up yet.
+  const BOARD_COLUMNS = "id,slug,statement,category,origin,launch_priority,support_count,impression_count,click_count,created_at,published_at"
+  let problems: Row[] | null = null
+  let error: { code?: string } | null = null
+
+  {
+    const primary = await supabase.from("problems")
+      .select(`${BOARD_COLUMNS},target_product_name,switch_condition`)
+      .eq("status", "published").limit(200)
+    problems = primary.data as Row[] | null
+    error = primary.error
+  }
+
+  if (error?.code === "42703") {
+    console.warn("Board query fell back: complaint columns are missing, run migration 00000000000009.")
+    const legacy = await supabase.from("problems").select(BOARD_COLUMNS).eq("status", "published").limit(200)
+    problems = legacy.data as Row[] | null
+    error = legacy.error
+  }
   if (error) throw error
   if (!problems?.length) return []
   const ids = problems.map((item: Row) => item.id)
@@ -198,6 +219,8 @@ export async function getProblemBySlug(slug: string): Promise<ProblemDetail | nu
     id: problem.id,
     slug: problem.slug,
     statement: problem.statement,
+    target_product_name: problem.target_product_name ?? null,
+    switch_condition: problem.switch_condition ?? null,
     category: problem.category,
     origin: problem.origin,
     launch_priority: problem.launch_priority,
@@ -281,7 +304,8 @@ export async function getAdminMarketplaceData(): Promise<{ problems: AdminProble
   const summaryById = new Map(summaries.map((row) => [row.id, row]))
   const problems = (problemRows || []).map((row: Row) => ({
     ...(summaryById.get(row.id) || {
-      id: row.id, slug: row.slug, statement: row.statement, category: row.category, origin: row.origin,
+      id: row.id, slug: row.slug, statement: row.statement, target_product_name: row.target_product_name ?? null,
+      switch_condition: row.switch_condition ?? null, category: row.category, origin: row.origin,
       launch_priority: row.launch_priority, support_count: number(row.support_count), impression_count: number(row.impression_count),
       click_count: number(row.click_count), competitor_count: 0, top_bid_cents: 0, next_bid_cents: 500, competitors: [],
       supports_24h: 0, clicks_24h: 0, bids_24h: 0, created_at: row.created_at, published_at: row.published_at,

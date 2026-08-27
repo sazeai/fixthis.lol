@@ -10,6 +10,10 @@ export type ProblemSummary = {
   id: string
   slug: string
   statement: string
+  /** Software the complaint is about, e.g. "Intercom". Null on curated rows. */
+  target_product_name: string | null
+  /** What would make the poster switch. Optional. */
+  switch_condition: string | null
   category: string
   origin: ProblemOrigin
   launch_priority: number | null

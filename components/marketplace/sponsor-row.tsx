@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react"
 import { ArrowUpRight, Flag, MousePointerClick } from "lucide-react"
+import { FloatingEventLayer, useFloatingEvents } from "@/components/marketplace/floating-events"
+import { toneFor, type MarketEvent } from "@/components/marketplace/market-event-feed"
 import { ProductIcon } from "@/components/marketplace/product-icon"
 import { formatMoney } from "@/lib/marketplace/helpers"
 import type { FeaturedPlacement, ProblemCompetitor } from "@/types/marketplace"
@@ -24,14 +26,19 @@ export function SponsorRow({
   problemId,
   competitors,
   nextBidCents,
+  events = [],
 }: {
   problemId: string
   competitors: ProblemCompetitor[]
   nextBidCents: number
+  /** Real recorded marketplace events for this problem, replayed as they arrive. */
+  events?: MarketEvent[]
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [placement, setPlacement] = useState<FeaturedPlacement | null | undefined>(undefined)
   const [requested, setRequested] = useState(false)
+  const { events: floating, spawn } = useFloatingEvents(2)
+  const shown = useRef(new Set<string>())
 
   useEffect(() => {
     let cancelled = false
@@ -58,6 +65,17 @@ export function SponsorRow({
     observer.observe(node)
     return () => { cancelled = true; observer.disconnect() }
   }, [problemId])
+
+  useEffect(() => {
+    const fresh = events.filter((event) => !shown.current.has(event.id))
+    if (!fresh.length) return
+    fresh.forEach((event, index) => {
+      shown.current.add(event.id)
+      // Staggered: two events landing together should read as a sequence, not
+      // a pile. Never labelled "just now" — these are replayed, not live.
+      setTimeout(() => spawn(event.text, toneFor(event.type)), index * 700)
+    })
+  }, [events, spawn])
 
   function trackClick() {
     if (!placement) return
@@ -92,12 +110,13 @@ export function SponsorRow({
   const otherNames = others.map((item) => item.name).join(", ")
 
   return (
-    <div ref={ref} className={`group/band ${band} flex items-center gap-2.5 py-2.5`}>
+    <div ref={ref} className={`group/band ${band} relative flex items-center gap-2.5 py-2.5`}>
+      <FloatingEventLayer events={floating} align="left" />
       <ProductIcon
         name={placement.product_name}
         seed={placement.registrable_domain}
         iconUrl={featured?.icon_url ?? null}
-        size={22}
+        size={28}
       />
 
       <div className="min-w-0 flex-1">

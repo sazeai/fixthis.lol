@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { createProblemSubscription } from "@/lib/marketplace/email"
-import { createProblemSlug, getRequestIp, isKnownBot, normalizeProblemStatement } from "@/lib/marketplace/helpers"
+import { createProblemSlug, getRequestIp, inferProblemCategory, isKnownBot, normalizeProblemStatement } from "@/lib/marketplace/helpers"
 import { diceSimilarity, jsonError, mutationAllowed } from "@/lib/marketplace/http"
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   const contentError = checkProblemStatement(parsed.data.statement)
   if (contentError) return jsonError(contentError)
 
-  const normalized = normalizeProblemStatement(parsed.data.statement)
+  const normalized = normalizeProblemStatement(`${parsed.data.targetProductName} ${parsed.data.statement}`)
   const supabase = createAdminClient()
   const { data: existingRows } = await supabase.from("problems").select("id,slug,normalized_statement").in("status", ["published", "pending"]).limit(300)
   const duplicate = (existingRows || []).map((item) => ({ ...item, similarity: diceSimilarity(normalized, item.normalized_statement) })).sort((a, b) => b.similarity - a.similarity)[0]
@@ -53,7 +53,11 @@ export async function POST(request: Request) {
   for (let attempt = 0; attempt < 4; attempt += 1) {
     const slug = createProblemSlug(parsed.data.statement)
     const { data: problem, error } = await supabase.from("problems").insert({
-      slug, statement: parsed.data.statement, normalized_statement: normalized, category: parsed.data.category,
+      slug, statement: parsed.data.statement, normalized_statement: normalized,
+      target_product_name: parsed.data.targetProductName,
+      switch_condition: parsed.data.switchCondition || null,
+      // Inferred rather than asked for; admin can correct it.
+      category: parsed.data.category || inferProblemCategory(parsed.data.targetProductName, parsed.data.statement),
       origin: parsed.data.origin, submitted_by: user.id, status, published_at: new Date().toISOString(),
     }).select("id,slug").single()
     if (!error && problem) {

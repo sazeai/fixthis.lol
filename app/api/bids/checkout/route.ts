@@ -36,6 +36,7 @@ export async function POST(request: Request) {
     p_destination_url: product.destinationUrl,
     p_owner_email: parsed.data.email.toLowerCase(),
     p_amount_cents: parsed.data.amountCents,
+    p_event_text: parsed.data.eventText || null,
   })
   if (quoteError || !quoteRows?.[0]) {
     const message = quoteError?.message?.includes("Minimum bid") ? quoteError.message : quoteError?.message?.includes("managed by another") ? quoteError.message : "The bid changed. Refresh and try again."

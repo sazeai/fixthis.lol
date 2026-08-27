@@ -7,7 +7,7 @@ import { ModalShell } from "@/components/marketplace/modal-shell"
 import { TurnstileField } from "@/components/marketplace/turnstile-field"
 import { formatMoney } from "@/lib/marketplace/helpers"
 
-export type BidPrefill = { productName?: string; productTagline?: string; destinationUrl?: string; email?: string }
+export type BidPrefill = { productName?: string; productTagline?: string; destinationUrl?: string; email?: string; eventText?: string }
 
 export function BidModal({
   problemId,
@@ -44,6 +44,7 @@ export function BidModal({
         problemId,
         productName: form.get("productName"),
         productTagline: form.get("productTagline"),
+        eventText: form.get("eventText"),
         destinationUrl: form.get("destinationUrl"),
         email: form.get("email"),
         amountCents,
@@ -100,6 +101,9 @@ export function BidModal({
           </div>
           <FormField label="One-sentence fit">
             <TextArea name="productTagline" minLength={3} maxLength={180} required defaultValue={prefill?.productTagline} placeholder="Simple, privacy-friendly analytics without the GA4 learning curve." />
+          </FormField>
+          <FormField label="Your move" helper="Optional, up to 60 characters. Shown as a brief flash on the board when it changes — not printed on the card.">
+            <TextInput name="eventText" maxLength={60} defaultValue={prefill?.eventText} placeholder="FREE MIGRATION" />
           </FormField>
           <FormField label="HTTPS product URL">
             <TextInput name="destinationUrl" type="url" required defaultValue={prefill?.destinationUrl} placeholder="https://plausible.io" />

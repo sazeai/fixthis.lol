@@ -5,8 +5,15 @@ const email = z.string().trim().email("Enter a valid email address.").max(254)
 const honeypot = z.string().max(0).optional().default("")
 
 export const problemSchema = z.object({
-  statement: z.string().trim().min(20, "Describe the problem in at least 20 characters.").max(280),
-  category: z.enum(PROBLEM_CATEGORIES),
+  /** The software being complained about, e.g. "Intercom". */
+  targetProductName: z.string().trim().min(1, "Name the software this is about.").max(60),
+  statement: z.string().trim().min(20, "Say a bit more about what is wrong.").max(280),
+  /** What would win them over. Optional, and the closest thing to a brief for advertisers. */
+  switchCondition: z.string().trim().max(160).optional().default("")
+    .refine((value) => !value || value.length >= 3, "Add a little more detail."),
+  // Category is no longer asked for: it is inferred server-side and can be
+  // corrected in admin. One less field between a person and their complaint.
+  category: z.enum(PROBLEM_CATEGORIES).optional(),
   origin: z.enum(["user", "founder"]).default("user"),
   email: z.union([email, z.literal("")]).optional().default(""),
   turnstileToken: z.string().optional().default(""),
@@ -25,6 +32,13 @@ export const bidSchema = z.object({
   productName: z.string().trim().min(1).max(80),
   productTagline: z.string().trim().min(3).max(180),
   destinationUrl: z.string().trim().url().max(2048),
+  /**
+   * Short competitive hook, fired as a floating event rather than printed on
+   * the card. Kept apart from the tagline so it cannot become permanent
+   * coupon text sitting over the placement.
+   */
+  eventText: z.string().trim().max(60).optional().default("")
+    .refine((value) => !value || value.length >= 3, "Make it a few characters longer."),
   email,
   amountCents: z.coerce.number().int().min(500).max(10_000_000),
   turnstileToken: z.string().optional().default(""),

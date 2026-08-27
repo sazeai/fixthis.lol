@@ -6,6 +6,36 @@ export const PROBLEM_CATEGORIES = [
   "Finance", "Knowledge", "Marketing", "Product", "Productivity", "Sales", "Support", "Other",
 ] as const
 
+/**
+ * Infer a category from the software named and the complaint text.
+ *
+ * The form no longer asks — one less field between a person and the thing they
+ * came to say. Keyword matching is deliberately shallow: it only has to be
+ * right often enough for the category filter to be useful, and admin can
+ * correct anything it gets wrong.
+ */
+const CATEGORY_HINTS: Array<[(typeof PROBLEM_CATEGORIES)[number], RegExp]> = [
+  ["Support", /intercom|zendesk|helpscout|freshdesk|crisp|tidio|chatwoot|support|helpdesk|ticket|live chat/i],
+  ["Analytics", /google analytics|ga4|plausible|mixpanel|amplitude|analytic|dashboard|metrics|tracking/i],
+  ["Automation", /zapier|make\.com|integromat|n8n|workflow|automation|integrat/i],
+  ["Finance", /quickbooks|xero|freshbooks|stripe|invoice|billing|accounting|bookkeep|expense|payroll|tax/i],
+  ["Marketing", /hootsuite|buffer|later|sprout|mailchimp|klaviyo|typeform|seo|newsletter|campaign|social media|email marketing/i],
+  ["Sales", /salesforce|hubspot|pipedrive|crm|lead|prospect|outreach|follow.?up|deal/i],
+  ["Design", /figma|canva|adobe|photoshop|illustrator|sketch|design|logo|image|photo|video edit/i],
+  ["Developer tools", /github|gitlab|vercel|aws|vmware|docker|kubernetes|api|deploy|server|hosting|database|captcha|bot protection/i],
+  ["Knowledge", /notion|obsidian|confluence|evernote|roam|wiki|notes?|documentation|bookmark|knowledge/i],
+  ["Communication", /slack|teams|discord|zoom|skype|meet|call|messaging|inbox|chat/i],
+  ["Productivity", /asana|trello|monday|clickup|jira|linear|airtable|calendar|schedul|task|project management|spreadsheet|pdf/i],
+  ["Product", /feedback|roadmap|review|user research|app store|survey/i],
+]
+
+export function inferProblemCategory(targetProductName: string, statement: string): (typeof PROBLEM_CATEGORIES)[number] {
+  // The named product is the stronger signal, so it is weighed first.
+  for (const [category, pattern] of CATEGORY_HINTS) if (pattern.test(targetProductName)) return category
+  for (const [category, pattern] of CATEGORY_HINTS) if (pattern.test(statement)) return category
+  return "Other"
+}
+
 export function normalizeProblemStatement(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()
 }

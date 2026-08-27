@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react"
 import { Check, Flame, LoaderCircle } from "lucide-react"
+import { FloatingEventLayer, useFloatingEvents } from "@/components/marketplace/floating-events"
 
 export function SupportProblem({
   problemId,
@@ -21,6 +22,7 @@ export function SupportProblem({
   const [saved, setSaved] = useState(false)
   const [message, setMessage] = useState("")
   const [bumped, setBumped] = useState(false)
+  const { events, spawn } = useFloatingEvents()
 
   async function send(body: Record<string, unknown> = {}) {
     setState("loading")
@@ -40,6 +42,8 @@ export function SupportProblem({
       setCount(result.support_count)
       setBumped(true)
       setTimeout(() => setBumped(false), 420)
+      // The visitor's own vote is a real event, so it animates immediately.
+      spawn("+1 SAME PAIN", "pain")
     }
     setState("supported")
     return true
@@ -69,18 +73,20 @@ export function SupportProblem({
           : supported ? <Check size={compact ? 11 : 12} />
           : <Flame size={compact ? 11 : 12} />}
       </span>
-      <span className="whitespace-nowrap">{supported ? "Counted" : compact ? "Me too" : "I have this too"}</span>
-      <span className="h-3 w-px shrink-0 bg-current opacity-25" />
-      <span className={`tabular-nums transition-transform duration-300 ease-out ${bumped ? "scale-125" : "scale-100"}`}>
+      {/* The count leads: it is the social proof, and the words are just the
+          verb attached to it. */}
+      <span className={`shrink-0 font-semibold tabular-nums transition-transform duration-300 ease-out ${bumped ? "scale-[1.35]" : "scale-100"}`}>
         {count.toLocaleString("en-US")}
       </span>
+      <span className="whitespace-nowrap">{supported ? "Counted" : "Me too"}</span>
     </button>
   )
 
   // On a board card the vote is the whole interaction — never offer the detail.
   if (compact) {
     return (
-      <div className="min-w-0">
+      <div className="relative min-w-0">
+        <FloatingEventLayer events={events} />
         {button}
         {message ? <p className="mt-1.5 text-[10px] text-red-700">{message}</p> : null}
       </div>
@@ -89,7 +95,8 @@ export function SupportProblem({
 
   return (
     <div className="flex flex-col gap-2.5">
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="relative flex flex-wrap items-center gap-1.5">
+        <FloatingEventLayer events={events} align="left" />
         {button}
         {children}
         {/* The optional detail is offered quietly, after the vote has already

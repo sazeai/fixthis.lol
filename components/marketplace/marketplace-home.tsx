@@ -3,12 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { ChevronDown, Search, X } from "lucide-react"
 import { DeckPagination } from "@/components/marketplace/deck-pagination"
-import { PostProblemModal } from "@/components/marketplace/post-problem-modal"
+import { useMarketEvents } from "@/components/marketplace/market-event-feed"
+import { boardPageCount, buildBoardPage, ORGANIC_PER_PAGE, PAGE_SIZE } from "@/lib/marketplace/live-fights"
 import { ProblemCard } from "@/components/marketplace/problem-card"
 import type { ProblemSection, ProblemSectionId, ProblemSummary } from "@/types/marketplace"
-
-/** Cards per page in the deck. */
-const PAGE_SIZE = 12
 
 const SECTION_MARK: Record<ProblemSectionId, string> = {
   trending: "01",
@@ -22,6 +20,8 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
   const [category, setCategory] = useState("All")
   const [active, setActive] = useState<ProblemSectionId>(sections[0]?.id || "trending")
   const [page, setPage] = useState(1)
+  // One poll for the whole board rather than one per card.
+  const eventsByProblem = useMarketEvents(true)
   const deckRef = useRef<HTMLDivElement>(null)
 
   const categories = useMemo(
@@ -46,11 +46,16 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
   const activeSection = sections.find((section) => section.id === active) || sections[0]
   const pool = filtering ? results : activeSection?.problems || []
 
-  const pageCount = Math.max(1, Math.ceil(pool.length / PAGE_SIZE))
+  // Pages are counted on organic supply; injected fights are additional
+  // circulation and must never change how many pages of problems exist.
+  const pageCount = boardPageCount(pool.length)
   // Clamp rather than trusting state: switching to a shorter section or
   // narrowing a filter can strand the page number past the end.
   const currentPage = Math.min(page, pageCount)
-  const visible = pool.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  // A filtered view is a search result, not the board — never inject into it.
+  const entries = filtering
+    ? pool.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((problem) => ({ problem, injected: false }))
+    : buildBoardPage(pool, currentPage, problems)
 
   // A new section or a changed filter is a new list — start at its first page.
   useEffect(() => { setPage(1) }, [active, query, category])
@@ -74,11 +79,11 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
           <div>
             <div className="flex items-center gap-2.5 justify-center pt-2.5">
               <span className="size-2 rounded-full bg-[#ef4e37] shadow-[0_0_0_3px_rgba(239,78,55,.11)]" />
-              <h2 className="whitespace-nowrap font-serif text-[16px] tracking-[-0.02em] text-[#111] sm:text-[18px]">Problems up for grabs</h2>
+              <h2 className="whitespace-nowrap font-serif text-[16px] tracking-[-0.02em] text-[#111] sm:text-[18px]">What people are sick of</h2>
               <span className="whitespace-nowrap rounded-full border border-[rgba(55,50,47,.12)] bg-white px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.08em] text-[#777]">{problems.length} real</span>
             </div>
             <p className="mt-1.5 text-[10px] text-[#888]">
-              Validate a pain or claim its featured placement from this board.
+              Real software frustrations. Pile onto the ones you have too.
                  </p>
           </div>
           <div className="grid grid-cols-3 divide-x divide-[rgba(55,50,47,.1)] border-t border-[rgba(55,50,47,.1)] pt-3 sm:min-w-[48%] sm:border-t-0 sm:pt-0">
@@ -166,11 +171,16 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
         <p className="border-b border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-5 py-3 text-[11px] text-[#8a857e] sm:px-7">{activeSection.blurb}</p>
       ) : null}
 
-      {visible.length ? (
+      {entries.length ? (
         <div ref={deckRef} className="grid scroll-mt-24 bg-[rgba(55,50,47,0.12)] md:grid-cols-2 md:gap-px">
-          {visible.map((problem, index) => (
-            <div key={problem.id} className={`${index ? "border-t border-[rgba(55,50,47,.12)]" : ""} md:border-t-0`}>
-              <ProblemCard problem={problem} index={(currentPage - 1) * PAGE_SIZE + index} />
+          {entries.map((entry, index) => (
+            <div key={`${entry.problem.id}-${entry.injected ? "fight" : "organic"}`} className={`${index ? "border-t border-[rgba(55,50,47,.12)]" : ""} md:border-t-0`}>
+              <ProblemCard
+                problem={entry.problem}
+                index={(currentPage - 1) * ORGANIC_PER_PAGE + index}
+                liveFight={entry.injected}
+                events={eventsByProblem[entry.problem.id]}
+              />
             </div>
           ))}
         </div>
@@ -185,7 +195,7 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
         page={currentPage}
         pageCount={pageCount}
         total={pool.length}
-        pageSize={PAGE_SIZE}
+        pageSize={ORGANIC_PER_PAGE}
         onChange={goToPage}
       />
     </section>
