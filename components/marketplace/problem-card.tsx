@@ -56,8 +56,10 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
           “{problem.statement}”
         </p>
 
-        {/* The advertiser surface: one featured product, the rest stacked. */}
-        <div className="pointer-events-auto mt-3">
+        {/* The band and the actions sit together at the foot of the card, so the
+            band's lower rule doubles as the action row's divider instead of
+            stacking two hairlines a few pixels apart. */}
+        <div className="pointer-events-auto mt-auto pt-3">
           <SponsorRow
             problemId={problem.id}
             competitors={problem.competitors}
@@ -66,7 +68,7 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
         </div>
 
         {/* Actions */}
-        <div className="pointer-events-auto mt-auto flex items-center justify-between gap-2 border-t border-[rgba(55,50,47,0.1)] pt-2.5">
+        <div className="pointer-events-auto flex items-center justify-between gap-2 pt-2.5">
           <SupportProblem problemId={problem.id} initialCount={problem.support_count} compact />
           <BidModal problemId={problem.id} statement={problem.statement} nextBidCents={problem.next_bid_cents} compact />
         </div>

@@ -7,12 +7,18 @@ import { formatMoney } from "@/lib/marketplace/helpers"
 import type { FeaturedPlacement, ProblemCompetitor } from "@/types/marketplace"
 
 /**
- * The advertiser surface on a board card.
+ * The advertiser band on a board card.
  *
- * One product is featured and clickable — the rotation decides which, per
- * visitor. Everyone else appears as a desaturated icon in a stack: persistent
- * presence for positions below #1 (so lower placements are worth buying)
- * without diluting the click advantage that makes #1 worth competing for.
+ * Deliberately not a panel. The card is already a panel inside a grid of
+ * panels, so an inset box would be a third level of nesting the rest of the
+ * page never uses. Zones here are separated the way the action row separates
+ * itself — a hairline rule running the card's full width — so the band reads as
+ * part of the card rather than something dropped into it.
+ *
+ * One product is featured and clickable; the rotation picks which, per visitor.
+ * The others appear only as desaturated icons, so lower placements keep
+ * persistent presence without diluting the click advantage of being first.
+ * The full battlefield lives on the problem page, which has room for a table.
  */
 export function SponsorRow({
   problemId,
@@ -26,7 +32,6 @@ export function SponsorRow({
   const ref = useRef<HTMLDivElement>(null)
   const [placement, setPlacement] = useState<FeaturedPlacement | null | undefined>(undefined)
   const [requested, setRequested] = useState(false)
-  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -54,56 +59,46 @@ export function SponsorRow({
     return () => { cancelled = true; observer.disconnect() }
   }, [problemId])
 
-  // Close the reveal on an outside click or Escape.
-  useEffect(() => {
-    if (!open) return
-    const onDown = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false)
-    }
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false) }
-    document.addEventListener("mousedown", onDown)
-    document.addEventListener("keydown", onKey)
-    return () => { document.removeEventListener("mousedown", onDown); document.removeEventListener("keydown", onKey) }
-  }, [open])
-
   function trackClick() {
     if (!placement) return
     navigator.sendBeacon?.(`/api/placements/${placement.placement_id}/click`)
   }
 
-  // The rotation picks the featured placement client-side, but the card was
-  // served with every competitor's icon — so look it up rather than widening
-  // the RPC's return shape.
-  const featured = placement ? competitors.find((item) => item.placement_id === placement.placement_id) : undefined
-  const others = placement ? competitors.filter((item) => item.placement_id !== placement.placement_id) : []
+  // Full-bleed: cancel the card's padding so the rules meet both edges, then
+  // put the padding back on the content.
+  const band = "-mx-5 border-y border-[rgba(55,50,47,0.1)] px-5 sm:-mx-6 sm:px-6"
+
+  if (placement === undefined) {
+    return (
+      <div ref={ref} className={`${band} py-2.5`}>
+        <span aria-hidden="true" className={`block h-[10px] w-32 max-w-full rounded-full bg-[rgba(55,50,47,.08)] ${requested ? "animate-pulse" : ""}`} />
+      </div>
+    )
+  }
 
   if (placement === null) {
     return (
-      <div ref={ref} className="flex min-h-[34px] items-center gap-1.5 border border-dashed border-[rgba(55,50,47,0.16)] px-2.5 py-2">
-        <Flag size={11} className="shrink-0 text-[#c4c0ba]" />
-        <span className="truncate font-mono text-[9px] uppercase tracking-[0.11em] text-[#a8a39c]">
+      <div ref={ref} className={`${band} flex items-center gap-1.5 py-2.5`}>
+        <Flag size={10} className="shrink-0 text-[#c4c0ba]" />
+        <span className="truncate font-mono text-[8px] uppercase tracking-[0.12em] text-[#a8a39c]">
           Unclaimed · first claim {formatMoney(nextBidCents)}
         </span>
       </div>
     )
   }
 
-  if (placement === undefined) {
-    return (
-      <div ref={ref} className="min-h-[34px] border border-[rgba(55,50,47,0.09)] px-2.5 py-2">
-        <span aria-hidden="true" className={`block h-[10px] w-32 max-w-full rounded-full bg-[rgba(55,50,47,.09)] ${requested ? "animate-pulse" : ""}`} />
-      </div>
-    )
-  }
+  const featured = competitors.find((item) => item.placement_id === placement.placement_id)
+  const others = competitors.filter((item) => item.placement_id !== placement.placement_id)
+  const otherNames = others.map((item) => item.name).join(", ")
 
   return (
-    <div ref={ref} className="relative bg-white/70 px-2.5 py-2 shadow-[inset_0_0_0_1px_rgba(55,50,47,.09)]">
+    <div ref={ref} className={`group/band ${band} py-2.5`}>
       <div className="flex min-w-0 items-center gap-2">
         <ProductIcon
           name={placement.product_name}
           seed={placement.registrable_domain}
           iconUrl={featured?.icon_url ?? null}
-          size={20}
+          size={18}
         />
         <span className="truncate text-[13px] font-semibold leading-tight text-[#111]">{placement.product_name}</span>
         <a
@@ -111,71 +106,47 @@ export function SponsorRow({
           target="_blank"
           rel="sponsored nofollow noopener"
           onClick={trackClick}
-          className="group/visit ml-auto inline-flex shrink-0 items-center gap-0.5 font-mono text-[9px] uppercase tracking-[0.1em] text-[#8a857e] transition-colors hover:text-[#ef4e37]"
+          className="group/visit ml-auto inline-flex shrink-0 items-center gap-0.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[#a8a39c] transition-colors hover:text-[#ef4e37]"
         >
           Visit
-          <ArrowUpRight size={10} className="transition-transform duration-200 group-hover/visit:-translate-y-px group-hover/visit:translate-x-px" />
+          <ArrowUpRight size={9} className="transition-transform duration-200 group-hover/visit:-translate-y-px group-hover/visit:translate-x-px" />
         </a>
       </div>
 
-      <div className="mt-1.5 flex min-w-0 items-center gap-2">
-        <span className="font-mono text-[8px] uppercase tracking-[0.12em] text-[#a8a39c]">
+      <div className="mt-1 flex min-w-0 items-center gap-2">
+        <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.12em] text-[#bbb6ae]">
           {placement.claim_kind === "founding" ? "Founding claim" : "Sponsored"}
         </span>
 
         {others.length ? (
-          <button
-            type="button"
-            onClick={() => setOpen((value) => !value)}
-            aria-expanded={open}
-            aria-label={`${others.length} other ${others.length === 1 ? "product" : "products"} competing for this problem`}
-            className="ml-auto inline-flex shrink-0 items-center gap-1.5"
-          >
-            <span className="flex">
+          <span className="ml-auto flex min-w-0 items-center gap-1.5" title={`Also competing: ${otherNames}`}>
+            {/* Overlapped at rest, fanned on hover — a shift within the line's
+                own bounds, so nothing above or below it moves. */}
+            <span className="flex shrink-0">
               {others.slice(0, 3).map((item, index) => (
                 <ProductIcon
                   key={item.placement_id}
                   name={item.name}
                   seed={item.registrable_domain}
                   iconUrl={item.icon_url}
-                  size={16}
+                  size={13}
                   muted
-                  className={index ? "-ml-1.5 ring-2 ring-white" : "ring-2 ring-white"}
+                  className={`transition-[margin] duration-300 ease-out ${index ? "-ml-1.5 group-hover/band:ml-0.5" : ""}`}
                 />
               ))}
             </span>
-            <span className="border-b border-[rgba(55,50,47,.25)] font-mono text-[8px] uppercase tracking-[0.1em] text-[#8a857e] transition-colors hover:text-[#111]">
-              {others.length} more
+            {/* Count at rest, names on hover — the disclosure never leaves. */}
+            <span className="relative min-w-0 font-mono text-[8px] uppercase tracking-[0.12em] text-[#a8a39c]">
+              <span className="block truncate transition-opacity duration-200 group-hover/band:opacity-0">
+                {others.length} competing
+              </span>
+              <span className="absolute inset-0 truncate text-right opacity-0 transition-opacity duration-200 group-hover/band:opacity-100">
+                {otherNames}
+              </span>
             </span>
-          </button>
+          </span>
         ) : null}
       </div>
-
-      {open && others.length ? (
-        <div className="absolute inset-x-0 top-full z-20 mt-1 border border-[rgba(55,50,47,0.12)] bg-white px-3 py-2.5 shadow-[0_2px_14px_rgba(55,50,47,.1)]">
-          <p className="font-mono text-[8px] uppercase tracking-[0.12em] text-[#a8a39c]">Competing for this problem</p>
-          <div className="mt-2">
-            {competitors.slice(0, 5).map((item, index) => (
-              <div
-                key={item.placement_id}
-                className={`flex items-center gap-2 py-1.5 ${index ? "border-t border-[rgba(55,50,47,0.08)]" : ""}`}
-              >
-                <ProductIcon name={item.name} seed={item.registrable_domain} iconUrl={item.icon_url} size={17} />
-                <span className="truncate text-[12px] text-[#111]">{item.name}</span>
-                <span className="ml-auto shrink-0 font-mono text-[11px] tabular-nums text-[#111]">
-                  {item.founding_claim ? "$0" : formatMoney(item.current_bid_cents)}
-                </span>
-                <span className="w-11 shrink-0 text-right font-mono text-[8px] uppercase tracking-[0.08em] text-[#a8a39c]">
-                  ~{item.visibility_percentage}%
-                </span>
-              </div>
-            ))}
-          </div>
-          <p className="mt-2 text-[10px] leading-4 text-[#8a857e]">
-            One is shown at a time. Higher bids appear more often.
-          </p>
-        </div>
-      ) : null}
     </div>
   )
 }
