@@ -36,16 +36,16 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
         {/* Meta */}
         <div className="flex items-center gap-2">
           <span
-            className={`font-mono text-[9px] font-semibold tabular-nums transition-colors duration-300 bg-white ${
-              isFirst ? "text-[#d84d37]" : "text-[#c4c0ba] group-hover:text-[#777]"
+            className={`font-mono text-[9px] font-semibold tabular-nums transition-colors duration-300 bg-white p-1.5 rounded-md ${
+              isFirst ? "text-[#d84d37]" : "text-[#929292] group-hover:text-[#777]"
             }`}
           >
             {String(index + 1).padStart(2, "0")}
           </span>
           <span className="h-2.5 w-px bg-[rgba(55,50,47,.16)]" />
-          <span className="truncate font-mono text-[9px] uppercase tracking-[0.13em] text-[#8a857e]">{problem.category}</span>
+          <span className="truncate font-mono text-[12px] uppercase tracking-[0.05em] font-semibold text-[#8a857e]">{problem.category}</span>
           {problem.origin === "curated" ? (
-            <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.1em] text-[#bbb6ae]">Curated</span>
+            <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.1em] text-[#7d7d7d]">Curated</span>
           ) : null}
           {isFirst ? (
             <span className="ml-auto shrink-0 font-mono text-[8px] uppercase tracking-[0.12em] text-[#d84d37]">Trending</span>
