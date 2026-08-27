@@ -28,9 +28,9 @@ ${reason.stack || ""}`
 
 function HowItWorks() {
   const steps = [
-    ["01", "Post a problem", "Describe what you need, or validate an existing pain with one click."],
-    ["02", "Products compete", "Founders pay once to claim exposure against that exact problem."],
-    ["03", "Attention rotates", "The leading product gets about 60%; other top bidders still receive traffic."],
+    ["01", "Post a problem", "Post a customer pain your SaaS solves, or choose an existing problem already gathering demand."],
+    ["02", "Products compete", "Place a one-time bid to show your SaaS as a paid solution on that exact problem page."],
+    ["03", "Attention rotates", "The highest bid receives about 60% of visits; the other top placements rotate through the remaining traffic."],
   ]
   return <section id="how-it-works" className="w-full"><header className="flex flex-col gap-1.5 border-y border-[rgba(55,50,47,0.12)] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-8"><div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3"><p className="whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.16em] text-[#999]">How it works</p><h2 className="font-serif text-[19px] leading-tight text-[#111] sm:text-xl">Post. Validate. Compete.</h2></div><p className="text-[11px] text-[#777]">Magic link required to post.</p></header><div className="grid border-y border-[rgba(55,50,47,0.12)] bg-[rgba(55,50,47,0.12)] md:grid-cols-3 md:gap-px">{steps.map(([number, title, body], index) => <article key={number} className={`bg-[#fafafa] p-7 transition-colors hover:bg-white ${index ? "border-t border-[rgba(55,50,47,0.12)] md:border-t-0" : ""}`}><p className="font-mono text-[9px] tracking-[0.16em] text-[#aaa]">{number}</p><h3 className="mt-6 font-serif text-xl text-[#111]">{title}</h3><p className="mt-2 text-[13px] leading-5 text-[#666]">{body}</p></article>)}</div></section>
 }
