@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { timingSafeEqual } from "crypto"
 import { isAdminAuthenticated } from "@/lib/marketplace/admin-auth"
+import { refreshProductIcon } from "@/lib/marketplace/favicon"
 import { createAdminClient } from "@/utils/supabase/admin"
 
 export const runtime = "nodejs"
@@ -28,6 +29,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Retention sweep failed." }, { status: 500 })
   }
   const result = data?.[0] || {}
-  console.info("FIXTHIS retention sweep", result)
-  return NextResponse.json({ ok: true, ...result })
+
+  // Backfill icons for advertisers that predate icon support, a few per sweep
+  // so one run cannot stall on a batch of slow hosts.
+  const supabase = createAdminClient()
+  const { data: pending } = await supabase
+    .from("products").select("id,registrable_domain")
+    .is("icon_attempted_at", null).eq("status", "active").limit(5)
+  let iconsFetched = 0
+  for (const product of pending || []) {
+    const icon = await refreshProductIcon(supabase, product.id, product.registrable_domain).catch(() => null)
+    if (icon) iconsFetched += 1
+  }
+
+  console.info("FIXTHIS retention sweep", { ...result, iconsFetched })
+  return NextResponse.json({ ok: true, ...result, iconsFetched })
 }

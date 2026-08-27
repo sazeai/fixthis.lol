@@ -23,6 +23,8 @@ export type ProblemSummary = {
   clicks_24h: number
   bids_24h: number
   trending_score: number
+  /** Every active advertiser, ranked. The card features one and stacks the rest. */
+  competitors: ProblemCompetitor[]
   created_at: string
   published_at: string | null
 }
@@ -34,6 +36,20 @@ export type ProblemSection = {
   title: string
   blurb: string
   problems: ProblemSummary[]
+}
+
+/** One advertiser competing for a problem, as shown in the card's stack. */
+export type ProblemCompetitor = {
+  product_id: string
+  placement_id: string
+  name: string
+  registrable_domain: string
+  rank: number
+  current_bid_cents: number
+  visibility_percentage: number
+  founding_claim: boolean
+  /** Cache-busting icon URL, or null when the monogram should render. */
+  icon_url: string | null
 }
 
 export type RotationShare = { rank: number; percentage: number }

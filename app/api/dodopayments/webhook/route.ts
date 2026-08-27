@@ -3,6 +3,7 @@ import "server-only"
 import { NextResponse } from "next/server"
 import { Webhook } from "standardwebhooks"
 import { notifyProblemSubscribers, sendManagementLink } from "@/lib/marketplace/email"
+import { refreshProductIcon } from "@/lib/marketplace/favicon"
 import { createManagementToken } from "@/lib/marketplace/management"
 import { invalidateProblemOrdering } from "@/lib/marketplace/queries"
 import { createAdminClient } from "@/utils/supabase/admin"
@@ -75,8 +76,13 @@ export async function POST(request: Request) {
       })
       if (error) throw error
       invalidateProblemOrdering()
-      const { data: product } = await supabase.from("products").select("id,name,owner_email").eq("registrable_domain", quote.registrable_domain).single()
+      const { data: product } = await supabase.from("products").select("id,name,owner_email,icon_attempted_at").eq("registrable_domain", quote.registrable_domain).single()
       if (product) {
+        // First settlement for this domain: grab the favicon once. Never blocks
+        // the webhook — a missing icon just means the monogram renders.
+        if (!product.icon_attempted_at) {
+          await refreshProductIcon(supabase, product.id, quote.registrable_domain).catch(console.error)
+        }
         await sendManagementLink(product.owner_email, createManagementToken(product.id, product.owner_email), product.name, new URL(request.url).origin).catch(console.error)
         const problem = Array.isArray(quote.problems) ? quote.problems[0] : quote.problems
         if ((beforeCount || 0) === 0 && problem) await notifyProblemSubscribers(quote.problem_id, problem.statement, product.name, problem.slug, new URL(request.url).origin).catch(console.error)

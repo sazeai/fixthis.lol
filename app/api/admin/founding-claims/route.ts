@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { isAdminAuthenticated } from "@/lib/marketplace/admin-auth"
+import { refreshProductIcon } from "@/lib/marketplace/favicon"
 import { normalizeProductUrl } from "@/lib/marketplace/helpers"
 import { invalidateProblemOrdering } from "@/lib/marketplace/queries"
 import { createAdminClient } from "@/utils/supabase/admin"
@@ -22,6 +23,7 @@ export async function POST(request: Request) {
     console.error("Founding claim rotation rebuild failed", rotationError)
     return NextResponse.json({ error: "Claim saved but the rotation could not be rebuilt." }, { status: 500 })
   }
+  await refreshProductIcon(supabase, product.id, normalized.registrableDomain).catch(console.error)
   invalidateProblemOrdering()
   return NextResponse.json({ ok: true })
 }

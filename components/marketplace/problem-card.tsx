@@ -1,13 +1,12 @@
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 import { BidModal } from "@/components/marketplace/bid-modal"
-import { FeaturedSolution } from "@/components/marketplace/featured-solution"
+import { SponsorRow } from "@/components/marketplace/sponsor-row"
 import { SupportProblem } from "@/components/marketplace/support-problem"
 import type { ProblemSummary } from "@/types/marketplace"
 
 export function ProblemCard({ problem, index }: { problem: ProblemSummary; index: number }) {
   const isFirst = index === 0
-  const contested = problem.competitor_count > 0
 
   return (
     <article
@@ -57,16 +56,13 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
           “{problem.statement}”
         </p>
 
-        {/* One status line: the featured solution, or an honest unclaimed note. */}
-        <div className="mt-3 flex min-w-0 items-center gap-2">
-          <div className="pointer-events-auto min-w-0 flex-1">
-            <FeaturedSolution problemId={problem.id} compact nextBidCents={problem.next_bid_cents} />
-          </div>
-          {contested ? (
-            <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.1em] text-[#8a857e]">
-              {problem.competitor_count} competing
-            </span>
-          ) : null}
+        {/* The advertiser surface: one featured product, the rest stacked. */}
+        <div className="pointer-events-auto mt-3">
+          <SponsorRow
+            problemId={problem.id}
+            competitors={problem.competitors}
+            nextBidCents={problem.next_bid_cents}
+          />
         </div>
 
         {/* Actions */}

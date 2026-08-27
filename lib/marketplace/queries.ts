@@ -2,7 +2,7 @@ import "server-only"
 
 import { cache } from "react"
 import { rotationPercentages } from "@/lib/marketplace/helpers"
-import type { AdminComplaint, AdminPlacement, AdminProblem, BattlefieldEntry, FounderPlacementStats, ProblemDetail, ProblemSummary, PublicTrafficStats } from "@/types/marketplace"
+import type { AdminComplaint, AdminPlacement, AdminProblem, BattlefieldEntry, FounderPlacementStats, ProblemCompetitor, ProblemDetail, ProblemSummary, PublicTrafficStats } from "@/types/marketplace"
 import { createAdminClient } from "@/utils/supabase/admin"
 
 type Row = Record<string, any>
@@ -36,6 +36,35 @@ function toBattlefield(rows: Row[]): BattlefieldEntry[] {
   })
 }
 
+/** Icon URL carries the fetch timestamp so a refreshed icon busts its own cache. */
+export function productIconUrl(product: Row | null | undefined): string | null {
+  if (!product?.icon_base64) return null
+  const version = product.icon_fetched_at ? new Date(product.icon_fetched_at).getTime() : 0
+  return `/api/products/${product.id}/icon?v=${version}`
+}
+
+function toCompetitors(rows: Row[]): ProblemCompetitor[] {
+  const sorted = [...rows].sort(
+    (a, b) => number(b.current_bid_cents) - number(a.current_bid_cents)
+      || new Date(a.settled_at || 0).getTime() - new Date(b.settled_at || 0).getTime(),
+  )
+  const shares = rotationPercentages(Math.min(sorted.length, 5))
+  return sorted.map((row, index) => {
+    const product = Array.isArray(row.products) ? row.products[0] : row.products
+    return {
+      product_id: product?.id || row.product_id,
+      placement_id: row.id,
+      name: product?.name || "Unknown product",
+      registrable_domain: product?.registrable_domain || "",
+      rank: index + 1,
+      current_bid_cents: number(row.current_bid_cents),
+      visibility_percentage: index < 5 ? (shares[index] || 0) : 0,
+      founding_claim: Boolean(row.founding_claim) && number(row.current_bid_cents) === 0,
+      icon_url: productIconUrl(product),
+    }
+  })
+}
+
 async function loadProblemSummaries(): Promise<ProblemSummary[]> {
   const supabase = createAdminClient()
   const { data: problems, error } = await supabase.from("problems").select("id,slug,statement,category,origin,launch_priority,support_count,impression_count,click_count,created_at,published_at").eq("status", "published").limit(200)
@@ -44,7 +73,7 @@ async function loadProblemSummaries(): Promise<ProblemSummary[]> {
   const ids = problems.map((item: Row) => item.id)
   const since = new Date(Date.now() - 86_400_000).toISOString()
   const [{ data: placements, error: placementError }, { data: supports }, { data: clicks }] = await Promise.all([
-    supabase.from("placements").select("id,problem_id,current_bid_cents,status").in("problem_id", ids).eq("status", "active"),
+    supabase.from("placements").select("id,problem_id,product_id,current_bid_cents,status,founding_claim,settled_at,products(id,name,registrable_domain,icon_base64,icon_fetched_at)").in("problem_id", ids).eq("status", "active"),
     supabase.from("problem_supports").select("problem_id").in("problem_id", ids).gte("created_at", since),
     supabase.from("placement_clicks").select("problem_id").in("problem_id", ids).gte("created_at", since),
   ])
@@ -86,6 +115,7 @@ async function loadProblemSummaries(): Promise<ProblemSummary[]> {
       ...row,
       support_count: number(row.support_count), impression_count: number(row.impression_count), click_count: number(row.click_count),
       competitor_count: active.length, top_bid_cents: topBid, next_bid_cents: topBid > 0 ? topBid + 500 : 500,
+      competitors: toCompetitors(active),
       supports_24h: supports24h, clicks_24h: clicks24h, bids_24h: bids24h,
       trending_score: supports24h * 5 + clicks24h + bids24h * 10 + freshness,
     } as ProblemSummary
@@ -167,6 +197,7 @@ export async function getProblemBySlug(slug: string): Promise<ProblemDetail | nu
     competitor_count: activePlacements.length,
     top_bid_cents: topBid,
     next_bid_cents: topBid > 0 ? topBid + 500 : 500,
+    competitors: toCompetitors(activePlacements),
     supports_24h: supports24h,
     clicks_24h: clicks24h,
     bids_24h: bids24h || 0,
@@ -242,7 +273,7 @@ export async function getAdminMarketplaceData(): Promise<{ problems: AdminProble
     ...(summaryById.get(row.id) || {
       id: row.id, slug: row.slug, statement: row.statement, category: row.category, origin: row.origin,
       launch_priority: row.launch_priority, support_count: number(row.support_count), impression_count: number(row.impression_count),
-      click_count: number(row.click_count), competitor_count: 0, top_bid_cents: 0, next_bid_cents: 500,
+      click_count: number(row.click_count), competitor_count: 0, top_bid_cents: 0, next_bid_cents: 500, competitors: [],
       supports_24h: 0, clicks_24h: 0, bids_24h: 0, created_at: row.created_at, published_at: row.published_at,
     }),
     status: row.status, normalized_statement: row.normalized_statement, updated_at: row.updated_at,

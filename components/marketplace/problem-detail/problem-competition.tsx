@@ -1,4 +1,5 @@
 import { FeaturedSolution } from "@/components/marketplace/featured-solution"
+import { ProductIcon } from "@/components/marketplace/product-icon"
 import { DetailBlockHeader } from "@/components/marketplace/problem-detail/detail-block-header"
 import { formatMoney } from "@/lib/marketplace/helpers"
 import type { ProblemDetail } from "@/types/marketplace"
@@ -37,6 +38,12 @@ export function ProblemCompetition({ problem }: { problem: ProblemDetail }) {
                   </span>
                   <div className="min-w-0">
                     <p className="flex items-center gap-1.5 truncate text-[12px] font-semibold text-[#111]">
+                      <ProductIcon
+                        name={entry.product_name}
+                        seed={entry.registrable_domain}
+                        iconUrl={problem.competitors.find((item) => item.placement_id === entry.placement_id)?.icon_url ?? null}
+                        size={17}
+                      />
                       {entry.product_name}
                       {entry.founding_claim ? <span className="shrink-0 bg-[#fff0eb] px-1.5 py-0.5 font-mono text-[7px] uppercase tracking-[0.1em] text-[#d84d37]">Founding</span> : null}
                     </p>
