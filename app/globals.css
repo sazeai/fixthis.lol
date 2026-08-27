@@ -406,12 +406,12 @@ html {
 }
 
 @keyframes problem-word-wave {
-  0%, 5%, 100% {
+  0%, 5.5%, 100% {
     color: inherit;
   }
 
-  2% {
-    color: #9b5145;
+  2.5% {
+    color: #ef4e37;
   }
 }
 
