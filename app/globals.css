@@ -401,23 +401,68 @@ html {
   font-family: var(--font-bricolage);
 }
 
-.problem-highlight-word {
-  animation: problem-word-wave var(--wave-duration) ease-in-out var(--word-delay) infinite;
+/*
+ * One sheen crossing the whole statement, rather than every word flashing on
+ * its own timer.
+ *
+ * The previous version wrapped each word in its own span with its own infinite
+ * animation - roughly twenty permanently animating elements per card, twelve
+ * cards to a page - and stepped `color` straight to the alert accent, so words
+ * blinked rather than lit up. This is one element per card and one continuous
+ * movement, with a long rest between passes.
+ */
+.problem-sheen {
+  --sheen-ink: #2f2c28;
+  --sheen-lit: #d84d37;
+  background-image: linear-gradient(
+    96deg,
+    var(--sheen-ink) 45%,
+    var(--sheen-lit) 50%,
+    var(--sheen-ink) 55%
+  );
+  background-size: 320% 100%;
+  background-repeat: no-repeat;
+  animation: problem-sheen 9s cubic-bezier(0.4, 0, 0.2, 1) var(--sheen-delay, 0s) infinite;
 }
 
-@keyframes problem-word-wave {
-  0%, 5.5%, 100% {
-    color: inherit;
-  }
-
-  2.5% {
-    color: #ef4e37;
+/* The gradient can only show through the glyphs where the clip is supported.
+   Without it the statement simply keeps its own colour and does not shine. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .problem-sheen {
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
   }
 }
 
+@keyframes problem-sheen {
+  0% {
+    background-position: 100% 0;
+  }
+
+  32%, 100% {
+    background-position: 0% 0;
+  }
+}
+
+/* Both of these have to restore the fill as well as stop the movement, or the
+   statement would be left permanently transparent. */
 @media (prefers-reduced-motion: reduce) {
-  .problem-highlight-word {
+  .problem-sheen {
     animation: none;
+    background-image: none;
+    color: var(--sheen-ink);
+    -webkit-text-fill-color: var(--sheen-ink);
+  }
+}
+
+@media (forced-colors: active) {
+  .problem-sheen {
+    animation: none;
+    background-image: none;
+    color: currentColor;
+    -webkit-text-fill-color: currentColor;
   }
 }
 

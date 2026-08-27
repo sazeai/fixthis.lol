@@ -1,32 +1,43 @@
-import type { CSSProperties } from "react"
+import type { CSSProperties, ElementType } from "react"
 
-type WordStyle = CSSProperties & {
-  "--word-delay": string
-  "--wave-duration": string
+type SheenStyle = CSSProperties & {
+  "--sheen-delay": string
+  "--sheen-ink"?: string
 }
 
-export function ProblemHighlight({ statement, sequence = 0 }: { statement: string; sequence?: number }) {
-  const words = statement.trim().split(/\s+/)
-  const duration = Math.max(10, words.length * 0.45 + 1.5)
+/**
+ * The statement, with a slow sheen passing across it.
+ *
+ * This renders the block that holds the text rather than a span inside it, and
+ * that is load-bearing. A multi-line *inline* box paints its background across
+ * the imaginary unbroken box - every line laid end to end - so a gradient
+ * positioned against the visible width lands somewhere off in the middle of a
+ * line that was never drawn, and the sheen is invisible almost all the time.
+ * On a block box the positioning area is the box you can actually see.
+ */
+export function ProblemHighlight({
+  statement,
+  sequence = 0,
+  ink,
+  as: Tag = "p",
+  className = "",
+}: {
+  statement: string
+  sequence?: number
+  /** The statement's own colour; the sheen travels between two of these. */
+  ink?: string
+  as?: ElementType
+  className?: string
+}) {
+  // Every card shares one period so the offsets stay fixed relative to each
+  // other, and the modulo keeps a card far down the board from waiting the
+  // better part of a minute for its first pass.
+  const style: SheenStyle = { "--sheen-delay": `${(sequence % 8) * 1.1}s` }
+  if (ink) style["--sheen-ink"] = ink
 
   return (
-    <span className="problem-highlight" aria-label={statement}>
-      <span aria-hidden="true">“</span>
-      <span aria-hidden="true">
-        {words.map((word, index) => {
-          const style: WordStyle = {
-            "--word-delay": `${sequence * 0.7 + index * 0.45}s`,
-            "--wave-duration": `${duration}s`,
-          }
-
-          return (
-            <span className="problem-highlight-word" style={style} key={`${word}-${index}`}>
-              {word}{index < words.length - 1 ? " " : ""}
-            </span>
-          )
-        })}
-      </span>
-      <span aria-hidden="true">”</span>
-    </span>
+    <Tag className={`problem-sheen ${className}`} style={style}>
+      {`“${statement}”`}
+    </Tag>
   )
 }

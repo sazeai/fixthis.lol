@@ -79,9 +79,12 @@ export function ProblemCard({
         </div>
 
         {/* The statement is the headline and owns the full width. */}
-        <p className="mt-2.5 line-clamp-3 text-[14px] font-medium leading-[1.45] tracking-[-0.011em] text-[#2f2c28]">
-          <ProblemHighlight statement={problem.statement} sequence={index} />
-        </p>
+        <ProblemHighlight
+          as="p"
+          className="mt-2.5 line-clamp-3 text-[14px] font-medium leading-[1.45] tracking-[-0.011em] text-[#2f2c28]"
+          statement={problem.statement}
+          sequence={index}
+        />
 
         {/* The band and the actions sit together at the foot of the card, so the
             band's lower rule doubles as the action row's divider instead of
