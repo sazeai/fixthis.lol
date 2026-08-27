@@ -54,7 +54,7 @@ export function ReportProblem({ problemId }: { problemId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-[#a8a39c] transition-colors hover:text-[#d84d37]"
+        className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-[#a8a39c] transition-colors hover:text-[#d84d37] px-4"
       >
         <Flag size={10} /> Report this problem
       </button>
