@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ArrowUpRight, Flag } from "lucide-react"
+import { ArrowUpRight, Flag, MousePointerClick } from "lucide-react"
 import { ProductIcon } from "@/components/marketplace/product-icon"
 import { formatMoney } from "@/lib/marketplace/helpers"
 import type { FeaturedPlacement, ProblemCompetitor } from "@/types/marketplace"
@@ -116,8 +116,19 @@ export function SponsorRow({
           </span>
           <ArrowUpRight size={11} className="shrink-0 text-[#a8a39c] transition-[transform,color] duration-200 group-hover/visit:-translate-y-px group-hover/visit:translate-x-px group-hover/visit:text-[#ef4e37]" />
         </a>
-        <p className="mt-0.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[#bbb6ae]">
-          {placement.claim_kind === "founding" ? "Founding claim" : "Sponsored"}
+        <p className="mt-0.5 flex items-center gap-1.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[#bbb6ae]">
+          <span>{placement.claim_kind === "founding" ? "Founding claim" : "Sponsored"}</span>
+          {/* Live from the rotation RPC, not the cached board, so the number a
+              founder sees here is the real one. */}
+          {placement.click_count > 0 ? (
+            <>
+              <span className="text-[#e0dcd6]">·</span>
+              <span className="flex items-center gap-0.5 text-[#a8a39c]" title={`${placement.click_count.toLocaleString("en-US")} outbound clicks`}>
+                <MousePointerClick size={9} className="shrink-0" />
+                <span className="tabular-nums">{placement.click_count.toLocaleString("en-US")}</span>
+              </span>
+            </>
+          ) : null}
         </p>
       </div>
 

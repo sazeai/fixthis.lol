@@ -49,7 +49,7 @@ export default async function ProblemPage({ params, searchParams }: Props) {
 
   return <>
     <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-    <PresenceTracker initial={traffic} />
+    <PresenceTracker initial={traffic} badge={false} />
     <ProblemDetailView problem={problem} duplicate={query.duplicate === "1"} paymentCancelled={query.payment === "cancelled"} />
   </>
 }
