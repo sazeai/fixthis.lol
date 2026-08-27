@@ -30,9 +30,9 @@ ${reason.stack || ""}`
 
 function HowItWorks() {
   const steps = [
-    ["01", "Call it out", "Tell everyone what sucks about the software you are using."],
-    ["02", "People pile on", "Others with the same frustration hit ME TOO."],
-    ["03", "Alternatives fight", "Competing products can pay to get in front of everyone with that problem."],
+    ["01", "Call it out", "Name the software that is failing you, what it costs you, and what would make you switch."],
+    ["02", "People pile on", "Everyone who hits ME TOO is one more customer for whoever fixes it. The count is the proof."],
+    ["03", "Alternatives fight", "Competing products bid to appear as the answer on your problem. Ranking stays organic. Only the slot is sold."],
   ]
   return <section id="how-it-works" className="w-full"><header className="flex flex-col gap-1.5 border-y border-[rgba(55,50,47,0.12)] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-8"><div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3"><p className="whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.16em] text-[#999]">How it works</p><h2 className="font-serif text-[19px] leading-tight text-[#111] sm:text-xl">Call it out. Pile on. Watch them fight.</h2></div><p className="text-[11px] text-[#777]">Magic link required to post.</p></header><div className="grid border-y border-[rgba(55,50,47,0.12)] bg-[rgba(55,50,47,0.12)] md:grid-cols-3 md:gap-px">{steps.map(([number, title, body], index) => <article key={number} className={`bg-[#fafafa] p-7 transition-colors hover:bg-white ${index ? "border-t border-[rgba(55,50,47,0.12)] md:border-t-0" : ""}`}><p className="font-mono text-[9px] tracking-[0.16em] text-[#aaa]">{number}</p><h3 className="mt-6 font-serif text-xl text-[#111]">{title}</h3><p className="mt-2 text-[13px] leading-5 text-[#666]">{body}</p></article>)}</div></section>
 }
