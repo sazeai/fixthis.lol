@@ -119,30 +119,31 @@ export function SponsorRow({
         </span>
 
         {others.length ? (
-          <span className="ml-auto flex min-w-0 items-center gap-1.5" title={`Also competing: ${otherNames}`}>
-            {/* Overlapped at rest, fanned on hover — a shift within the line's
-                own bounds, so nothing above or below it moves. */}
-            <span className="flex shrink-0">
-              {others.slice(0, 3).map((item, index) => (
+          <span className="ml-auto flex min-w-0 items-center gap-1" title={`Also competing: ${otherNames}`}>
+            {/* At rest the icons are a tight overlapped stack. On hover each one
+                separates, comes up to full colour, and its own name unfurls out
+                of it — so a name is attached to the product it belongs to
+                rather than floating as a list beside them. */}
+            {others.slice(0, 3).map((item, index) => (
+              <span
+                key={item.placement_id}
+                className={`flex items-center overflow-hidden rounded-full transition-[margin,background-color] duration-300 ease-out group-hover/band:bg-[rgba(55,50,47,.05)] ${index ? "-ml-2 group-hover/band:ml-0" : ""}`}
+              >
                 <ProductIcon
-                  key={item.placement_id}
                   name={item.name}
                   seed={item.registrable_domain}
                   iconUrl={item.icon_url}
-                  size={13}
-                  muted
-                  className={`transition-[margin] duration-300 ease-out ${index ? "-ml-1.5 group-hover/band:ml-0.5" : ""}`}
+                  size={14}
+                  className="shrink-0 opacity-60 saturate-[.3] ring-2 ring-white transition-[opacity,filter] duration-300 ease-out group-hover/band:opacity-100 group-hover/band:saturate-100 group-hover/band:ring-0"
                 />
-              ))}
-            </span>
-            {/* Count at rest, names on hover — the disclosure never leaves. */}
-            <span className="relative min-w-0 font-mono text-[8px] uppercase tracking-[0.12em] text-[#a8a39c]">
-              <span className="block truncate transition-opacity duration-200 group-hover/band:opacity-0">
-                {others.length} competing
+                <span className="max-w-0 overflow-hidden whitespace-nowrap font-mono text-[8px] uppercase tracking-[0.1em] text-[#77726a] opacity-0 transition-all duration-300 ease-out group-hover/band:max-w-[86px] group-hover/band:pl-1 group-hover/band:pr-1.5 group-hover/band:opacity-100">
+                  <span className="block truncate">{item.name}</span>
+                </span>
               </span>
-              <span className="absolute inset-0 truncate text-right opacity-0 transition-opacity duration-200 group-hover/band:opacity-100">
-                {otherNames}
-              </span>
+            ))}
+            {/* The count holds the line at rest and steps aside for the names. */}
+            <span className="ml-0.5 max-w-[70px] shrink-0 overflow-hidden whitespace-nowrap font-mono text-[8px] uppercase tracking-[0.12em] text-[#a8a39c] transition-all duration-300 ease-out group-hover/band:ml-0 group-hover/band:max-w-0 group-hover/band:opacity-0">
+              {others.length} competing
             </span>
           </span>
         ) : null}
