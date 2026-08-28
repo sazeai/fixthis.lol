@@ -16,20 +16,30 @@ export function FeaturedSolution({
   nextBidCents?: number
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const [placement, setPlacement] = useState<FeaturedPlacement | null | undefined>(undefined)
+  // "unavailable" is a failed request, kept distinct from null so a problem
+  // that could not be resolved is never advertised as unclaimed. See the same
+  // split in SponsorRow.
+  const [placement, setPlacement] = useState<FeaturedPlacement | null | "unavailable" | undefined>(undefined)
   // Distinguishes "not yet in view" from "in view, waiting on the server", so
   // off-screen cards stay inert instead of shimmering all the way down the board.
   const [requested, setRequested] = useState(false)
 
   useEffect(() => {
     let cancelled = false
-    const resolve = () => {
+    const resolve = (attempt = 0) => {
       if (cancelled) return
       setRequested(true)
       fetch(`/api/problems/${problemId}/feature`, { method: "POST" })
-        .then((response) => response.json())
-        .then((result) => { if (!cancelled) setPlacement(result.placement || null) })
-        .catch(() => { if (!cancelled) setPlacement(null) })
+        .then((response) => {
+          if (!response.ok) throw new Error(`feature ${response.status}`)
+          return response.json()
+        })
+        .then((result) => { if (!cancelled) setPlacement(result.placement ?? null) })
+        .catch(() => {
+          if (cancelled) return
+          if (attempt === 0) { setTimeout(() => resolve(1), 1200); return }
+          setPlacement("unavailable")
+        })
     }
 
     const node = ref.current
@@ -51,16 +61,20 @@ export function FeaturedSolution({
     return () => { cancelled = true; observer.disconnect() }
   }, [problemId])
 
+  // A failed resolve holds the placeholder rather than falling through to the
+  // unclaimed copy. Same height, no pulse, no claim either way.
+  const unresolved = placement === undefined || placement === "unavailable"
+
   function trackClick() {
-    if (!placement) return
+    if (!placement || placement === "unavailable") return
     navigator.sendBeacon?.(`/api/placements/${placement.placement_id}/click`)
   }
 
   if (compact) {
     return (
       <div ref={ref} className="min-h-[18px]">
-        {placement === undefined ? (
-          <span aria-hidden="true" className={`block h-[10px] w-40 max-w-full rounded-full bg-[rgba(55,50,47,.09)] ${requested ? "animate-pulse" : ""}`} />
+        {unresolved ? (
+          <span aria-hidden="true" className={`block h-[10px] w-40 max-w-full rounded-full bg-[rgba(55,50,47,.09)] ${requested && placement === undefined ? "animate-pulse" : ""}`} />
         ) : placement === null ? (
           <p className="flex min-w-0 items-center gap-1.5 font-mono text-[8px] uppercase tracking-[0.11em] text-[#a8a39c]">
             <Flag size={9} className="shrink-0" />
@@ -92,8 +106,8 @@ export function FeaturedSolution({
 
   return (
     <div ref={ref} className="min-h-[128px] bg-white p-5">
-      {placement === undefined ? (
-        <div className={`flex h-[88px] flex-col justify-center gap-2.5 ${requested ? "animate-pulse" : ""}`} aria-hidden="true">
+      {unresolved ? (
+        <div className={`flex h-[88px] flex-col justify-center gap-2.5 ${requested && placement === undefined ? "animate-pulse" : ""}`} aria-hidden="true">
           <span className="block h-[9px] w-24 rounded-full bg-[rgba(55,50,47,.09)]" />
           <span className="block h-[18px] w-44 max-w-full rounded-full bg-[rgba(55,50,47,.11)]" />
           <span className="block h-[9px] w-full max-w-xs rounded-full bg-[rgba(55,50,47,.07)]" />

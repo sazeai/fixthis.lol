@@ -36,20 +36,44 @@ export function SponsorRow({
   events?: MarketEvent[]
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const [placement, setPlacement] = useState<FeaturedPlacement | null | undefined>(undefined)
+  /**
+   * undefined  - not asked yet.
+   * null       - the server answered: nobody has claimed this problem.
+   * "unavailable" - we could not get an answer.
+   *
+   * The last two must never render alike. One is a fact about the marketplace;
+   * the other is a fact about our own request, and showing it as "unclaimed"
+   * tells every visitor a paid problem is free.
+   */
+  const [placement, setPlacement] = useState<FeaturedPlacement | null | "unavailable" | undefined>(undefined)
   const [requested, setRequested] = useState(false)
   const { events: floating, spawn } = useFloatingEvents(2)
+  // The placement once it is genuinely one, so the offer timer and click beacon
+  // never have to reason about the pending and failed states.
+  const resolved = placement && placement !== "unavailable" ? placement : null
   const shown = useRef(new Set<string>())
 
   useEffect(() => {
     let cancelled = false
-    const resolve = () => {
+    const resolve = (attempt = 0) => {
       if (cancelled) return
       setRequested(true)
       fetch(`/api/problems/${problemId}/feature`, { method: "POST" })
-        .then((response) => response.json())
-        .then((result) => { if (!cancelled) setPlacement(result.placement || null) })
-        .catch(() => { if (!cancelled) setPlacement(null) })
+        .then((response) => {
+          // A 500 still parses as JSON, and result.placement is then undefined.
+          // Without this the error body fell through to "unclaimed", which is
+          // how a broken rotation advertised claimed problems as free.
+          if (!response.ok) throw new Error(`feature ${response.status}`)
+          return response.json()
+        })
+        .then((result) => { if (!cancelled) setPlacement(result.placement ?? null) })
+        .catch(() => {
+          if (cancelled) return
+          // One retry absorbs a blip or a cold start. After that, say nothing
+          // rather than something false.
+          if (attempt === 0) { setTimeout(() => resolve(1), 1200); return }
+          setPlacement("unavailable")
+        })
     }
 
     const node = ref.current
@@ -84,7 +108,7 @@ export function SponsorRow({
   // Skipped entirely under reduced motion: a label that reappears on a timer is
   // harder to tolerate than one tied to a real arrival.
   useEffect(() => {
-    const offer = placement?.offer
+    const offer = resolved?.offer
     if (!offer) return
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
 
@@ -99,11 +123,11 @@ export function SponsorRow({
     }
     schedule(9_000 + Math.random() * 4_000)
     return () => clearTimeout(timer)
-  }, [placement?.offer, spawn])
+  }, [resolved?.offer, spawn])
 
   function trackClick() {
-    if (!placement) return
-    navigator.sendBeacon?.(`/api/placements/${placement.placement_id}/click`)
+    if (!resolved) return
+    navigator.sendBeacon?.(`/api/placements/${resolved.placement_id}/click`)
   }
 
   // Full-bleed: cancel the card's padding so the rules meet both edges, then
@@ -114,6 +138,16 @@ export function SponsorRow({
     return (
       <div ref={ref} className={`${band} py-2.5`}>
         <span aria-hidden="true" className={`block h-[10px] w-32 max-w-full rounded-full bg-[rgba(55,50,47,.08)] ${requested ? "animate-pulse" : ""}`} />
+      </div>
+    )
+  }
+
+  // Could not reach the server. Keeps the band's height so the board does not
+  // reflow, and claims nothing about who is advertising here.
+  if (placement === "unavailable") {
+    return (
+      <div ref={ref} className={`${band} py-2.5`}>
+        <span aria-hidden="true" className="block h-[10px] w-32 max-w-full rounded-full bg-[rgba(55,50,47,.05)]" />
       </div>
     )
   }
