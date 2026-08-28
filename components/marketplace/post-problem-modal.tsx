@@ -37,6 +37,7 @@ export function PostProblemModal({
   const [posted, setPosted] = useState<{ product: string; statement: string }>({ product: "", statement: "" })
   const [authChecked, setAuthChecked] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [signingOut, setSigningOut] = useState(false)
   const router = useRouter()
   const close = useCallback(() => !loading && setOpen(false), [loading])
   const founder = mode === "founder"
@@ -76,6 +77,30 @@ export function PostProblemModal({
       subscription?.unsubscribe()
     }
   }, [])
+
+  /**
+   * Signing out lives here rather than in the header.
+   *
+   * There is no account area to visit and nothing on the board changes when you
+   * are signed in, so a persistent sign-out control would be chrome nobody
+   * needs. This is the one screen that says "Signed in" — which is exactly
+   * where someone goes looking for the way out, and where switching to another
+   * email is a real thing to want. The auth listener clears userEmail, so the
+   * modal falls back to the magic-link form without closing.
+   */
+  async function signOut() {
+    setSigningOut(true)
+    setError("")
+    try {
+      await getSupabaseBrowserClient().auth.signOut()
+      setUserEmail(null)
+      setSuccess("")
+    } catch {
+      setError("Could not sign out. Try again.")
+    } finally {
+      setSigningOut(false)
+    }
+  }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -201,9 +226,19 @@ export function PostProblemModal({
         </div>
       ) : (
         <div className="px-5 pb-6 pt-1 sm:px-7">
-          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">
-            {founder ? "Add and claim" : "Signed in"}
-          </p>
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">
+              {founder ? "Add and claim" : "Signed in"}
+            </p>
+            <button
+              type="button"
+              onClick={signOut}
+              disabled={signingOut || loading}
+              className="shrink-0 font-mono text-[9px] uppercase tracking-[0.12em] text-[#a8a39c] underline underline-offset-4 transition-colors hover:text-[#111] disabled:opacity-50"
+            >
+              {signingOut ? "Signing out…" : "Sign out"}
+            </button>
+          </div>
           <h2 id="post-problem-title" className="mt-2 font-serif text-[23px] leading-[1.08] tracking-[-0.035em] text-[#111]">
             {founder ? "Add the problem you solve." : "What is pissing you off?"}
           </h2>
