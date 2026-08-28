@@ -13,11 +13,15 @@ export function Hero({ traffic }: { traffic: PublicTrafficStats }) {
         {/* One real number, or nothing. The live-visitor ticker was atmosphere
             and it cost a database write per tab per twenty seconds. */}
         {traffic.visitors_24h > 0 ? (
-          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-[rgba(55,50,47,0.14)] bg-white px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.14em] text-[#777]">
-            <span className="size-1.5 rounded-full bg-[#ef654f]" />
-            {traffic.visitors_24h.toLocaleString("en-US")} here in the last 24 hours
+          <p className="mb-5 inline-flex items-center gap-2" aria-label={`${traffic.visitors_24h.toLocaleString("en-US")} visitors in the last 24 hours`}>
+            <span aria-hidden="true" className="h-px w-1.5 bg-[#ef654f]/40" />
+            <strong className="font-sans text-[24px] font-bold leading-none tracking-[-0.04em] text-[#e94f3d]">
+              {traffic.visitors_24h.toLocaleString("en-US")}
+            </strong>
+            <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.08em] text-[#5f5a54]">
+              Visitors / 24h
+            </span>
           </p>
-          
         ) : null}
 
         <h1 className="font-serif text-[36px] leading-[1.06] tracking-[-0.04em] text-[#111] sm:text-[46px] lg:text-[60px] lg:leading-[1.02]">

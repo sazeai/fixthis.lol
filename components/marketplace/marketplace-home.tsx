@@ -70,7 +70,7 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
 
       {/* Full-bleed filter bar: the rules run edge to edge instead of stopping
           short inside the header padding. */}
-      <div className="grid border-b border-[rgba(55,50,47,0.12)] bg-white sm:grid-cols-[1fr_auto]">
+      <div className="grid border-b border-t border-[rgba(55,50,47,0.12)] bg-white sm:grid-cols-[1fr_auto]">
         <div className="group relative flex items-center">
           <Search size={13} className="pointer-events-none absolute left-5 text-[#c4c0ba] transition-colors duration-200 group-focus-within:text-[#ef4e37] sm:left-7" />
           <label className="sr-only" htmlFor="problem-search">Search problems</label>
