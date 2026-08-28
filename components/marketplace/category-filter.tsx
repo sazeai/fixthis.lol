@@ -68,7 +68,7 @@ export function CategoryFilter({ categories, value, onChange }: CategoryFilterPr
             openMenu(Math.max(selectedIndex - 1, 0))
           }
         }}
-        className="group flex h-12 w-full min-w-0 items-center justify-between gap-8 bg-transparent pl-5 pr-5 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-[#77726a] outline-none transition-colors hover:bg-[#fdfcfb] hover:text-[#111] focus-visible:bg-[#fdfcfb] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ef4e37] sm:min-w-[220px] sm:pl-7 sm:pr-6"
+        className="group flex h-12 w-full min-w-0 items-center justify-between gap-8 bg-transparent pl-5 pr-5 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-[#77726a] outline-none transition-colors hover:bg-[#fdfcfb] hover:text-[#111] focus-visible:bg-[#fdfcfb] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ef4e37] sm:min-w-[207px] sm:pl-7 sm:pr-6"
       >
         <span className="truncate">{value}</span>
         <ChevronDown
