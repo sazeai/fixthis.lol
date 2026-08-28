@@ -23,7 +23,6 @@ export function ProductIcon({
   seed,
   iconUrl,
   size = 22,
-  muted = false,
   className = "",
 }: {
   name: string
@@ -31,8 +30,6 @@ export function ProductIcon({
   seed: string
   iconUrl: string | null
   size?: number
-  /** Desaturated treatment for competitors ranked below the featured product. */
-  muted?: boolean
   className?: string
 }) {
   const [failed, setFailed] = useState(false)
@@ -43,7 +40,6 @@ export function ProductIcon({
     width: size,
     height: size,
     borderRadius: radius,
-    ...(muted ? { filter: "saturate(.25)", opacity: 0.75 } : {}),
   }
 
   if (iconUrl && !failed) {

@@ -18,8 +18,9 @@ import type { FeaturedPlacement, ProblemCompetitor } from "@/types/marketplace"
  * part of the card rather than something dropped into it.
  *
  * One product is featured and clickable; the rotation picks which, per visitor.
- * The others appear only as desaturated icons, so lower placements keep
- * persistent presence without diluting the click advantage of being first.
+ * The rest sit beside it as ranked icons — legible, but unlinked, unnamed at
+ * rest and half the size, so lower placements keep persistent presence without
+ * diluting the click advantage of being featured.
  * The full battlefield lives on the problem page, which has room for a table.
  */
 export function SponsorRow({
@@ -175,28 +176,45 @@ export function SponsorRow({
       </div>
 
       {others.length ? (
+        /* The bench: every claim ranked below the one being featured.
+           Ranked and legible at rest rather than faded out — hierarchy comes
+           from scale and from the featured product being the only linked,
+           named, 28px thing in the row, not from washing these into the paper.
+           The numeral is the honest answer to "what are these", and it is the
+           same numbering the battlefield table uses on the problem page.
+           Hover still unfurls each name; that is a bonus for pointer users and
+           never the only place the meaning lives, because touch never gets it. */
         <span className="flex shrink-0 items-center" title={`Also competing: ${otherNames}`}>
-          {/* Overlapped and desaturated at rest. On hover each icon separates,
-              comes up to full colour and unfurls its own name, so a name is
-              attached to the product it belongs to. All width and opacity, so
-              the row's height never changes and nothing can clip. */}
-          {others.slice(0, 3).map((item, index) => (
-            <span
-              key={item.placement_id}
-              className={`flex items-center overflow-hidden rounded-full transition-[margin,background-color] duration-300 ease-out group-hover/band:bg-[rgba(55,50,47,.05)] ${index ? "-ml-2.5 group-hover/band:ml-1" : ""}`}
-            >
-              <ProductIcon
-                name={item.name}
-                seed={item.registrable_domain}
-                iconUrl={item.icon_url}
-                size={18}
-                className="shrink-0 opacity-60 saturate-[.3] ring-2 ring-white transition-[opacity,filter] duration-300 ease-out group-hover/band:opacity-100 group-hover/band:saturate-100 group-hover/band:ring-0"
-              />
-              <span className="max-w-0 overflow-hidden whitespace-nowrap font-mono text-[8px] uppercase tracking-[0.1em] text-[#77726a] opacity-0 transition-all duration-300 ease-out group-hover/band:max-w-[74px] group-hover/band:pl-1 group-hover/band:pr-1.5 group-hover/band:opacity-100">
-                <span className="block truncate">{item.name}</span>
+          {/* Collapses on hover: once each icon has unfurled its own name the
+              label is saying nothing the row is not already showing, and the
+              width it gives back is width the featured product keeps for its
+              name — which must never be squeezed to label the bench. */}
+          <span className="hidden max-w-[80px] overflow-hidden whitespace-nowrap font-mono text-[8px] uppercase tracking-[0.12em] text-[#a8a39c] transition-all duration-300 ease-out group-hover/band:mr-0 group-hover/band:max-w-0 group-hover/band:opacity-0 sm:mr-2 sm:block">
+            Also bidding
+          </span>
+          <span className="flex items-center gap-1.5">
+            {others.slice(0, 3).map((item) => (
+              <span key={item.placement_id} className="flex items-center">
+                <span className="flex flex-col items-center gap-[3px]">
+                  <ProductIcon
+                    name={item.name}
+                    seed={item.registrable_domain}
+                    iconUrl={item.icon_url}
+                    size={17}
+                  />
+                  <span className="font-mono text-[8px] leading-none tabular-nums text-[#8a857e]">#{item.rank}</span>
+                </span>
+                {/* Width and opacity only, so the band's height never changes. */}
+                <span className="max-w-0 overflow-hidden whitespace-nowrap font-mono text-[8px] uppercase tracking-[0.1em] text-[#77726a] opacity-0 transition-all duration-300 ease-out group-hover/band:max-w-[74px] group-hover/band:pl-1.5 group-hover/band:opacity-100">
+                  <span className="block truncate">{item.name}</span>
+                </span>
               </span>
-            </span>
-          ))}
+            ))}
+            {/* Anything past the third is counted rather than silently dropped. */}
+            {others.length > 3 ? (
+              <span className="font-mono text-[8px] tabular-nums text-[#a8a39c]">+{others.length - 3}</span>
+            ) : null}
+          </span>
         </span>
       ) : null}
     </div>
