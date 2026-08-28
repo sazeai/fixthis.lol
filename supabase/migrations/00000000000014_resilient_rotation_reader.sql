@@ -22,6 +22,13 @@
 -- the product to be active, but the rotation path checked neither placement nor
 -- product status before serving, so a hidden placement or a deactivated product
 -- could still be handed out for thirty minutes. Both are now required.
+--
+-- This is built on migration 04's definition, NOT migration 01's. Migrations 03
+-- and 04 exist entirely to fix OUT-parameter/column ambiguity in this function:
+-- the `#variable_conflict use_column` pragma below and the table-qualified
+-- impression_count / cursor references are load-bearing. Dropping them brings
+-- back `42702: column reference "impression_count" is ambiguous`, which takes
+-- out every card impression that is not already covered by a sticky assignment.
 
 create or replace function public.assign_featured_placement(p_problem_id uuid, p_visitor_key text)
 returns table(
@@ -36,6 +43,7 @@ returns table(
   click_count bigint
 )
 language plpgsql security definer set search_path = public as $$
+#variable_conflict use_column
 declare
   v_assignment public.visitor_assignments%rowtype;
   v_epoch public.rotation_epochs%rowtype;
@@ -43,6 +51,8 @@ declare
   v_assignment_id uuid;
   v_usable boolean;
 begin
+  -- A visitor keeps the same featured solution for 30 minutes, so refreshing
+  -- neither inflates impressions nor makes the page look schizophrenic.
   select a.* into v_assignment
   from public.visitor_assignments a
   join public.placements pl on pl.id = a.placement_id and pl.status = 'active'
@@ -83,7 +93,7 @@ begin
   if v_epoch.id is null then return; end if;
 
   v_placement_id := v_epoch.slots[v_epoch.cursor + 1];
-  update public.rotation_epochs set cursor = mod(cursor + 1, 100) where id = v_epoch.id;
+  update public.rotation_epochs set cursor = mod(rotation_epochs.cursor + 1, 100) where id = v_epoch.id;
 
   select exists (
     select 1 from public.placements pl
@@ -103,7 +113,7 @@ begin
     if v_epoch.id is null then return; end if;
 
     v_placement_id := v_epoch.slots[v_epoch.cursor + 1];
-    update public.rotation_epochs set cursor = mod(cursor + 1, 100) where id = v_epoch.id;
+    update public.rotation_epochs set cursor = mod(rotation_epochs.cursor + 1, 100) where id = v_epoch.id;
 
     select exists (
       select 1 from public.placements pl
@@ -122,8 +132,10 @@ begin
 
   insert into public.placement_impressions(assignment_id, problem_id, placement_id, visitor_key)
   values (v_assignment_id, p_problem_id, v_placement_id, p_visitor_key);
-  update public.placements set impression_count = impression_count + 1 where id = v_placement_id;
-  update public.problems set impression_count = impression_count + 1 where id = p_problem_id;
+
+  update public.placements set impression_count = placements.impression_count + 1 where id = v_placement_id;
+  update public.problems set impression_count = problems.impression_count + 1 where id = p_problem_id;
+
   insert into public.daily_traffic(traffic_date, problem_id, placement_id, impressions)
     values (current_date, p_problem_id, v_placement_id, 1)
     on conflict (traffic_date, placement_id) do update set impressions = public.daily_traffic.impressions + 1;
