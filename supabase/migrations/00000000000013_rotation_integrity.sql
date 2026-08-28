@@ -23,6 +23,43 @@
 -- can change what belongs in the rotation is covered by construction rather
 -- than by each caller remembering to ask.
 
+-- Lock ordering, acquired before the row change rather than after it.
+--
+-- rebuild_rotation takes an advisory lock on 'rotation:<problem>' and then
+-- locks the active epoch row. assign_featured_placement locks the epoch row and
+-- then bumps impression_count on a placement row. So a settling payment goes
+-- placement -> epoch while a card impression goes epoch -> placement, and two
+-- of them landing together on the same problem is a deadlock. Postgres breaks
+-- it by killing one side, which is either a 500 on an impression or a webhook
+-- that has to be retried.
+--
+-- That cycle predates this migration, but the trigger below widens it: after
+-- this, every placement change reaches rebuild_rotation, not just payments. A
+-- BEFORE trigger is the fix, because it runs while the row change is still
+-- pending - so anything that touches a placement holds the rotation lock before
+-- it holds the placement, and the order is the same everywhere.
+--
+-- Deliberately scoped to the same columns as the rebuild trigger.
+-- assign_featured_placement's impression_count bump does not fire this and must
+-- not: it already holds the lock by then, and it is the hottest write here.
+create or replace function public.lock_rotation_for_placement()
+returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if tg_op = 'DELETE' then
+    perform pg_advisory_xact_lock(hashtextextended('rotation:' || old.problem_id::text, 0));
+    return old;
+  end if;
+  perform pg_advisory_xact_lock(hashtextextended('rotation:' || new.problem_id::text, 0));
+  return new;
+end;
+$$;
+
+drop trigger if exists placements_rotation_lock on public.placements;
+create trigger placements_rotation_lock
+  before insert or delete or update of status, current_bid_cents on public.placements
+  for each row execute function public.lock_rotation_for_placement();
+
 create or replace function public.rebuild_rotation_for_placement()
 returns trigger
 language plpgsql security definer set search_path = public as $$
@@ -54,8 +91,6 @@ drop trigger if exists placements_rotation_sync on public.placements;
 create trigger placements_rotation_sync
   after insert or delete or update of status, current_bid_cents on public.placements
   for each row execute function public.rebuild_rotation_for_placement();
-
-revoke all on function public.rebuild_rotation_for_placement() from public, anon, authenticated;
 
 -- Repair what is already broken.
 --
