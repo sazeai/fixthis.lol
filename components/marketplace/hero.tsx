@@ -8,7 +8,7 @@ export function Hero({ traffic }: { traffic: PublicTrafficStats }) {
     // rather than a margin here — a margin would break the frame's vertical
     // rules for the height of the gap, since the hero sits outside the framed
     // column and the section below sits inside it.
-    <section className="relative flex w-full flex-col items-center border-b border-[rgba(55,50,47,0.12)] pb-9 text-center">
+    <section className="relative flex w-full flex-col items-center border-b border-[rgba(55,50,47,0.12)] pb-9 pt-3 text-center">
       <div className="z-10 flex w-full max-w-3xl flex-col items-center px-5 sm:px-6">
         {/* One real number, or nothing. The live-visitor ticker was atmosphere
             and it cost a database write per tab per twenty seconds. */}

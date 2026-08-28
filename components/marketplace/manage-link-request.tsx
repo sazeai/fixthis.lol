@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowRight, LoaderCircle, MailCheck } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowRight01Icon, Loading03Icon, MailValidation01Icon } from "@hugeicons/core-free-icons"
 import { TurnstileField } from "@/components/marketplace/turnstile-field"
 
 export function ManageLinkRequest() {
@@ -36,7 +37,7 @@ export function ManageLinkRequest() {
   if (state === "sent") {
     return (
       <div className="border border-[rgba(55,50,47,0.12)] bg-white px-6 py-10 text-center">
-        <span className="mx-auto grid size-11 place-items-center rounded-full bg-[#fff0eb] text-[#d84d37]"><MailCheck size={20} /></span>
+        <span className="mx-auto grid size-11 place-items-center rounded-full bg-[#fff0eb] text-[#d84d37]"><HugeiconsIcon icon={MailValidation01Icon} size={20} /></span>
         <p className="mt-5 font-serif text-2xl tracking-[-0.02em] text-[#111]">Check your inbox.</p>
         <p className="mx-auto mt-2 max-w-sm text-[13px] leading-6 text-[#777]">{message}</p>
         <p className="mt-5 font-mono text-[9px] uppercase tracking-[0.14em] text-[#aaa]">Links expire after 30 days</p>
@@ -65,7 +66,7 @@ export function ManageLinkRequest() {
         disabled={state === "sending"}
         className="group mt-5 flex h-11 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.99] disabled:opacity-60"
       >
-        {state === "sending" ? <><LoaderCircle size={14} className="animate-spin" /> Sending…</> : <>Email me the link <ArrowRight size={14} className="transition-transform duration-200 ease-out group-hover:translate-x-0.5" /></>}
+        {state === "sending" ? <><HugeiconsIcon icon={Loading03Icon} size={14} className="animate-spin" /> Sending…</> : <>Email me the link <HugeiconsIcon icon={ArrowRight01Icon} size={14} className="transition-transform duration-200 ease-out group-hover:translate-x-0.5" /></>}
       </button>
       <p className="mt-4 text-[11px] leading-5 text-[#999]">
         For privacy we send the same confirmation either way, so this page never reveals whether an email manages a product.

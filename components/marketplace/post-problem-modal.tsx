@@ -1,7 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { ArrowRight, ArrowUpRight, Check, LoaderCircle } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowRight01Icon, ArrowUpRight01Icon, Loading03Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 import { useRouter } from "next/navigation"
 import { FormField, TextArea, TextInput } from "@/components/marketplace/form-field"
 import { MagicLinkAuth } from "@/components/marketplace/magic-link-auth"
@@ -174,17 +175,17 @@ export function PostProblemModal({
 
   return <>
     <button type="button" onClick={() => { setOpen(true); setSuccess(""); setError("") }} className={triggerClass}>
-      {trigger}{asLink ? null : <ArrowRight size={14} className="transition-transform duration-200 ease-out group-hover:translate-x-0.5" />}
+      {trigger}{asLink ? null : <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="transition-transform duration-200 ease-out group-hover:translate-x-0.5" />}
     </button>
 
     <ModalShell open={open} onClose={close} labelledBy="post-problem-title" chromeLabel={founder ? "ADD / CLAIM" : "POST A PROBLEM"}>
       {!authChecked ? (
-        <div className="grid min-h-56 place-items-center px-6 py-10 text-[#999]"><LoaderCircle className="animate-spin" size={20} /></div>
+        <div className="grid min-h-56 place-items-center px-6 py-10 text-[#999]"><HugeiconsIcon icon={Loading03Icon} className="animate-spin" size={20} /></div>
       ) : !userEmail ? (
         <MagicLinkAuth redirectTo={typeof window === "undefined" ? "" : window.location.href} />
       ) : success ? (
         <div className="px-5 pb-8 pt-2 text-center sm:px-8">
-          <span className="mx-auto grid size-12 place-items-center rounded-full bg-[#eef7f0] text-[#2f7d4f]"><Check size={22} /></span>
+          <span className="mx-auto grid size-12 place-items-center rounded-full bg-[#eef7f0] text-[#2f7d4f]"><HugeiconsIcon icon={Tick02Icon} size={22} /></span>
           <h2 id="post-problem-title" className="mt-4 font-serif text-[24px] leading-[1.08] tracking-[-0.035em] text-[#111]">
             {success === "published" ? "Let's see who else is sick of this." : "Sent for review."}
           </h2>
@@ -205,7 +206,7 @@ export function PostProblemModal({
                 className="group/share inline-flex h-11 w-full items-center justify-center gap-2 bg-[#111] px-5 font-mono text-[10px] uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#ef4e37] sm:w-auto"
               >
                 Share on X
-                <ArrowUpRight size={13} className="transition-transform duration-200 ease-out group-hover/share:-translate-y-px group-hover/share:translate-x-px" />
+                <HugeiconsIcon icon={ArrowUpRight01Icon} size={13} className="transition-transform duration-200 ease-out group-hover/share:-translate-y-px group-hover/share:translate-x-px" />
               </a>
               <p className="mx-auto mt-3 max-w-sm border border-[rgba(55,50,47,0.12)] bg-white px-3 py-2.5 text-left text-[12px] leading-5 text-[#55504a]">
                 {shareText}
@@ -271,8 +272,8 @@ export function PostProblemModal({
             {error ? <p role="alert" className="border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</p> : null}
 
             <button disabled={loading} className="group/cta flex h-11 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.99] disabled:opacity-60 disabled:hover:bg-[#111]">
-              {loading ? <><LoaderCircle className="animate-spin" size={15} /> Publishing…</>
-                : <>{founder ? "Add problem & continue" : "Publish problem"} <ArrowRight size={14} className="transition-transform duration-200 ease-out group-hover/cta:translate-x-0.5" /></>}
+              {loading ? <><HugeiconsIcon icon={Loading03Icon} className="animate-spin" size={15} /> Publishing…</>
+                : <>{founder ? "Add problem & continue" : "Publish problem"} <HugeiconsIcon icon={ArrowRight01Icon} size={14} className="transition-transform duration-200 ease-out group-hover/cta:translate-x-0.5" /></>}
             </button>
           </form>
         </div>

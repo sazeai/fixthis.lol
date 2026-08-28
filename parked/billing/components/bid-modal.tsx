@@ -1,7 +1,8 @@
 "use client"
 
 import { useCallback, useState } from "react"
-import { ArrowRight, LoaderCircle } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowRight01Icon, Loading03Icon } from "@hugeicons/core-free-icons"
 import { FormField, TextArea, TextInput } from "@/components/marketplace/form-field"
 import { ModalShell } from "@/components/marketplace/modal-shell"
 import { TurnstileField } from "@/components/marketplace/turnstile-field"
@@ -77,7 +78,7 @@ export function BidModal({
   return <>
     <button type="button" onClick={() => setOpen(true)} className={`group ${triggerBase} ${triggerSkin}`}>
       {label} · {formatMoney(nextBidCents)}+
-      <ArrowRight size={13} className="transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
+      <HugeiconsIcon icon={ArrowRight01Icon} size={13} className="transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
     </button>
 
     <ModalShell open={open} onClose={close} labelledBy="bid-title" chromeLabel="CLAIM PLACEMENT">
@@ -132,7 +133,7 @@ export function BidModal({
           {error ? <p role="alert" className="border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</p> : null}
 
           <button disabled={loading} className="group/cta flex h-11 w-full items-center justify-center gap-2 bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors duration-200 ease-out hover:bg-[#ef4e37] active:scale-[0.99] disabled:opacity-60 disabled:hover:bg-[#111]">
-            {loading ? <><LoaderCircle className="animate-spin" size={15} /> Opening checkout…</> : <>Continue to secure checkout <ArrowRight size={14} className="transition-transform duration-200 ease-out group-hover/cta:translate-x-0.5" /></>}
+            {loading ? <><HugeiconsIcon icon={Loading03Icon} className="animate-spin" size={15} /> Opening checkout…</> : <>Continue to secure checkout <HugeiconsIcon icon={ArrowRight01Icon} size={14} className="transition-transform duration-200 ease-out group-hover/cta:translate-x-0.5" /></>}
           </button>
         </form>
       </div>

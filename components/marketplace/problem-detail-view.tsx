@@ -3,9 +3,8 @@ import { Footer } from "@/components/marketplace/footer"
 import { FramedSection, MarketplaceFrame } from "@/components/marketplace/frame"
 import { Header } from "@/components/marketplace/header"
 import { ProblemAnswers } from "@/components/marketplace/problem-detail/problem-answers"
-import { ProblemComplaints } from "@/components/marketplace/problem-detail/problem-complaints"
+import { ProblemEvidence } from "@/components/marketplace/problem-detail/problem-evidence"
 import { ProblemHeader } from "@/components/marketplace/problem-detail/problem-header"
-import { ProblemSwitchCandidates } from "@/components/marketplace/problem-detail/problem-switch-candidates"
 import { ReportProblem } from "@/components/marketplace/report-problem"
 import type { ProblemDetail } from "@/types/marketplace"
 
@@ -29,11 +28,7 @@ export function ProblemDetailView({ problem, duplicate }: { problem: ProblemDeta
             </FramedSection>
 
             <FramedSection contentClassName="py-0">
-              <ProblemSwitchCandidates problem={problem} />
-            </FramedSection>
-
-            <FramedSection contentClassName="py-0">
-              <ProblemComplaints problem={problem} />
+              <ProblemEvidence problem={problem} />
             </FramedSection>
 
             {/* Post-publication safety valve for authenticated submissions. */}

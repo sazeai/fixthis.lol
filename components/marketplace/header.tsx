@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons"
 import { AccountSwitch } from "@/components/marketplace/account-switch"
 import { PostProblemModal } from "@/components/marketplace/post-problem-modal"
 
@@ -15,7 +16,7 @@ export function Header({ back = false }: { back?: boolean }) {
           aria-label={back ? "Back to FIXTHIS home" : "FIXTHIS home"}
           className="group flex size-8 shrink-0 items-center justify-center rounded-full border border-[rgba(55,50,47,0.08)] bg-[#fafafa] text-[#111] transition-transform hover:scale-105 sm:mr-3"
         >
-          {back ? <ArrowLeft size={17} /> : <Image src="/fixthis-logo.webp" alt="" width={25} height={25} priority />}
+          {back ? <HugeiconsIcon icon={ArrowLeft01Icon} size={17} /> : <Image src="/fixthis-logo.webp" alt="" width={25} height={25} priority />}
         </Link>
         <Link href="/" className="hidden pr-3 text-[13px] font-extrabold tracking-[-0.04em] text-[#111] sm:block">FIXTHIS</Link>
         <div className="hidden items-center px-1 text-[13px] font-medium text-[#555] sm:flex sm:gap-3 md:gap-6 md:px-3">

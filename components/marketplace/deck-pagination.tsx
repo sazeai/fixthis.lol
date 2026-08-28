@@ -1,6 +1,7 @@
 "use client"
 
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ChevronLeftIcon, ChevronRightIcon } from "@hugeicons/core-free-icons"
 
 /**
  * Pagination for the problem deck.
@@ -49,7 +50,7 @@ export function DeckPagination({
 
       <div className="flex items-center gap-1.5">
         <button type="button" onClick={() => onChange(page - 1)} disabled={page <= 1} aria-label="Previous page" className={arrow}>
-          <ChevronLeft size={14} />
+          <HugeiconsIcon icon={ChevronLeftIcon} size={14} />
         </button>
 
         {numbers.map((entry, index) =>
@@ -74,7 +75,7 @@ export function DeckPagination({
         )}
 
         <button type="button" onClick={() => onChange(page + 1)} disabled={page >= pageCount} aria-label="Next page" className={arrow}>
-          <ChevronRight size={14} />
+          <HugeiconsIcon icon={ChevronRightIcon} size={14} />
         </button>
       </div>
     </nav>

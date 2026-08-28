@@ -1,6 +1,8 @@
 import Link from "next/link"
-import { ArrowUpRight } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowRight01Icon, ArrowUpRight01Icon } from "@hugeicons/core-free-icons"
 import { ProblemHighlight } from "@/components/marketplace/problem-highlight"
+import { ProductIcon } from "@/components/marketplace/product-icon"
 import { SupportProblem } from "@/components/marketplace/support-problem"
 import type { ProblemSummary } from "@/types/marketplace"
 
@@ -15,6 +17,7 @@ import type { ProblemSummary } from "@/types/marketplace"
 export function ProblemCard({ problem, index }: { problem: ProblemSummary; index: number }) {
   const isFirst = index === 0
   const answers = problem.answer_count
+  const answerPreview = problem.answers.slice(0, 3)
 
   return (
     <article
@@ -57,7 +60,8 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
           {isFirst ? (
             <span className="ml-auto shrink-0 font-mono text-[8px] uppercase tracking-[0.12em] text-[#d84d37]">Trending</span>
           ) : (
-            <ArrowUpRight
+            <HugeiconsIcon
+              icon={ArrowUpRight01Icon}
               size={12}
               className="ml-auto shrink-0 -translate-x-0.5 translate-y-0.5 text-[#c4c0ba] opacity-0 transition-all duration-300 ease-out group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100"
             />
@@ -75,11 +79,45 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
         {/* Actions */}
         <div className="pointer-events-auto mt-auto flex items-center justify-between gap-2 border-t border-[rgba(55,50,47,.09)] pt-3">
           <SupportProblem problemId={problem.id} initialCount={problem.support_count} compact />
-          <span
-            className={`shrink-0 font-mono text-[9px] uppercase tracking-[0.12em] ${answers ? "text-[#d84d37]" : "text-[#aaa]"}`}
+          <Link
+            href={`/problems/${problem.slug}`}
+            aria-label={`Open problem and view ${answers} ${answers === 1 ? "answer" : "answers"}`}
+            className="group/answers flex min-w-0 shrink items-center gap-2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-[#ef4e37] focus-visible:ring-offset-2"
           >
-            {answers ? `${answers} ${answers === 1 ? "answer" : "answers"}` : "No answer yet"}
-          </span>
+            {answers ? (
+              <>
+                <span
+                  className="flex shrink-0 -space-x-1.5"
+                  title={answers === 1 ? `${answerPreview[0]?.name || "A product"} answered` : `${answers} products answered`}
+                >
+                  {answerPreview.map((answer) => (
+                    <ProductIcon
+                      key={answer.offer_id}
+                      name={answer.name}
+                      seed={answer.registrable_domain}
+                      iconUrl={answer.icon_url}
+                      size={18}
+                      className={`ring-2 ${isFirst ? "ring-[#fff6f2]" : "ring-[#fafafa] group-hover:ring-white"}`}
+                    />
+                  ))}
+                </span>
+                <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[#706a63]">
+                  {answers} {answers === 1 ? "answer" : "answers"}
+                </span>
+              </>
+            ) : (
+              <>
+                <span aria-hidden="true" className="size-[18px] rounded-[4px] border border-dashed border-[rgba(55,50,47,.2)]" />
+                <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[#aaa]">No answers</span>
+              </>
+            )}
+            <HugeiconsIcon
+              icon={ArrowRight01Icon}
+              size={11}
+              aria-hidden="true"
+              className="shrink-0 text-[#b5b0a9] transition-all duration-200 group-hover/answers:translate-x-0.5 group-hover/answers:text-[#d84d37]"
+            />
+          </Link>
         </div>
       </div>
     </article>

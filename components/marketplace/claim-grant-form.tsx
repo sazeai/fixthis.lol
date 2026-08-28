@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Check, LoaderCircle } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Loading03Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 
 /**
  * Vouch for a founder who cannot prove their domain by email.
@@ -72,7 +73,7 @@ export function ClaimGrantForm() {
           disabled={state === "saving"}
           className="inline-flex h-10 items-center gap-2 bg-[#111] px-5 font-mono text-[10px] uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#ef4e37] disabled:opacity-60"
         >
-          {state === "saving" ? <LoaderCircle size={12} className="animate-spin" /> : state === "saved" ? <Check size={12} /> : null}
+          {state === "saving" ? <HugeiconsIcon icon={Loading03Icon} size={12} className="animate-spin" /> : state === "saved" ? <HugeiconsIcon icon={Tick02Icon} size={12} /> : null}
           {state === "saved" ? "Granted" : "Grant claim"}
         </button>
         {error ? <p className="text-[12px] text-red-700">{error}</p> : null}

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LoaderCircle } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Loading03Icon } from "@hugeicons/core-free-icons"
 import { signOutBrowser, useAccessToken, useSession } from "@/components/marketplace/use-session"
 
 type OwnedProduct = { id: string; name: string; slug: string | null }
@@ -73,7 +74,7 @@ export function AccountSwitch() {
         title={session.email}
         className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.1em] text-[#a8a39c] transition-colors hover:text-[#111] disabled:opacity-60"
       >
-        {busy ? <LoaderCircle size={10} className="animate-spin" /> : null}
+        {busy ? <HugeiconsIcon icon={Loading03Icon} size={10} className="animate-spin" /> : null}
         Sign out
       </button>
     </div>

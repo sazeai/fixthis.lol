@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowUpRight, BadgeCheck, Check, LoaderCircle } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowUpRight01Icon, CheckmarkBadge01Icon, Loading03Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 import { FormField, TextArea, TextInput } from "@/components/marketplace/form-field"
 import { FramedSection, MarketplaceFrame } from "@/components/marketplace/frame"
 import { Header } from "@/components/marketplace/header"
@@ -113,7 +114,7 @@ export function FounderDashboard({
                         disabled={state === "saving"}
                         className="inline-flex h-10 items-center gap-2 bg-[#111] px-5 font-mono text-[10px] uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#ef4e37] disabled:opacity-60"
                       >
-                        {state === "saving" ? <LoaderCircle size={12} className="animate-spin" /> : state === "saved" ? <Check size={12} /> : null}
+                        {state === "saving" ? <HugeiconsIcon icon={Loading03Icon} size={12} className="animate-spin" /> : state === "saved" ? <HugeiconsIcon icon={Tick02Icon} size={12} /> : null}
                         {state === "saved" ? "Saved" : "Save"}
                       </button>
                       {error ? <p className="text-[11px] text-red-700">{error}</p> : null}
@@ -136,7 +137,7 @@ export function FounderDashboard({
                             </Link>
                             {offer.verified ? (
                               <span className="inline-flex shrink-0 items-center gap-1 bg-[#fff0eb] px-1.5 py-0.5 font-mono text-[7px] uppercase tracking-[0.1em] text-[#d84d37]">
-                                <BadgeCheck size={9} /> Verified
+                                <HugeiconsIcon icon={CheckmarkBadge01Icon} size={9} /> Verified
                               </span>
                             ) : null}
                           </div>
@@ -156,7 +157,7 @@ export function FounderDashboard({
                     <div className="mt-4 border border-dashed border-[rgba(55,50,47,0.16)] bg-[#fafafa] px-5 py-8 text-center">
                       <p className="font-serif text-[19px] tracking-[-0.02em] text-[#111]">You have not answered anything yet.</p>
                       <Link href="/#problems" className="mt-3 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[#d84d37] underline underline-offset-4">
-                        Find a problem you solve <ArrowUpRight size={12} />
+                        Find a problem you solve <HugeiconsIcon icon={ArrowUpRight01Icon} size={12} />
                       </Link>
                     </div>
                   )}

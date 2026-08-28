@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Search, X } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Cancel01Icon, SearchAreaIcon } from "@hugeicons/core-free-icons"
 import { CategoryFilter } from "@/components/marketplace/category-filter"
 import { DeckPagination } from "@/components/marketplace/deck-pagination"
 import { ProblemCard } from "@/components/marketplace/problem-card"
@@ -72,7 +73,7 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
           short inside the header padding. */}
       <div className="grid border-b border-t border-[rgba(55,50,47,0.12)] bg-white sm:grid-cols-[1fr_auto]">
         <div className="group relative flex items-center">
-          <Search size={13} className="pointer-events-none absolute left-5 text-[#c4c0ba] transition-colors duration-200 group-focus-within:text-[#ef4e37] sm:left-7" />
+          <HugeiconsIcon icon={SearchAreaIcon} size={13} className="pointer-events-none absolute left-5 text-[#c4c0ba] transition-colors duration-200 group-focus-within:text-[#ef4e37] sm:left-7" />
           <label className="sr-only" htmlFor="problem-search">Search problems</label>
           <input
             id="problem-search"
@@ -88,7 +89,7 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
               aria-label="Clear search"
               className="absolute right-4 grid size-6 place-items-center rounded-full text-[#b5b0a9] transition-colors hover:bg-[rgba(55,50,47,.06)] hover:text-[#111] sm:right-6"
             >
-              <X size={13} />
+              <HugeiconsIcon icon={Cancel01Icon} size={13} />
             </button>
           ) : null}
         </div>

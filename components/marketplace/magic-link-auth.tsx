@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowRight, Check, LoaderCircle, Mail } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowRight01Icon, Loading03Icon, Mail01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 import { getSupabaseBrowserClient } from "@/utils/supabase/client"
 
 export function MagicLinkAuth({
@@ -49,7 +50,7 @@ export function MagicLinkAuth({
   if (sent) {
     return (
       <div className={compact ? "px-4 pb-6 pt-6" : "px-6 pb-10 pt-9 sm:px-10"}>
-        <span className="mx-auto grid size-12 place-items-center rounded-full bg-[#fff0eb] text-[#d84d37]"><Check size={21} /></span>
+        <span className="mx-auto grid size-12 place-items-center rounded-full bg-[#fff0eb] text-[#d84d37]"><HugeiconsIcon icon={Tick02Icon} size={21} /></span>
         <p className="mt-6 text-center font-mono text-[9px] uppercase tracking-[0.16em] text-[#2f7d4f]">Link sent</p>
         <h2 id={titleId} className={`mt-3 text-center font-serif leading-[1.04] tracking-[-0.04em] text-[#111] ${compact ? "text-[22px]" : "text-[29px]"}`}>Check your email.</h2>
         <p className="mx-auto mt-4 max-w-sm text-center text-[13px] leading-6 text-[#666]">
@@ -64,7 +65,7 @@ export function MagicLinkAuth({
 
   return (
     <div className={compact ? "px-4 pb-6 pt-6" : "px-6 pb-9 pt-9 sm:px-10 sm:pb-10"}>
-      <span className="mx-auto grid size-12 place-items-center rounded-full bg-[#f4f2f0] text-[#111]"><Mail size={21} /></span>
+      <span className="mx-auto grid size-12 place-items-center rounded-full bg-[#f4f2f0] text-[#111]"><HugeiconsIcon icon={Mail01Icon} size={21} /></span>
       <p className="mt-6 text-center font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Sign in to continue</p>
       <h2 id={titleId} className={`mt-3 text-center font-serif leading-[1.04] tracking-[-0.04em] text-[#111] ${compact ? "text-[22px]" : "text-[29px]"}`}>{title}</h2>
       <p className="mx-auto mt-4 max-w-sm text-center text-[13px] leading-6 text-[#666]">{blurb}</p>
@@ -83,7 +84,7 @@ export function MagicLinkAuth({
         </label>
         {error ? <p role="alert" className="border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</p> : null}
         <button disabled={loading} className="group flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#111] text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#ef4e37] disabled:opacity-60 disabled:hover:bg-[#111]">
-          {loading ? <><LoaderCircle className="animate-spin" size={15} /> Sending…</> : <>Email me a magic link <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" /></>}
+          {loading ? <><HugeiconsIcon icon={Loading03Icon} className="animate-spin" size={15} /> Sending…</> : <>Email me a magic link <HugeiconsIcon icon={ArrowRight01Icon} size={14} className="transition-transform group-hover:translate-x-0.5" /></>}
         </button>
       </form>
       <p className="mt-5 text-center font-mono text-[8px] uppercase tracking-[0.12em] text-[#aaa]">One-time link · no password</p>

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Check, LoaderCircle, TriangleAlert } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Alert02Icon, Loading03Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 import { FramedSection, MarketplaceFrame } from "@/components/marketplace/frame"
 import { Header } from "@/components/marketplace/header"
 
@@ -46,7 +47,7 @@ export function BidSuccess({ quoteId }: { quoteId: string }) {
             <FramedSection contentClassName="px-5 py-16 sm:px-10 sm:py-24">
               <div className="mx-auto max-w-lg text-center">
                 <span className={`mx-auto grid size-12 place-items-center rounded-full ${settled ? "bg-[#eef7f0] text-[#2f7d4f]" : failed ? "bg-red-50 text-red-600" : "bg-[#fff0eb] text-[#d84d37]"}`}>
-                  {settled ? <Check size={22} /> : failed ? <TriangleAlert size={20} /> : <LoaderCircle size={20} className="animate-spin" />}
+                  {settled ? <HugeiconsIcon icon={Tick02Icon} size={22} /> : failed ? <HugeiconsIcon icon={Alert02Icon} size={20} /> : <HugeiconsIcon icon={Loading03Icon} size={20} className="animate-spin" />}
                 </span>
 
                 <p className="mt-6 font-mono text-[9px] uppercase tracking-[0.16em] text-[#999]">Webhook-verified state</p>

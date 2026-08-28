@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useId, useRef, useState } from "react"
-import { Check, ChevronDown } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ChevronDownIcon, Tick02Icon } from "@hugeicons/core-free-icons"
 
 type CategoryFilterProps = {
   categories: string[]
@@ -71,7 +72,8 @@ export function CategoryFilter({ categories, value, onChange }: CategoryFilterPr
         className="group flex h-12 w-full min-w-0 items-center justify-between gap-8 bg-transparent pl-5 pr-5 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-[#77726a] outline-none transition-colors hover:bg-[#fdfcfb] hover:text-[#111] focus-visible:bg-[#fdfcfb] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ef4e37] sm:min-w-[207px] sm:pl-7 sm:pr-6"
       >
         <span className="truncate">{value}</span>
-        <ChevronDown
+        <HugeiconsIcon
+          icon={ChevronDownIcon}
           size={13}
           aria-hidden="true"
           className={`shrink-0 text-[#c4c0ba] transition-transform duration-200 group-hover:text-[#77726a] ${open ? "rotate-180" : ""}`}
@@ -130,7 +132,7 @@ export function CategoryFilter({ categories, value, onChange }: CategoryFilterPr
                   <span className={`flex-1 font-mono text-[9px] uppercase tracking-[0.11em] ${selected ? "text-[#c94331]" : "text-[#5f5a54]"}`}>
                     {category}
                   </span>
-                  {selected ? <Check size={11} aria-hidden="true" className="text-[#ef4e37]" /> : null}
+                  {selected ? <HugeiconsIcon icon={Tick02Icon} size={11} aria-hidden="true" className="text-[#ef4e37]" /> : null}
                 </button>
               )
             })}

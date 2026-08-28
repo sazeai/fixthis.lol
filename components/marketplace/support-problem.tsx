@@ -1,8 +1,10 @@
 "use client"
 
 import { useState, type ReactNode } from "react"
-import { Check, Flame, LoaderCircle, Lock } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { FireIcon, Loading03Icon, LockKeyIcon, Tick02Icon } from "@hugeicons/core-free-icons"
 import { MagicLinkAuth } from "@/components/marketplace/magic-link-auth"
+import { ModalShell } from "@/components/marketplace/modal-shell"
 import { useSupportStatus } from "@/components/marketplace/use-support-status"
 import { useAccessToken, useSession } from "@/components/marketplace/use-session"
 
@@ -104,21 +106,19 @@ export function SupportProblem({
       aria-label={supported ? "You have this problem too" : "I have this problem too"}
       className={`inline-flex items-center rounded-full font-bold transition-colors duration-200 ease-out active:scale-[0.97] disabled:cursor-default ${
         compact
-          ? "h-8 gap-1.5 whitespace-nowrap px-3 text-[10px]"
-          : "h-10 shrink-0 gap-1 whitespace-nowrap px-2 text-[10px] uppercase tracking-[0.04em] sm:h-11 sm:gap-2 sm:px-5 sm:text-[11px] sm:tracking-[0.08em]"
+          ? "h-7 sm:h-8 gap-1.5 whitespace-nowrap px-2.5 sm:px-3 text-[10px]"
+          : "h-8 shrink-0 gap-1.5 whitespace-nowrap px-3 text-[10px] uppercase tracking-[0.06em]"
       } ${
         supported
           ? "bg-[#eef7f0] text-[#2f7d4f] ring-1 ring-inset ring-[rgba(47,125,79,.22)]"
           : "bg-white text-[#d84d37] ring-1 ring-inset ring-[rgba(216,77,55,.22)] hover:bg-[#fff0eb] hover:ring-[rgba(216,77,55,.4)]"
       }`}
     >
-      <span className={`grid shrink-0 place-items-center ${compact ? "size-3" : "size-3 sm:size-3.5"}`}>
-        {busy ? <LoaderCircle size={compact ? 11 : 12} className="animate-spin" />
-          : supported ? <Check size={compact ? 11 : 12} />
-          : <Flame size={compact ? 11 : 12} />}
+      <span className="grid size-3 place-items-center">
+        {busy ? <HugeiconsIcon icon={Loading03Icon} size={11} className="animate-spin" />
+          : supported ? <HugeiconsIcon icon={Tick02Icon} size={11} />
+          : <HugeiconsIcon icon={FireIcon} size={11} />}
       </span>
-      {/* The count leads: it is the social proof, and the words are just the
-          verb attached to it. */}
       <span className={`shrink-0 font-semibold tabular-nums transition-transform duration-300 ease-out ${bumped ? "scale-[1.35]" : "scale-100"}`}>
         {count.toLocaleString("en-US")}
       </span>
@@ -138,84 +138,102 @@ export function SupportProblem({
 
   const redirectTo = typeof window !== "undefined" ? window.location.href : "/"
 
+  const closeFollowUp = () => { if (!busy) setStep("none") }
+
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-1.5">
-        {button}
-        {children}
-        {supported && step === "none" ? (
-          <button
-            type="button"
-            onClick={() => setStep(savedCandidate ? "detail" : "candidate")}
-            className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#a8a39c] underline underline-offset-4 transition-colors hover:text-[#d84d37]"
-          >
-            Add more
-          </button>
-        ) : null}
+    <>
+      <div className="flex flex-col gap-1.5">
+        <div className="flex flex-wrap items-center gap-2">
+          {button}
+          {children}
+          {supported && step === "none" ? (
+            <button
+              type="button"
+              onClick={() => setStep(savedCandidate ? "detail" : "candidate")}
+              className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#a8a39c] underline underline-offset-4 transition-colors hover:text-[#d84d37]"
+            >
+              Add context
+            </button>
+          ) : null}
+          {savedCandidate || savedDetail ? (
+            <span className="font-mono text-[8px] uppercase tracking-[0.12em] text-[#2f7d4f]">
+              {savedDetail ? "Detail saved" : "Saved"}
+            </span>
+          ) : null}
+        </div>
+        {message ? <p className="text-[11px] text-red-700">{message}</p> : null}
       </div>
 
-      {/* Step 2 — anonymous, one field, no account. */}
-      {supported && step === "candidate" ? (
-        <form
-          className="max-w-md border border-[rgba(55,50,47,0.12)] bg-white p-4"
-          onSubmit={async (event) => {
-            event.preventDefault()
-            const form = new FormData(event.currentTarget)
-            if (await send({ switchCandidate: form.get("switchCandidate") })) {
-              setSavedCandidate(true)
-              setStep("detail")
-            }
-          }}
-        >
-          <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#d84d37]">Anonymous · no account</p>
-          <h3 className="mt-1.5 font-serif text-[19px] tracking-[-0.02em] text-[#111]">What are you looking at instead?</h3>
-          <p className="mt-1 text-[11px] leading-4 text-[#888]">
-            Just a product name. Shown as a count next to everyone else&rsquo;s, never linked to you.
-          </p>
-          <input
-            name="switchCandidate"
-            maxLength={60}
-            autoFocus
-            className="mt-3 h-10 w-full border border-[rgba(55,50,47,0.14)] bg-white px-2.5 text-[13px] text-[#111] outline-none transition-colors placeholder:text-[#bbb6ae] focus:border-[#111]"
-            placeholder="Promptwatch"
-          />
-          <div className="mt-3 flex items-center gap-3">
-            <button disabled={busy} className="inline-flex h-9 items-center bg-[#111] px-4 font-mono text-[9px] uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#ef4e37] disabled:opacity-60">
-              {busy ? "Saving…" : "Save"}
-            </button>
-            <button type="button" onClick={() => setStep("detail")} className="font-mono text-[9px] uppercase tracking-[0.1em] text-[#a8a39c] underline underline-offset-2 transition-colors hover:text-[#111]">
-              Skip
-            </button>
-          </div>
-        </form>
-      ) : null}
+      <ModalShell
+        open={supported && step !== "none"}
+        onClose={closeFollowUp}
+        labelledBy="support-followup-title"
+        chromeLabel="ADD CONTEXT"
+      >
+        {/* Step 2 — anonymous, one field, no account. */}
+        {step === "candidate" ? (
+          <form
+            className="px-5 py-6 sm:px-7 sm:py-7"
+            onSubmit={async (event) => {
+              event.preventDefault()
+              const form = new FormData(event.currentTarget)
+              if (await send({ switchCandidate: form.get("switchCandidate") })) {
+                setSavedCandidate(true)
+                setStep("detail")
+              }
+            }}
+          >
+            <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#d84d37]">Anonymous · no account</p>
+            <h2 id="support-followup-title" className="mt-2 font-serif text-[24px] tracking-[-0.03em] text-[#111]">What are you looking at instead?</h2>
+            <p className="mt-2 max-w-md text-[12px] leading-5 text-[#777]">
+              Just a product name. It is combined with everyone else&rsquo;s answer and never linked to you.
+            </p>
+            <label className="mt-5 block">
+              <span className="mb-1.5 block font-mono text-[8px] uppercase tracking-[0.12em] text-[#999]">Product name</span>
+              <input
+                name="switchCandidate"
+                maxLength={60}
+                autoFocus
+                className="h-11 w-full border border-[rgba(55,50,47,0.14)] bg-white px-3 text-[13px] text-[#111] outline-none transition-colors placeholder:text-[#bbb6ae] focus:border-[#111]"
+                placeholder="Promptwatch"
+              />
+            </label>
+            <div className="mt-4 flex items-center gap-3">
+              <button disabled={busy} className="inline-flex h-10 items-center bg-[#111] px-5 font-mono text-[9px] uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#ef4e37] disabled:opacity-60">
+                {busy ? "Saving…" : "Save and continue"}
+              </button>
+              <button type="button" onClick={() => setStep("detail")} className="font-mono text-[9px] uppercase tracking-[0.1em] text-[#a8a39c] underline underline-offset-2 transition-colors hover:text-[#111]">
+                Skip
+              </button>
+            </div>
+          </form>
+        ) : null}
 
-      {/* Step 3 — published prose, so it needs an account. */}
-      {supported && step === "detail" && !savedDetail ? (
-        <div className="max-w-md border border-[rgba(55,50,47,0.12)] bg-white">
-          {session.checked && !session.email ? (
+        {/* Step 3 — published prose, so it needs an account. */}
+        {step === "detail" && !savedDetail ? (
+          session.checked && !session.email ? (
             <>
-              <div className="flex items-center gap-2 border-b border-[rgba(55,50,47,0.12)] bg-[#faf9f8] px-4 py-2.5">
-                <Lock size={11} className="text-[#8a857e]" />
-                <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#8a857e]">Sign in to write a detail</p>
+              <div className="flex items-center gap-2 border-b border-[rgba(55,50,47,0.12)] bg-[#f7f5f3] px-5 py-2.5">
+                <HugeiconsIcon icon={LockKeyIcon} size={11} className="text-[#8a857e]" />
+                <p className="font-mono text-[8px] uppercase tracking-[0.12em] text-[#8a857e]">Sign in only for published text</p>
               </div>
               <MagicLinkAuth
                 compact
                 redirectTo={redirectTo}
-                titleId="support-detail-auth"
+                titleId="support-followup-title"
                 title="One quick sign-in."
-                blurb="Your ME TOO is already counted and stays anonymous. Written details are signed in, because they get published next to a named company."
+                blurb="Your ME TOO stays anonymous. A written detail appears publicly beside a named company, so it needs a signed-in author."
                 returnHint="finish your detail"
               />
-              <div className="border-t border-[rgba(55,50,47,0.12)] px-4 py-2.5 text-center">
+              <div className="border-t border-[rgba(55,50,47,0.12)] px-4 py-3 text-center">
                 <button type="button" onClick={() => setStep("none")} className="font-mono text-[9px] uppercase tracking-[0.1em] text-[#a8a39c] underline underline-offset-2 transition-colors hover:text-[#111]">
-                  No thanks
+                  Skip for now
                 </button>
               </div>
             </>
           ) : (
             <form
-              className="p-4"
+              className="px-5 py-6 sm:px-7 sm:py-7"
               onSubmit={async (event) => {
                 event.preventDefault()
                 const form = new FormData(event.currentTarget)
@@ -226,42 +244,34 @@ export function SupportProblem({
               }}
             >
               <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#d84d37]">Published without your name</p>
-              <h3 className="mt-1.5 font-serif text-[19px] tracking-[-0.02em] text-[#111]">What specifically sucks?</h3>
+              <h2 id="support-followup-title" className="mt-2 font-serif text-[24px] tracking-[-0.03em] text-[#111]">What specifically sucks?</h2>
               <textarea
                 name="detail"
                 minLength={3}
                 maxLength={280}
-                rows={2}
+                rows={3}
                 autoFocus
-                className="mt-3 w-full resize-none border border-[rgba(55,50,47,0.14)] bg-white p-2.5 text-[13px] leading-5 text-[#111] outline-none transition-colors placeholder:text-[#bbb6ae] focus:border-[#111]"
-                placeholder="One sentence."
+                className="mt-5 w-full resize-none border border-[rgba(55,50,47,0.14)] bg-white p-3 text-[13px] leading-5 text-[#111] outline-none transition-colors placeholder:text-[#bbb6ae] focus:border-[#111]"
+                placeholder="One specific sentence."
               />
               <input
                 name="email"
                 type="email"
-                className="mt-2 h-9 w-full border border-[rgba(55,50,47,0.14)] bg-white px-2.5 text-[13px] text-[#111] outline-none transition-colors placeholder:text-[#bbb6ae] focus:border-[#111]"
+                className="mt-2 h-10 w-full border border-[rgba(55,50,47,0.14)] bg-white px-3 text-[13px] text-[#111] outline-none transition-colors placeholder:text-[#bbb6ae] focus:border-[#111]"
                 placeholder="Email me when an alternative answers (optional)"
               />
-              <div className="mt-3 flex items-center gap-3">
-                <button disabled={busy} className="inline-flex h-9 items-center bg-[#111] px-4 font-mono text-[9px] uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#ef4e37] disabled:opacity-60">
-                  {busy ? "Saving…" : "Save"}
+              <div className="mt-4 flex items-center gap-3">
+                <button disabled={busy} className="inline-flex h-10 items-center bg-[#111] px-5 font-mono text-[9px] uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#ef4e37] disabled:opacity-60">
+                  {busy ? "Saving…" : "Publish detail"}
                 </button>
                 <button type="button" onClick={() => setStep("none")} className="font-mono text-[9px] uppercase tracking-[0.1em] text-[#a8a39c] underline underline-offset-2 transition-colors hover:text-[#111]">
-                  Cancel
+                  Skip
                 </button>
               </div>
             </form>
-          )}
-        </div>
-      ) : null}
-
-      {savedCandidate || savedDetail ? (
-        <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#2f7d4f]">
-          {savedDetail ? "Detail saved" : "Saved"}
-        </p>
-      ) : null}
-
-      {message ? <p className="text-[11px] text-red-700">{message}</p> : null}
-    </div>
+          )
+        ) : null}
+      </ModalShell>
+    </>
   )
 }

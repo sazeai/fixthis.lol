@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowUpRight, LoaderCircle } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowUpRight01Icon, Loading03Icon } from "@hugeicons/core-free-icons"
 import { FounderDashboard } from "@/components/marketplace/founder-dashboard"
 import { Footer } from "@/components/marketplace/footer"
 import { FramedSection, MarketplaceFrame } from "@/components/marketplace/frame"
@@ -68,7 +69,7 @@ export function DashboardClient() {
             href="/#problems"
             className="mt-6 inline-flex h-11 items-center gap-1.5 bg-[#111] px-5 font-mono text-[10px] uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#ef4e37]"
           >
-            Find a problem you solve <ArrowUpRight size={13} />
+            Find a problem you solve <HugeiconsIcon icon={ArrowUpRight01Icon} size={13} />
           </Link>
           <p className="mt-4 font-mono text-[9px] uppercase tracking-[0.1em] text-[#aaa]">
             Signed in as {session.email}
@@ -103,7 +104,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 function Loading() {
   return (
     <p className="flex items-center justify-center gap-2 py-16 font-mono text-[10px] uppercase tracking-[0.14em] text-[#a8a39c]">
-      <LoaderCircle size={13} className="animate-spin" /> Loading
+      <HugeiconsIcon icon={Loading03Icon} size={13} className="animate-spin" /> Loading
     </p>
   )
 }

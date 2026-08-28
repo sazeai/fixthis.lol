@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Check, Flag, LoaderCircle } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Flag01Icon, Loading03Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 import { TurnstileField } from "@/components/marketplace/turnstile-field"
 
 const REASONS = [
@@ -44,7 +45,7 @@ export function ReportProblem({ problemId }: { problemId: string }) {
   if (state === "done") {
     return (
       <p className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-[#2f7d4f]">
-        <Check size={11} /> Reported — thank you
+        <HugeiconsIcon icon={Tick02Icon} size={11} /> Reported — thank you
       </p>
     )
   }
@@ -56,7 +57,7 @@ export function ReportProblem({ problemId }: { problemId: string }) {
         onClick={() => setOpen(true)}
         className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-[#a8a39c] transition-colors hover:text-[#d84d37] px-4"
       >
-        <Flag size={10} /> Report this problem
+        <HugeiconsIcon icon={Flag01Icon} size={10} /> Report this problem
       </button>
     )
   }
@@ -86,7 +87,7 @@ export function ReportProblem({ problemId }: { problemId: string }) {
           disabled={state === "sending"}
           className="inline-flex h-8 items-center gap-1.5 bg-[#111] px-3 font-mono text-[9px] uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#ef4e37] disabled:opacity-60"
         >
-          {state === "sending" ? <><LoaderCircle size={11} className="animate-spin" /> Sending</> : "Send report"}
+          {state === "sending" ? <><HugeiconsIcon icon={Loading03Icon} size={11} className="animate-spin" /> Sending</> : "Send report"}
         </button>
         <button
           type="button"
