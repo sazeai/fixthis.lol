@@ -4,7 +4,7 @@ import { getRequestIp, isKnownBot } from "@/lib/marketplace/helpers"
 import { jsonError, mutationAllowed } from "@/lib/marketplace/http"
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
-import { tryGetVisitorKey } from "@/lib/marketplace/visitor"
+import { dailyIpKey, tryGetVisitorKey } from "@/lib/marketplace/visitor"
 import { assessUserContent, firstZodError, supportSchema } from "@/lib/marketplace/validation"
 import { createAdminClient } from "@/utils/supabase/admin"
 
@@ -13,7 +13,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (isKnownBot(request)) return jsonError("Automated activity is not counted.", 403)
   const { id } = await params
   const ip = getRequestIp(request)
-  const limit = await checkMarketplaceRateLimit(`support:${ip}`, 40, "10 m")
+  const ipKey = dailyIpKey(ip)
+  // Scoped to the problem as well as the (hashed) IP: a shared office or campus
+  // NAT should not burn one global vote budget between everyone behind it. The
+  // IP is only an abuse brake — it never decides whose vote this is.
+  const limit = await checkMarketplaceRateLimit(`support:${id}:${ipKey}`, 40, "10 m")
   if (!limit.allowed) return jsonError("Too many votes. Try again later.", 429)
   const parsed = supportSchema.safeParse(await request.json().catch(() => ({})))
   if (!parsed.success) return jsonError(firstZodError(parsed.error))
@@ -38,5 +42,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const { data, error } = await supabase.rpc("support_problem", { p_problem_id: id, p_visitor_key: visitorKey, p_detail: parsed.data.detail || null, p_detail_status: detailStatus })
   if (error) { console.error("Support failed", error); return jsonError("Your support could not be recorded.", 500) }
   if (parsed.data.email) await createProblemSubscription(id, parsed.data.email, new URL(request.url).origin).catch(console.error)
-  return NextResponse.json(data?.[0] || { inserted: false })
+  // A repeat press is a normal outcome, not an error: the row already exists, the
+  // count is unchanged, and the caller is told plainly which of the two happened.
+  const row = data?.[0]
+  const inserted = Boolean(row?.inserted)
+  return NextResponse.json({
+    inserted,
+    alreadySupported: !inserted,
+    support_count: row?.support_count ?? 0,
+  })
 }

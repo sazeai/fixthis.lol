@@ -7,6 +7,7 @@ import { createManagementToken } from "@/lib/marketplace/management"
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
 import { firstZodError } from "@/lib/marketplace/validation"
+import { dailyIpKey } from "@/lib/marketplace/visitor"
 import { createAdminClient } from "@/utils/supabase/admin"
 
 export const runtime = "nodejs"
@@ -26,7 +27,8 @@ export async function POST(request: Request) {
   if (isKnownBot(request)) return jsonError("Automated requests are not accepted.", 403)
 
   const ip = getRequestIp(request)
-  const limit = await checkMarketplaceRateLimit(`manage-link:${ip}`, 5)
+  const ipKey = dailyIpKey(ip)
+  const limit = await checkMarketplaceRateLimit(`manage-link:${ipKey}`, 5)
   if (!limit.allowed) return jsonError("Too many link requests. Try again later.", 429)
 
   const parsed = schema.safeParse(await request.json().catch(() => null))

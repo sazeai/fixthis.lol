@@ -4,7 +4,7 @@ import { createProblemSlug, getRequestIp, inferProblemCategory, isKnownBot, norm
 import { diceSimilarity, jsonError, mutationAllowed } from "@/lib/marketplace/http"
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
-import { tryGetVisitorKey } from "@/lib/marketplace/visitor"
+import { dailyIpKey, tryGetVisitorKey } from "@/lib/marketplace/visitor"
 import { getAuthenticatedUser } from "@/lib/marketplace/auth"
 import { checkProblemStatement, firstZodError, problemSchema } from "@/lib/marketplace/validation"
 import { getProblemSummaries, invalidateProblemOrdering } from "@/lib/marketplace/queries"
@@ -22,7 +22,8 @@ export async function POST(request: Request) {
   const user = await getAuthenticatedUser(request)
   if (!user) return jsonError("Sign in with your email before posting a problem.", 401)
   const ip = getRequestIp(request)
-  const limit = await checkMarketplaceRateLimit(`problem:${ip}`, 5)
+  const ipKey = dailyIpKey(ip)
+  const limit = await checkMarketplaceRateLimit(`problem:${ipKey}`, 5)
   if (!limit.allowed) return jsonError("You have submitted several problems. Try again later.", 429)
   const userLimit = await checkMarketplaceRateLimit(`problem-user:${user.id}`, 3)
   if (!userLimit.allowed) return jsonError("You have submitted several problems. Try again later.", 429)

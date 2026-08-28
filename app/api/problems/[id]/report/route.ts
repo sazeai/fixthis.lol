@@ -6,7 +6,7 @@ import { invalidateProblemOrdering } from "@/lib/marketplace/queries"
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
 import { firstZodError } from "@/lib/marketplace/validation"
-import { tryGetVisitorKey } from "@/lib/marketplace/visitor"
+import { dailyIpKey, tryGetVisitorKey } from "@/lib/marketplace/visitor"
 import { createAdminClient } from "@/utils/supabase/admin"
 
 const schema = z.object({
@@ -22,7 +22,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const { id } = await params
   const ip = getRequestIp(request)
-  const limit = await checkMarketplaceRateLimit(`report:${ip}`, 20)
+  const ipKey = dailyIpKey(ip)
+  const limit = await checkMarketplaceRateLimit(`report:${ipKey}`, 20)
   if (!limit.allowed) return jsonError("Too many reports. Try again later.", 429)
 
   const parsed = schema.safeParse(await request.json().catch(() => null))

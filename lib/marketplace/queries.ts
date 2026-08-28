@@ -250,7 +250,9 @@ export async function getPublicTrafficStats(): Promise<PublicTrafficStats> {
     supabase.from("visitor_presence").select("visitor_key", { count: "exact", head: true }).gte("last_seen_at", liveSince),
     supabase.from("visitors").select("visitor_key", { count: "exact", head: true }).gte("last_seen_at", daySince),
   ])
-  return { live_visitors: (live || 0) >= 5 ? live || 0 : null, visitors_24h: visitors || 0 }
+  // Temporarily unhidden: low counts are shown as-is while the
+  // presence pipeline is being verified end to end.
+  return { live_visitors: live || 0, visitors_24h: visitors || 0 }
 }
 
 export async function getBidStatus(quoteId: string) {

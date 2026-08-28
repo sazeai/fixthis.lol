@@ -5,6 +5,7 @@ import { jsonError, mutationAllowed } from "@/lib/marketplace/http"
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
 import { bidSchema, firstZodError } from "@/lib/marketplace/validation"
+import { dailyIpKey } from "@/lib/marketplace/visitor"
 import { createAdminClient } from "@/utils/supabase/admin"
 
 export const runtime = "nodejs"
@@ -13,7 +14,8 @@ export async function POST(request: Request) {
   if (!mutationAllowed(request)) return jsonError("Invalid request origin.", 403)
   if (isKnownBot(request)) return jsonError("Automated checkout is not allowed.", 403)
   const ip = getRequestIp(request)
-  const limit = await checkMarketplaceRateLimit(`bid:${ip}`, 10)
+  const ipKey = dailyIpKey(ip)
+  const limit = await checkMarketplaceRateLimit(`bid:${ipKey}`, 10)
   if (!limit.allowed) return jsonError("Too many checkout attempts. Try again later.", 429)
   const parsed = bidSchema.safeParse(await request.json().catch(() => null))
   if (!parsed.success) return jsonError(firstZodError(parsed.error))

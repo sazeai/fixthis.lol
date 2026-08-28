@@ -3,20 +3,29 @@
 import { useState, type ReactNode } from "react"
 import { Check, Flame, LoaderCircle } from "lucide-react"
 import { FloatingEventLayer, useFloatingEvents } from "@/components/marketplace/floating-events"
+import { useSupportStatus } from "@/components/marketplace/use-support-status"
 
 export function SupportProblem({
   problemId,
   initialCount,
   compact = false,
+  initialSupported = false,
   children,
 }: {
   problemId: string
   initialCount: number
   compact?: boolean
+  /** Server-derived: true renders the counted state on first paint, no flash. */
+  initialSupported?: boolean
   /** Sibling actions rendered in the same row, e.g. the bid CTA. */
   children?: ReactNode
 }) {
   const [count, setCount] = useState(initialCount)
+  // Whether this visitor already supported this problem is answered by the
+  // server, batched with every other card on the page. Until it answers the
+  // button stays idle; pressing it then is harmless, because a duplicate is
+  // refused by the unique constraint and reported as alreadySupported.
+  const [alreadySupported, setAlreadySupported] = useSupportStatus(problemId, initialSupported)
   const [state, setState] = useState<"idle" | "loading" | "supported">("idle")
   const [details, setDetails] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -44,12 +53,17 @@ export function SupportProblem({
       setTimeout(() => setBumped(false), 420)
       // The visitor's own vote is a real event, so it animates immediately.
       spawn("+1 SAME PAIN", "pain")
+    } else if (typeof result.support_count === "number" && result.support_count > 0) {
+      // Already counted from an earlier visit. Adopt the true figure, but do not
+      // bump it and do not float a "+1": nothing new happened.
+      setCount(result.support_count)
     }
+    setAlreadySupported(true)
     setState("supported")
     return true
   }
 
-  const supported = state === "supported"
+  const supported = state === "supported" || alreadySupported
   const busy = state === "loading"
 
   const button = (

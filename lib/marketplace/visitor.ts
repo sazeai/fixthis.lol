@@ -4,8 +4,18 @@ import { cookies } from "next/headers"
 
 export const VISITOR_COOKIE = "fixthis_visitor"
 
+/**
+ * The one secret every anonymous identity is derived from.
+ *
+ * There is deliberately no fallback. It used to fall through to the service
+ * role key and then the admin password, which meant rotating either of those —
+ * or deploying to an environment that happened to have a different one — silently
+ * reissued every visitor key and let the same browser vote again. The identity
+ * must depend on exactly one value, and that value must be configured
+ * explicitly. Changing it resets every anonymous identity.
+ */
 function visitorSecret() {
-  const value = process.env.VISITOR_HASH_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.FIXTHIS_ADMIN_PASSWORD
+  const value = process.env.VISITOR_HASH_SECRET
   if (!value) throw new Error("VISITOR_HASH_SECRET is not configured")
   return value
 }
