@@ -5,6 +5,19 @@
 
 html {
   scroll-behavior: smooth;
+  /*
+   * FIXTHIS is a light-only design: every surface and text colour is a literal
+   * hex, and there is no dark palette behind them. Without this, Chrome's Auto
+   * Dark Mode on Android (and the in-app browsers in Reddit, X and Instagram,
+   * which inherit it) rewrites backgrounds to dark but leaves much of the text
+   * near its original value, so the problem statements turn dark-grey-on-dark
+   * and disappear.
+   *
+   * The "only" keyword is the part that matters. Plain "light" merely states a
+   * preference and is still overridden; "only light" forbids the user agent
+   * from substituting a scheme of its own.
+   */
+  color-scheme: only light;
 }
 
 
@@ -449,6 +462,26 @@ html {
 /* Both of these have to restore the fill as well as stop the movement, or the
    statement would be left permanently transparent. */
 @media (prefers-reduced-motion: reduce) {
+  .problem-sheen {
+    animation: none;
+    background-image: none;
+    color: var(--sheen-ink);
+    -webkit-text-fill-color: var(--sheen-ink);
+  }
+}
+
+/* The statement is painted by a gradient showing through the glyphs, which
+   means the text is a *background* as far as the browser is concerned. An
+   auto-darkening browser rewrites it as one — darkened gradient on a darkened
+   card — and because the glyphs themselves are transparent there is no colour
+   left to fall back to, so the statement vanishes entirely. That is what made
+   half the board unreadable in Chrome's Auto Dark Mode and in the in-app
+   browsers that inherit it.
+
+   color-scheme: only light already declines the override, but a browser that
+   forces dark regardless must still find a real colour here. The shimmer is
+   decoration; being able to read the complaint is not. */
+@media (prefers-color-scheme: dark) {
   .problem-sheen {
     animation: none;
     background-image: none;

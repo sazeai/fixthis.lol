@@ -51,7 +51,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#fafafa",
-  colorScheme: "light",
+  // "only light", not "light": the bare keyword is advisory and browsers still
+  // force-darken over it. See the note in globals.css.
+  colorScheme: "only light",
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
