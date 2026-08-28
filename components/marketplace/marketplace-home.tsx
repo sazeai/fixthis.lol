@@ -80,29 +80,9 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
     deckRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
   }
 
-  const totalDemand = problems.reduce((total, problem) => total + problem.support_count, 0)
-  const totalClaims = problems.reduce((total, problem) => total + problem.competitor_count, 0)
-
   return (
     <section id="problems" className="w-full">
-      <header className="border-y border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-5 py-5 sm:px-7">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2.5">
-              <span className="size-2 rounded-full bg-[#ef4e37] shadow-[0_0_0_3px_rgba(239,78,55,.11)]" />
-              <h2 className="whitespace-nowrap font-serif text-[16px] tracking-[-0.02em] text-[#111] sm:text-[18px]">What people are sick of</h2>
-            </div>
-            <p className="mt-1.5 text-[10px] text-[#888]">
-              Real software frustrations. Pile onto the ones you have too.
-                 </p>
-          </div>
-          <div className="grid grid-cols-3 divide-x divide-[rgba(55,50,47,.1)] border-t border-[rgba(55,50,47,.1)] pt-3 sm:min-w-[48%] sm:border-t-0 sm:pt-0">
-            <Stat value={problems.length.toLocaleString("en-US")} label="Problems" />
-            <Stat value={totalDemand.toLocaleString("en-US")} label="Me toos" middle />
-            <Stat value={totalClaims.toLocaleString("en-US")} label="Products competing" last />
-          </div>
-        </div>
-      </header>
+
 
       {/* Full-bleed filter bar: the rules run edge to edge instead of stopping
           short inside the header padding. */}
