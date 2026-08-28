@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import localFont from "next/font/local"
-import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site"
+import { GOOGLE_SITE_VERIFICATION_TOKEN, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site"
 import "./globals.css"
 
 const inter = localFont({ src: "../public/fonts/Inter.ttf", variable: "--font-inter", display: "swap" })
@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   creator: SITE_NAME,
   publisher: SITE_NAME,
   category: "technology",
+  verification: { google: GOOGLE_SITE_VERIFICATION_TOKEN },
   referrer: "origin-when-cross-origin",
   formatDetection: { email: false, address: false, telephone: false },
   manifest: "/manifest.json",

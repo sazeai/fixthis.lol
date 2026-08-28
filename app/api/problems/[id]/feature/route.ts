@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { isKnownBot } from "@/lib/marketplace/helpers"
+import { isKnownBot, withReferralTag } from "@/lib/marketplace/helpers"
 import { jsonError } from "@/lib/marketplace/http"
 import { tryGetVisitorKey } from "@/lib/marketplace/visitor"
 import { createAdminClient } from "@/utils/supabase/admin"
@@ -21,5 +21,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   // table, which would mean migrating a function that runs for every in-view
   // card. A null hook just means this advertiser has not set one.
   const { data: hook } = await supabase.from("placements").select("event_text").eq("id", placement.placement_id).maybeSingle()
-  return NextResponse.json({ placement: { ...placement, offer: hook?.event_text ?? null } })
+  // Tagged here rather than at the anchor: every outbound link to this
+  // advertiser is rendered from this one response, so the advertiser's
+  // analytics cannot see a click from us that arrived unattributed.
+  return NextResponse.json({
+    placement: {
+      ...placement,
+      destination_url: withReferralTag(placement.destination_url),
+      offer: hook?.event_text ?? null,
+    },
+  })
 }

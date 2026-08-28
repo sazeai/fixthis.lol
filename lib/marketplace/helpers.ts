@@ -1,6 +1,8 @@
 import { createHash, randomBytes } from "crypto"
 import { getDomain } from "tldts"
 
+import { SITE_REFERRAL_SOURCE } from "@/lib/site"
+
 export const PROBLEM_CATEGORIES = [
   "Analytics", "Automation", "Communication", "Design", "Developer tools",
   "Finance", "Knowledge", "Marketing", "Product", "Productivity", "Sales", "Support", "Other",
@@ -55,6 +57,37 @@ export function normalizeProductUrl(value: string) {
   if (!domain) throw new Error("Enter a valid public product domain.")
   url.hash = ""
   return { destinationUrl: url.toString(), registrableDomain: domain.toLowerCase() }
+}
+
+/**
+ * Tag an outbound advertiser link so the destination can recognise the visit in
+ * its own analytics, the way ChatGPT tags the links it cites.
+ *
+ * Three parameters because the tools disagree: GA4 reads utm_source with
+ * utm_medium, Plausible and Fathom read ref. Every one of them is the same
+ * constant for every visitor - nothing here says anything about the person
+ * clicking, so this discloses no more than the Referer header these links
+ * already send.
+ *
+ * Anything the advertiser set on their own URL wins; they may already be
+ * tracking us their own way, and the utm pair is set together or not at all so
+ * we never attach our medium to someone else's campaign.
+ */
+export function withReferralTag(destinationUrl: string) {
+  try {
+    const url = new URL(destinationUrl)
+    if (url.protocol !== "https:" && url.protocol !== "http:") return destinationUrl
+    if (!url.searchParams.has("ref")) url.searchParams.set("ref", SITE_REFERRAL_SOURCE)
+    if (!url.searchParams.has("utm_source") && !url.searchParams.has("utm_medium")) {
+      url.searchParams.set("utm_source", SITE_REFERRAL_SOURCE)
+      url.searchParams.set("utm_medium", "referral")
+    }
+    return url.toString()
+  } catch {
+    // A placeholder or malformed destination is left exactly as it was rather
+    // than turned into a broken link.
+    return destinationUrl
+  }
 }
 
 export function getAppUrl(requestUrl?: string) {
