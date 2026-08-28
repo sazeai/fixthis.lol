@@ -6,7 +6,7 @@ import { getProblemBySlug, getPublicTrafficStats } from "@/lib/marketplace/queri
 import { SITE_NAME, SITE_URL } from "@/lib/site"
 
 export const dynamic = "force-dynamic"
-type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ duplicate?: string; payment?: string }> }
+type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ duplicate?: string; payment?: string; quote?: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
@@ -63,6 +63,6 @@ export default async function ProblemPage({ params, searchParams }: Props) {
   return <>
     <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     <PresenceTracker initial={traffic} badge={false} />
-    <ProblemDetailView problem={problem} duplicate={query.duplicate === "1"} paymentCancelled={query.payment === "cancelled"} />
+    <ProblemDetailView problem={problem} duplicate={query.duplicate === "1"} paymentCancelled={query.payment === "cancelled"} cancelledQuoteId={query.quote || ""} />
   </>
 }

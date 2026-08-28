@@ -34,7 +34,7 @@ export async function createProblemSubscription(problemId: string, email: string
   if (error) throw error
   await send({
     to: email,
-    subject: "Confirm your FIXTHIS problem alert",
+    subject: "Confirm your FIXTHIS.LOL alert",
     html: `<p>Confirm that you want an email when this problem gets its first solution.</p><p><a href="${appUrl}/api/subscriptions/verify?token=${encodeURIComponent(token)}">Confirm alert</a></p><p>If you did not request this, ignore this email.</p>`,
   })
 }
@@ -42,8 +42,8 @@ export async function createProblemSubscription(problemId: string, email: string
 export async function sendManagementLink(email: string, token: string, productName: string, appUrl = getAppUrl()) {
   await send({
     to: email,
-    subject: `Manage ${productName} on FIXTHIS`,
-    html: `<p>Your paid placement is live. Use this private link to edit the product, see traffic, or bid again.</p><p><a href="${appUrl}/manage/${encodeURIComponent(token)}">Manage ${productName}</a></p><p>This link expires in 30 days. Do not forward it.</p>`,
+    subject: `Manage ${productName} on FIXTHIS.LOL`,
+    html: `<p>Your paid placement is live. Use this private link to edit the product, see traffic, or bid again.</p><p><a href="${appUrl}/manage/">Manage ${productName}</a></p><p>This link expires in 30 days. Do not forward it.</p>`,
   })
 }
 

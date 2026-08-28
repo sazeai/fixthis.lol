@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getDodoClient } from "@/lib/dodopayments-server"
-import { getAppUrl, getRequestIp, isKnownBot, normalizeProductUrl } from "@/lib/marketplace/helpers"
+import { formatMoney, getAppUrl, getRequestIp, isKnownBot, normalizeProductUrl } from "@/lib/marketplace/helpers"
 import { jsonError, mutationAllowed } from "@/lib/marketplace/http"
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
 import { verifyTurnstile } from "@/lib/marketplace/turnstile"
@@ -41,7 +41,12 @@ export async function POST(request: Request) {
     p_event_text: parsed.data.eventText || null,
   })
   if (quoteError || !quoteRows?.[0]) {
-    const message = quoteError?.message?.includes("Minimum bid") ? quoteError.message : quoteError?.message?.includes("managed by another") ? quoteError.message : "The bid changed. Refresh and try again."
+    // Postgres raises the floor in cents. Nobody should ever be shown the
+    // string "3200 cents", and the caller needs the number itself so the form
+    // can correct the field instead of asking for a refresh that will not help.
+    const minimum = Number(quoteError?.message?.match(/Minimum bid is (\d+) cents/)?.[1])
+    if (Number.isInteger(minimum)) return jsonError(`The minimum bid is now ${formatMoney(minimum)}.`, 409, { minimumCents: minimum })
+    const message = quoteError?.message?.includes("managed by another") ? quoteError.message : "The bid changed. Refresh and try again."
     return jsonError(message, 409)
   }
   const quote = quoteRows[0]
@@ -53,7 +58,8 @@ export async function POST(request: Request) {
       // advertiser for a personal name — the placement belongs to the product.
       customer: { name: parsed.data.productName, email: parsed.data.email },
       return_url: `${appUrl}/bid/success?quote=${encodeURIComponent(quote.quote_id)}`,
-      cancel_url: `${appUrl}/problems/${problem.slug}?payment=cancelled`,
+      // Carries the quote so backing out can release its own hold.
+      cancel_url: `${appUrl}/problems/${problem.slug}?payment=cancelled&quote=${encodeURIComponent(quote.quote_id)}`,
       billing_currency: "USD",
       // No `confirm: true`. Confirming a session up front makes Dodo demand a
       // full customer record and billing address in this request, which we do

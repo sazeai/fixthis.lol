@@ -6,10 +6,11 @@ import { ProblemComplaints } from "@/components/marketplace/problem-detail/probl
 import { ProblemCompetition } from "@/components/marketplace/problem-detail/problem-competition"
 import { ProblemHeader } from "@/components/marketplace/problem-detail/problem-header"
 import { ProblemMetrics } from "@/components/marketplace/problem-detail/problem-metrics"
+import { ReleaseCheckout } from "@/components/marketplace/release-checkout"
 import { ReportProblem } from "@/components/marketplace/report-problem"
 import type { ProblemDetail } from "@/types/marketplace"
 
-export function ProblemDetailView({ problem, duplicate, paymentCancelled }: { problem: ProblemDetail; duplicate: boolean; paymentCancelled: boolean }) {
+export function ProblemDetailView({ problem, duplicate, paymentCancelled, cancelledQuoteId = "" }: { problem: ProblemDetail; duplicate: boolean; paymentCancelled: boolean; cancelledQuoteId?: string }) {
   const originLabel = problem.origin === "curated" ? "Curated by FIXTHIS" : problem.origin === "founder" ? "Added by a product" : "Posted by someone with this problem"
 
   return (
@@ -20,6 +21,7 @@ export function ProblemDetailView({ problem, duplicate, paymentCancelled }: { pr
           <main className="relative z-10 mt-28 flex w-full flex-col items-center">
             {duplicate ? <Banner>We found this existing problem instead of creating a duplicate. Add your support below.</Banner> : null}
             {paymentCancelled ? <Banner>Payment was cancelled. No bid or placement was published.</Banner> : null}
+            {paymentCancelled && cancelledQuoteId ? <ReleaseCheckout quoteId={cancelledQuoteId} /> : null}
 
             <FramedSection contentClassName="py-0" extendRailTop>
               <ProblemHeader problem={problem} originLabel={originLabel} />

@@ -29,6 +29,10 @@ export function BidModal({
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  // Starts as the board's figure and is corrected by the server when a bid
+  // settles between this page rendering and the form being submitted. Telling
+  // someone the price moved is only useful alongside the price it moved to.
+  const [minimumCents, setMinimumCents] = useState(nextBidCents)
   const close = useCallback(() => !loading && setOpen(false), [loading])
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -55,6 +59,7 @@ export function BidModal({
     const result = await response.json().catch(() => ({}))
     if (!response.ok) {
       setLoading(false)
+      if (Number.isInteger(result.minimumCents)) setMinimumCents(result.minimumCents)
       setError(result.error || "Checkout could not be started.")
       return
     }
@@ -108,10 +113,13 @@ export function BidModal({
           <FormField label="HTTPS product URL">
             <TextInput name="destinationUrl" type="url" required defaultValue={prefill?.destinationUrl} placeholder="https://plausible.io" />
           </FormField>
-          <FormField label={`Bid · minimum ${formatMoney(nextBidCents)}`} helper="Your email receives the private stats and editing link.">
+          <FormField label={`Bid · minimum ${formatMoney(minimumCents)}`} helper="Your email receives the private stats and editing link.">
             <div className="flex h-10 items-center border border-[rgba(55,50,47,0.14)] bg-white focus-within:border-[#111]">
               <span className="pl-3 font-mono text-[13px] text-[#a8a39c]">$</span>
-              <TextInput name="amount" type="number" min={nextBidCents / 100} step="1" defaultValue={nextBidCents / 100} required className="!h-auto flex-1 !border-0 focus:!border-0" />
+              {/* Keyed on the minimum so a correction from the server actually
+                  reaches this uncontrolled field instead of leaving the old
+                  number sitting under a message saying it is too low. */}
+              <TextInput key={minimumCents} name="amount" type="number" min={minimumCents / 100} step="1" defaultValue={minimumCents / 100} required className="!h-auto flex-1 !border-0 focus:!border-0" />
             </div>
           </FormField>
 
