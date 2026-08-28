@@ -10,10 +10,26 @@ import type { ProblemSummary } from "@/types/marketplace"
  * it. The two systems never feed each other.
  */
 
-/** Cards per board page, and where injected fights sit within one. */
-export const PAGE_SIZE = 12
-export const INJECTION_SLOTS = [4, 10] as const // zero-based: positions #5 and #11
-export const ORGANIC_PER_PAGE = PAGE_SIZE - INJECTION_SLOTS.length
+/** Organic problems on one board page. Everything else here derives from it. */
+export const ORGANIC_PER_PAGE = 30
+
+/**
+ * How many organic cards sit between two injected ones.
+ *
+ * Injection density is the paid product, so it is expressed as a ratio rather
+ * than a fixed count: change the page size and advertisers keep the same share
+ * of circulation per page viewed instead of silently gaining or losing it.
+ */
+const ORGANIC_BETWEEN_INJECTIONS = 5
+
+/** Zero-based slots for injected fights: 4, 10, 16, … within a full page. */
+export const INJECTION_SLOTS = Array.from(
+  { length: Math.floor(ORGANIC_PER_PAGE / ORGANIC_BETWEEN_INJECTIONS) },
+  (_, index) => 4 + index * (ORGANIC_BETWEEN_INJECTIONS + 1),
+)
+
+/** Total cards on a full page, organic plus injected. */
+export const PAGE_SIZE = ORGANIC_PER_PAGE + INJECTION_SLOTS.length
 
 /** No single problem may take more than this share of all injected slots. */
 const MAX_SHARE_PER_PROBLEM = 0.3

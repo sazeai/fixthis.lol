@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { ChevronDown, Search, X } from "lucide-react"
 import { DeckPagination } from "@/components/marketplace/deck-pagination"
 import { useMarketEvents } from "@/components/marketplace/market-event-feed"
-import { boardPageCount, buildBoardPage, ORGANIC_PER_PAGE, PAGE_SIZE } from "@/lib/marketplace/live-fights"
+import { boardPageCount, buildBoardPage, ORGANIC_PER_PAGE } from "@/lib/marketplace/live-fights"
 import { ProblemCard } from "@/components/marketplace/problem-card"
 import type { ProblemSection, ProblemSectionId, ProblemSummary } from "@/types/marketplace"
 
@@ -53,9 +53,20 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
   // narrowing a filter can strand the page number past the end.
   const currentPage = Math.min(page, pageCount)
   // A filtered view is a search result, not the board — never inject into it.
+  // Sliced by the organic size, which is what pageCount above is counted on:
+  // slicing by the larger PAGE_SIZE meant a filtered list could report more
+  // pages than it could fill, and the last one came up "Nothing matches yet"
+  // while matches were sitting on the page before it.
   const entries = filtering
-    ? pool.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((problem) => ({ problem, injected: false }))
+    ? pool.slice((currentPage - 1) * ORGANIC_PER_PAGE, currentPage * ORGANIC_PER_PAGE).map((problem) => ({ problem, injected: false }))
     : buildBoardPage(pool, currentPage, problems)
+
+  // Card numbers follow organic rank, not position on screen. An injected fight
+  // shows a bolt rather than a number, so it must not consume one — otherwise
+  // every injection pushed the count one further ahead of the real rank, and
+  // page 2 restarted below the highest number page 1 had already shown.
+  let rank = (currentPage - 1) * ORGANIC_PER_PAGE
+  const numbered = entries.map((entry) => ({ ...entry, rank: entry.injected ? rank : rank++ }))
 
   // A new section or a changed filter is a new list — start at its first page.
   useEffect(() => { setPage(1) }, [active, query, category])
@@ -170,13 +181,13 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
         <p className="border-b border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-5 py-3 text-[11px] text-[#8a857e] sm:px-7">{activeSection.blurb}</p>
       ) : null}
 
-      {entries.length ? (
+      {numbered.length ? (
         <div ref={deckRef} className="grid scroll-mt-24 bg-[rgba(55,50,47,0.12)] md:grid-cols-2 md:gap-px">
-          {entries.map((entry, index) => (
+          {numbered.map((entry, index) => (
             <div key={`${entry.problem.id}-${entry.injected ? "fight" : "organic"}`} className={`${index ? "border-t border-[rgba(55,50,47,.12)]" : ""} md:border-t-0`}>
               <ProblemCard
                 problem={entry.problem}
-                index={(currentPage - 1) * ORGANIC_PER_PAGE + index}
+                index={entry.rank}
                 liveFight={entry.injected}
                 events={eventsByProblem[entry.problem.id]}
               />
