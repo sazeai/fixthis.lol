@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { ChevronDown, Search, X } from "lucide-react"
+import { Search, X } from "lucide-react"
+import { CategoryFilter } from "@/components/marketplace/category-filter"
 import { DeckPagination } from "@/components/marketplace/deck-pagination"
 import { useMarketEvents } from "@/components/marketplace/market-event-feed"
 import { boardPageCount, buildBoardPage, ORGANIC_PER_PAGE } from "@/lib/marketplace/live-fights"
@@ -110,15 +111,11 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
         </div>
         <div className="relative border-t border-[rgba(55,50,47,0.12)] sm:border-l sm:border-t-0">
           <label className="sr-only" htmlFor="problem-category">Filter by category</label>
-          <select
-            id="problem-category"
+          <CategoryFilter
+            categories={categories}
             value={category}
-            onChange={(event) => setCategory(event.target.value)}
-            className="h-12 w-full cursor-pointer appearance-none bg-transparent pl-5 pr-11 font-mono text-[10px] uppercase tracking-[0.1em] text-[#77726a] outline-none transition-colors hover:text-[#111] focus:bg-[#fdfcfb] sm:min-w-[220px] sm:pl-7 sm:pr-12"
-          >
-            {categories.map((item) => <option key={item}>{item}</option>)}
-          </select>
-          <ChevronDown size={13} className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-[#c4c0ba] sm:right-6" />
+            onChange={setCategory}
+          />
         </div>
       </div>
 
