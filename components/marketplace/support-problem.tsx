@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { FireIcon, Loading03Icon, LockKeyIcon, Tick02Icon } from "@hugeicons/core-free-icons"
+import { ArrowRight01Icon, CheckmarkBadge03Icon, FireIcon, Loading03Icon, LockKeyIcon, Tick02Icon } from "@hugeicons/core-free-icons"
 import { MagicLinkAuth } from "@/components/marketplace/magic-link-auth"
 import { ModalShell } from "@/components/marketplace/modal-shell"
 import { useSupportStatus } from "@/components/marketplace/use-support-status"
@@ -104,20 +104,16 @@ export function SupportProblem({
       disabled={busy || supported}
       onClick={() => { if (!supported) void send().then((ok) => { if (ok) setStep("candidate") }) }}
       aria-label={supported ? "You have this problem too" : "I have this problem too"}
-      className={`inline-flex items-center rounded-full font-bold transition-colors duration-200 ease-out active:scale-[0.97] disabled:cursor-default ${
-        compact
-          ? "h-7 sm:h-8 gap-1.5 whitespace-nowrap px-2.5 sm:px-3 text-[10px]"
-          : "h-8 shrink-0 gap-1.5 whitespace-nowrap px-3 text-[10px] uppercase tracking-[0.06em]"
-      } ${
+      className={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[10px] font-bold tracking-[0.02em] transition-all duration-200 active:scale-[0.97] disabled:cursor-default ${
         supported
           ? "bg-[#eef7f0] text-[#2f7d4f] ring-1 ring-inset ring-[rgba(47,125,79,.22)]"
-          : "bg-white text-[#d84d37] ring-1 ring-inset ring-[rgba(216,77,55,.22)] hover:bg-[#fff0eb] hover:ring-[rgba(216,77,55,.4)]"
+          : "bg-white text-[#111] ring-1 ring-inset ring-[rgba(55,50,47,.16)] hover:border-[#d84d37] hover:ring-[#d84d37] hover:text-[#d84d37]"
       }`}
     >
       <span className="grid size-3 place-items-center">
         {busy ? <HugeiconsIcon icon={Loading03Icon} size={11} className="animate-spin" />
           : supported ? <HugeiconsIcon icon={Tick02Icon} size={11} />
-          : <HugeiconsIcon icon={FireIcon} size={11} />}
+          : <HugeiconsIcon icon={FireIcon} size={11} className="text-[#d84d37]" />}
       </span>
       <span className={`shrink-0 font-semibold tabular-nums transition-transform duration-300 ease-out ${bumped ? "scale-[1.35]" : "scale-100"}`}>
         {count.toLocaleString("en-US")}
@@ -142,26 +138,64 @@ export function SupportProblem({
 
   return (
     <>
-      <div className="flex flex-col gap-1.5">
-        <div className="flex flex-wrap items-center gap-2">
-          {button}
-          {children}
-          {supported && step === "none" ? (
+      <div className="grid w-full grid-cols-1 divide-y divide-[rgba(55,50,47,0.12)] md:grid-cols-[200px_minmax(0,1fr)] lg:grid-cols-[210px_minmax(0,1fr)] md:divide-y-0 md:divide-x bg-[#fafafa]">
+        {/* Block 1: Support / Me Too Interactive Tile */}
+        <button
+          type="button"
+          disabled={busy || supported}
+          onClick={() => { if (!supported) void send().then((ok) => { if (ok) setStep("candidate") }) }}
+          aria-label={supported ? "You have this problem too" : "I have this problem too"}
+          className={`group/support flex h-11 w-full items-center justify-between px-5 font-mono text-[10px] font-bold uppercase tracking-[0.08em] transition-colors duration-200 disabled:cursor-default sm:px-6 ${
+            supported
+              ? "bg-[#eef7f0] text-[#2f7d4f]"
+              : "bg-[#fafafa] text-[#111] hover:bg-[#fff0eb] hover:text-[#d84d37]"
+          }`}
+        >
+          <span className="flex items-center gap-2">
+            <span className="grid size-3.5 place-items-center">
+              {busy ? <HugeiconsIcon icon={Loading03Icon} size={13} className="animate-spin text-[#d84d37]" />
+                : supported ? <HugeiconsIcon icon={CheckmarkBadge03Icon} size={13} className="text-[#2f7d4f]" />
+                : <HugeiconsIcon icon={FireIcon} size={13} className="text-[#d84d37] transition-transform duration-200 group-hover/support:scale-110" />}
+            </span>
+            <span className="whitespace-nowrap">{supported ? "Counted" : "Me too"}</span>
+          </span>
+
+          <span className={`inline-flex items-center justify-center font-mono text-[10px] tabular-nums font-bold transition-transform duration-300 ease-out ${
+            supported ? "text-[#2f7d4f]" : "text-[#d84d37]"
+          } ${bumped ? "scale-[1.35]" : "scale-100"}`}>
+            {count.toLocaleString("en-US")}
+          </span>
+        </button>
+
+        {/* Block 2: Add Context / Switch Preference Interactive Tile */}
+        <div className="flex h-11 items-center bg-[#fafafa] transition-colors hover:bg-white">
+          {savedCandidate || savedDetail ? (
+            <div className="flex h-full w-full items-center gap-1.5 px-5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#2f7d4f] sm:px-6">
+              <HugeiconsIcon icon={Tick02Icon} size={12} />
+              <span>{savedDetail ? "Detail saved" : "Preference saved"}</span>
+            </div>
+          ) : supported ? (
             <button
               type="button"
               onClick={() => setStep(savedCandidate ? "detail" : "candidate")}
-              className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#a8a39c] underline underline-offset-4 transition-colors hover:text-[#d84d37]"
+              className="group/ctx flex h-full w-full items-center justify-between px-5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#d84d37] transition-colors hover:text-[#111] sm:px-6"
             >
-              Add context
+              <span>+ Add context / switch preference</span>
+              <HugeiconsIcon icon={ArrowRight01Icon} size={11} className="transition-transform duration-200 group-hover/ctx:translate-x-0.5" />
             </button>
-          ) : null}
-          {savedCandidate || savedDetail ? (
-            <span className="font-mono text-[8px] uppercase tracking-[0.12em] text-[#2f7d4f]">
-              {savedDetail ? "Detail saved" : "Saved"}
-            </span>
-          ) : null}
+          ) : (
+            <button
+              type="button"
+              onClick={() => { void send().then((ok) => { if (ok) setStep("candidate") }) }}
+              className="group/ctx flex h-full w-full items-center justify-between px-5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#8a857e] transition-colors hover:text-[#d84d37] sm:px-6"
+            >
+              <span>+ Add your switch preference</span>
+              <HugeiconsIcon icon={ArrowRight01Icon} size={11} className="text-[#bbb] transition-transform duration-200 group-hover/ctx:translate-x-0.5 group-hover/ctx:text-[#d84d37]" />
+            </button>
+          )}
+
+          {message ? <p className="mr-4 text-[10px] text-red-700">{message}</p> : null}
         </div>
-        {message ? <p className="text-[11px] text-red-700">{message}</p> : null}
       </div>
 
       <ModalShell

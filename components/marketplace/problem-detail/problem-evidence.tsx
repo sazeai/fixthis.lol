@@ -20,8 +20,9 @@ export function ProblemEvidence({ problem }: { problem: ProblemDetail }) {
 
   return (
     <section className="border-b border-t border-[rgba(55,50,47,0.12)] bg-[#fafafa]">
-      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[rgba(55,50,47,0.12)] bg-[#f4f2f0] px-3 py-2.5 sm:px-5">
-        <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">People behind the count</p>
+      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[rgba(55,50,47,0.12)] bg-[#f4f2f0] px-4 py-2.5 sm:px-5">
+        <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">What people here say they’re looking at
+</p>
         <p className="font-mono text-[8px] uppercase tracking-[0.12em] text-[#999]">
           {evidenceCount} {evidenceCount === 1 ? "signal" : "signals"} shared
         </p>
@@ -29,7 +30,7 @@ export function ProblemEvidence({ problem }: { problem: ProblemDetail }) {
 
       <div className={`grid ${hasCandidates && hasComplaints ? "lg:grid-cols-2" : "grid-cols-1"}`}>
         {hasCandidates ? (
-        <section className={`px-5 py-5 sm:px-6 ${hasComplaints ? "border-b border-[rgba(55,50,47,.1)] lg:border-b-0 lg:border-r" : ""}`}>
+        <section className={`p-4 sm:p-5 ${hasComplaints ? "border-b border-[rgba(55,50,47,.1)] lg:border-b-0 lg:border-r" : ""}`}>
           <div className="flex items-baseline justify-between gap-3">
             <h2 className="text-[14px] font-semibold text-[#111]">Considering instead</h2>
             <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[#aaa]">

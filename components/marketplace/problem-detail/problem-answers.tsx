@@ -24,7 +24,7 @@ export function ProblemAnswers({ problem }: { problem: ProblemDetail }) {
       {/* Top Header Bar */}
       <div className="flex items-center justify-between border-b border-[rgba(55,50,47,0.12)] bg-[#f4f2f0] px-3 py-2.5 sm:px-5">
         <div className="flex items-baseline gap-2.5">
-          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Product responses</p>
+          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Products say they can fix this</p>
           <span className="font-mono text-[9px] tabular-nums text-[#999]">{String(count).padStart(2, "0")}</span>
         </div>
       </div>

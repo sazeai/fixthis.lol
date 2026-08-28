@@ -6,8 +6,6 @@ import { SupportProblem } from "@/components/marketplace/support-problem"
 import type { ProblemDetail } from "@/types/marketplace"
 
 export function ProblemHeader({ problem, originLabel }: { problem: ProblemDetail; originLabel: string }) {
-  const answerLabel = `${problem.answer_count} ${problem.answer_count === 1 ? "product response" : "product responses"}`
-
   return (
     <>
       <div className="border-b border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-5 py-3 sm:px-7">
@@ -23,7 +21,7 @@ export function ProblemHeader({ problem, originLabel }: { problem: ProblemDetail
         </div>
       </div>
 
-      <div className="px-5 py-5 sm:px-7 sm:py-6">
+      <div className="px-5 pb-3.5 pt-4 sm:px-7 sm:pb-4 sm:pt-5">
         {/* The software leads. It is what the reader arrived looking for, and
             what a competing product scans for. */}
         {problem.target_product_name ? (
@@ -37,22 +35,20 @@ export function ProblemHeader({ problem, originLabel }: { problem: ProblemDetail
           ink="#111"
         />
 
-        {/* The switch condition is what a buyer specifies would win them over. */}
+        {/* The switch condition is what a buyer specifies would win them over, rendered as a natural inline sentence. */}
         {problem.switch_condition ? (
-          <div className="mt-4 inline-flex max-w-2xl items-start gap-2.5 ">
-            <span className="mt-0.5 shrink-0 rounded bg-[#fff0eb] px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-[0.12em] text-[#d84d37]">
-              Would switch for
+          <p className="mt-2.5 max-w-2xl text-[12.5px] sm:text-[13px] leading-5 text-[#3a3530]">
+            <span className="mr-1.5 inline-block rounded bg-[#fff0eb] px-1.5 py-[.5px] font-mono text-[8px] font-bold uppercase tracking-[0.1em] text-[#d84d37] align-middle -translate-y-px">
+              Would switch for :
             </span>
-            <p className="text-[13px] leading-5 text-[#3a3530]">
-              {problem.switch_condition}
-            </p>
-          </div>
+            {problem.switch_condition}
+          </p>
         ) : null}
+      </div>
 
-        <div className="mt-6 flex items-center justify-between gap-3 border-t border-[rgba(55,50,47,0.1)] pt-4">
-          <SupportProblem problemId={problem.id} initialCount={problem.support_count} initialSupported />
-          <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#8a857e]">{answerLabel}</p>
-        </div>
+      {/* Bottom Full-Bleed Action Grid Bar */}
+      <div className="border-t border-[rgba(55,50,47,0.12)]">
+        <SupportProblem problemId={problem.id} initialCount={problem.support_count} initialSupported />
       </div>
     </>
   )
