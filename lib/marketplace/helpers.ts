@@ -108,20 +108,3 @@ export function isKnownBot(request: Request) {
 
 export function sha256(value: string) { return createHash("sha256").update(value).digest("hex") }
 
-export function formatMoney(cents: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(cents / 100)
-}
-
-export function formatCompactNumber(value: number) {
-  return new Intl.NumberFormat("en-US", { notation: value >= 1000 ? "compact" : "standard", maximumFractionDigits: 1 }).format(value)
-}
-
-export function rotationPercentages(count: number) {
-  if (count <= 0) return []
-  if (count === 1) return [100]
-  if (count === 2) return [70, 30]
-  const lowerCount = Math.min(count, 5) - 2
-  const base = Math.floor(15 / lowerCount)
-  const remainder = 15 % lowerCount
-  return [60, 25, ...Array.from({ length: lowerCount }, (_, index) => base + (index < remainder ? 1 : 0))]
-}

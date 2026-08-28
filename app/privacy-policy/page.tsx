@@ -31,8 +31,8 @@ export default function PrivacyPolicy() {
 
       <h3>Just visiting</h3>
       <p>The first time you arrive we put a random number in your browser, in a cookie called fixthis_visitor. It is not made from your name, your device or where you are. It identifies nobody, and we store it scrambled, in a form that cannot be turned back into the number in your browser.</p>
-      <p>It does two things. It stops the same browser voting twice on the same problem, and it lets us count people honestly &mdash; the &ldquo;online&rdquo; and &ldquo;visitors / 24h&rdquo; figures on the homepage, and how many people saw or clicked a paid placement. Without it every number on this site would be guesswork. We rely on our legitimate interest in publishing counts that can be trusted.</p>
-      <p>Like every website, we see your IP address while you are using the site. We use it for a moment to limit how often forms can be sent and to run the bot check, and then it is gone. <strong>We never store your IP address.</strong> It never appears in any public number, and it is never given to advertisers.</p>
+      <p>It does two things. It stops the same browser voting twice on the same problem, and it lets us count people honestly &mdash; the &ldquo;visitors / 24h&rdquo; figure on the homepage. Without it every number on this site would be guesswork. We rely on our legitimate interest in publishing counts that can be trusted.</p>
+      <p>Like every website, we see your IP address while you are using the site. We use it for a moment to limit how often forms can be sent and to run the bot check, and then it is gone. <strong>We never store your IP address.</strong> It never appears in any public number, and it is never given to the products that answer problems here.</p>
 
       <h3>If you post a problem</h3>
       <p>You sign in with an email link, so we keep your email address and connect it to what you post. Anything published on the board needs to be traceable to someone.</p>
@@ -62,14 +62,14 @@ export default function PrivacyPolicy() {
 
     <section>
       <h2>What other people can see</h2>
-      <p>Public: problem statements, their category, how many people pressed ME TOO, the visitor counts, and which products are competing on a problem. A detail you add becomes public after review, without your name.</p>
-      <p>Never public: your email address, payment details, IP address, anything you report to us, and our moderation notes. Advertisers see totals for their own placements and nothing about the people behind them.</p>
+      <p>Public: problem statements, the software they are about, what would make someone switch, their category, how many people pressed ME TOO, the visitor count, and which products have answered. A detail you add becomes public after review, without your name. If you name what you are looking at instead, that name is shown counted together with everyone else&rsquo;s and is never attributed to you.</p>
+      <p>Never public: your email address, IP address, anything you report to us, and our moderation notes. A product that has answered a problem sees how many people clicked through to it, and nothing whatsoever about who those people were. <strong>We never give anyone the contact details of people who pressed ME TOO.</strong></p>
     </section>
 
     <section>
       <h2>Who else handles your data</h2>
-      <p>Supabase stores our data and runs sign-in. Vercel hosts the site. Dodo Payments takes payments. Resend sends our emails. Cloudflare runs the bot check. Upstash helps us limit how often forms can be sent.</p>
-      <p>They work for us under contract and cannot use your information for their own purposes. Dodo Payments is separately responsible for the payment itself and has its own privacy notice. <strong>We do not sell your data, and never have.</strong></p>
+      <p>Supabase stores our data and runs sign-in. Vercel hosts the site. Resend sends our emails. Cloudflare runs the bot check. Upstash helps us limit how often forms can be sent.</p>
+      <p>They work for us under contract and cannot use your information for their own purposes. <strong>We do not sell your data, and never have.</strong></p>
     </section>
 
     <section>
@@ -79,12 +79,9 @@ export default function PrivacyPolicy() {
 
     <section>
       <h2>How long we keep things</h2>
-      <p>Who is online right now: less than a day.<br />
-      Individual records of a placement being seen or clicked: 90 days, after which only daily totals remain, and those identify nobody.<br />
-      Which solution your browser was shown: a week.<br />
+      <p>The record that your browser visited: a year after your last visit, then it is deleted.<br />
       An email alert you never confirmed: a week, then it is deleted.<br />
-      Your account and the problems you posted: until you ask us to delete them.<br />
-      Payment records: six to seven years, because tax law requires it.</p>
+      Your account and the problems you posted: until you ask us to delete them.</p>
     </section>
 
     <section>

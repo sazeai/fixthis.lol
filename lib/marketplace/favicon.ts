@@ -85,7 +85,7 @@ function readWidth(bytes: Buffer, contentType: string): number {
 export async function fetchProductIcon(registrableDomain: string, budgetMs = 20_000): Promise<FetchedIcon | null> {
   const deadline = Date.now() + budgetMs
   // https only, and the domain has already passed normalizeProductUrl's public
-  // registrable-domain check before a placement can exist.
+  // registrable-domain check before an answer can exist.
   const origin = `https://${registrableDomain}`
   let candidates: string[]
   try { candidates = await candidateUrls(origin) } catch { return null }

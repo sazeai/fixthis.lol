@@ -29,7 +29,7 @@ export function ManageLinkRequest() {
       setError(result.error || "The link could not be requested.")
       return
     }
-    setMessage(result.message || "If that email manages a placement, a fresh management link is on its way.")
+    setMessage(result.message || "If that email manages a product, a fresh management link is on its way.")
     setState("sent")
   }
 
@@ -68,7 +68,7 @@ export function ManageLinkRequest() {
         {state === "sending" ? <><LoaderCircle size={14} className="animate-spin" /> Sending…</> : <>Email me the link <ArrowRight size={14} className="transition-transform duration-200 ease-out group-hover:translate-x-0.5" /></>}
       </button>
       <p className="mt-4 text-[11px] leading-5 text-[#999]">
-        For privacy we send the same confirmation either way, so this page never reveals whether an email manages a placement.
+        For privacy we send the same confirmation either way, so this page never reveals whether an email manages a product.
       </p>
     </form>
   )

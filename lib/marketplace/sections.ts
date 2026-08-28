@@ -7,17 +7,17 @@ function byPublished(a: ProblemSummary, b: ProblemSummary) {
 }
 
 /**
- * Split the ranked board into market sections. Rows arrive already ordered by
- * trending score, so each bucket only needs its own secondary ordering.
+ * Split the ranked board into sections. Rows arrive already ordered by trending
+ * score, so each bucket only needs its own secondary ordering.
  *
- * A problem may legitimately appear in more than one section — a contested
- * problem can also be trending. Only "unclaimed" is mutually exclusive with
- * "contested", because they are defined by the same predicate.
+ * A problem may legitimately appear in more than one section — an answered
+ * problem can also be trending. Only "unanswered" is mutually exclusive with
+ * "answered", because they are defined by the same predicate.
  */
 export function buildProblemSections(problems: ProblemSummary[]): ProblemSection[] {
   const now = Date.now()
-  const contested = problems.filter((problem) => problem.competitor_count > 0)
-  const unclaimed = problems.filter((problem) => problem.competitor_count === 0)
+  const answered = problems.filter((problem) => problem.answer_count > 0)
+  const unanswered = problems.filter((problem) => problem.answer_count === 0)
   const fresh = problems
     .filter((problem) => problem.origin !== "curated" && now - new Date(problem.published_at || problem.created_at).getTime() < FRESH_WINDOW_MS)
     .sort(byPublished)
@@ -26,14 +26,14 @@ export function buildProblemSections(problems: ProblemSummary[]): ProblemSection
     {
       id: "trending",
       title: "Trending problems",
-      blurb: "Most recent demand, clicks, and bidding activity.",
+      blurb: "Where people are agreeing fastest right now.",
       problems,
     },
     {
-      id: "contested",
-      title: "Being fought over",
-      blurb: "Alternatives are actively paying to get in front of these.",
-      problems: [...contested].sort((a, b) => b.top_bid_cents - a.top_bid_cents || b.competitor_count - a.competitor_count),
+      id: "answered",
+      title: "Answered",
+      blurb: "Products have said how they solve these, and what they will do for someone switching.",
+      problems: [...answered].sort((a, b) => b.answer_count - a.answer_count || b.support_count - a.support_count),
     },
     {
       id: "fresh",
@@ -42,10 +42,10 @@ export function buildProblemSections(problems: ProblemSummary[]): ProblemSection
       problems: fresh,
     },
     {
-      id: "unclaimed",
-      title: "Unclaimed",
-      blurb: "Nobody is bidding to win these people over yet.",
-      problems: [...unclaimed].sort((a, b) => b.support_count - a.support_count || (a.launch_priority || 999) - (b.launch_priority || 999)),
+      id: "unanswered",
+      title: "No answer yet",
+      blurb: "Real demand that nobody has offered to solve. If you build one of these, this is your queue.",
+      problems: [...unanswered].sort((a, b) => b.support_count - a.support_count || (a.launch_priority || 999) - (b.launch_priority || 999)),
     },
   ]
 

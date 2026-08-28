@@ -35,7 +35,7 @@ export async function createProblemSubscription(problemId: string, email: string
   await send({
     to: email,
     subject: "Confirm your FIXTHIS.LOL alert",
-    html: `<p>Confirm that you want an email when this problem gets its first solution.</p><p><a href="${appUrl}/api/subscriptions/verify?token=${encodeURIComponent(token)}">Confirm alert</a></p><p>If you did not request this, ignore this email.</p>`,
+    html: `<p>Confirm that you want an email when an alternative answers this problem.</p><p><a href="${appUrl}/api/subscriptions/verify?token=${encodeURIComponent(token)}">Confirm alert</a></p><p>If you did not request this, ignore this email.</p>`,
   })
 }
 
@@ -43,7 +43,10 @@ export async function sendManagementLink(email: string, token: string, productNa
   await send({
     to: email,
     subject: `Manage ${productName} on FIXTHIS.LOL`,
-    html: `<p>Your paid placement is live. Use this private link to edit the product, see traffic, or bid again.</p><p><a href="${appUrl}/manage/">Manage ${productName}</a></p><p>This link expires in 30 days. Do not forward it.</p>`,
+    // The token was minted, passed in, and then dropped: this href used to be
+    // `${appUrl}/manage/`, so every one of these emails landed the founder on
+    // the "lost your link?" page and the console was unreachable by email.
+    html: `<p>Use this private link to edit your product or see how your answers are doing.</p><p><a href="${appUrl}/manage/${encodeURIComponent(token)}">Manage ${productName}</a></p><p>This link expires in 30 days. Do not forward it.</p>`,
   })
 }
 
@@ -52,7 +55,7 @@ export async function notifyProblemSubscribers(problemId: string, statement: str
   const { data } = await supabase.from("problem_subscriptions").select("id,email").eq("problem_id", problemId).not("verified_at", "is", null).is("notified_at", null)
   for (const subscriber of data || []) {
     try {
-      await send({ to: subscriber.email, subject: `${productName} claimed a problem you follow`, html: `<p>${productName} is now a featured paid solution for:</p><blockquote>${statement}</blockquote><p><a href="${appUrl}/problems/${slug}">See the problem</a></p>` })
+      await send({ to: subscriber.email, subject: `${productName} answered a problem you follow`, html: `<p>${productName} says it can fix:</p><blockquote>${statement}</blockquote><p><a href="${appUrl}/problems/${slug}">Read their answer</a></p>` })
       await supabase.from("problem_subscriptions").update({ notified_at: new Date().toISOString() }).eq("id", subscriber.id)
     } catch (error) { console.error("Problem subscriber notification failed", error) }
   }

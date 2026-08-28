@@ -1,10 +1,9 @@
 import type { ReactNode } from "react"
 import { AdminActionButton } from "@/components/marketplace/admin-action-button"
-import { FoundingClaimForm } from "@/components/marketplace/founding-claim-form"
+import { ClaimGrantForm, RevokeGrantButton } from "@/components/marketplace/claim-grant-form"
 import { loginAdmin } from "@/app/admin/actions"
-import { formatMoney } from "@/lib/marketplace/helpers"
 import { isAdminAuthenticated } from "@/lib/marketplace/admin-auth"
-import { getAdminComplaints, getAdminMarketplaceData } from "@/lib/marketplace/queries"
+import { getAdminComplaints, getAdminMarketplaceData, getClaimGrants } from "@/lib/marketplace/queries"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Admin", robots: { index: false, follow: false } }
@@ -35,11 +34,11 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     )
   }
 
-  const [{ problems, placements }, complaints] = await Promise.all([getAdminMarketplaceData(), getAdminComplaints()])
+  const [{ problems, offers }, complaints, grants] = await Promise.all([getAdminMarketplaceData(), getAdminComplaints(), getClaimGrants()])
   const pendingComplaints = complaints.filter((complaint) => complaint.detail_status === "pending")
   const published = problems.filter((problem) => problem.status === "published")
   const pending = problems.filter((problem) => problem.status === "pending")
-  const activePlacements = placements.filter((placement) => placement.status === "active")
+  const activeOffers = offers.filter((offer) => offer.status === "active")
   const totalDemand = problems.reduce((total, problem) => total + problem.support_count, 0)
 
   return (
@@ -50,27 +49,23 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <div>
             <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Market operations</p>
             <h1 className="mt-3 font-serif text-[36px] leading-none tracking-[-0.04em] text-[#111] sm:text-[44px]">Control room.</h1>
-            <p className="mt-3 text-[13px] text-[#777]">Moderation, founding inventory, placements, and honest traffic.</p>
+            <p className="mt-3 text-[13px] text-[#777]">Moderation, answers, and honest counts.</p>
           </div>
           <div className="grid grid-cols-2 divide-x divide-[rgba(55,50,47,.1)] sm:grid-cols-5">
             <HeadStat value={published.length} label="Published" />
             <HeadStat value={pending.length} label="Pending" middle accent={pending.length > 0} />
-            <HeadStat value={activePlacements.length} label="Active claims" middle />
+            <HeadStat value={activeOffers.length} label="Live answers" middle />
             <HeadStat value={pendingComplaints.length} label="Complaints to review" middle accent={pendingComplaints.length > 0} />
             <HeadStat value={totalDemand} label="Total demand" last />
           </div>
         </header>
-
-        <Section title="Add founding claim" blurb="Genuine launch partners only. Publicly labelled, $0 bid, displaced by any settled $5+ bid.">
-          <FoundingClaimForm problems={published.map((problem) => ({ id: problem.id, statement: problem.statement }))} />
-        </Section>
 
         <Section title={`Problems · ${problems.length}`} blurb="Pending rows are not public and may be legacy submissions or items held for administrator review.">
           <div className="overflow-x-auto border border-[rgba(55,50,47,0.12)] bg-white">
             <table className="w-full min-w-[900px] text-left">
               <thead>
                 <tr className="border-b border-[rgba(55,50,47,0.12)] bg-[#fafafa]">
-                  {["Problem", "Origin", "Demand", "Views / clicks", "Status", ""].map((label) => (
+                  {["Problem", "Origin", "Demand", "Clicks", "Status", ""].map((label) => (
                     <th key={label} className="px-4 py-2.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[#999]">{label}</th>
                   ))}
                 </tr>
@@ -81,7 +76,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                     <td className="max-w-md px-4 py-3 text-[12px] font-medium text-[#111]">{problem.statement}</td>
                     <td className="px-4 py-3 font-mono text-[9px] uppercase tracking-[0.1em] text-[#999]">{problem.origin}</td>
                     <td className="px-4 py-3 font-mono text-[11px] text-[#555]">{problem.support_count.toLocaleString("en-US")}</td>
-                    <td className="px-4 py-3 font-mono text-[11px] text-[#555]">{problem.impression_count.toLocaleString("en-US")} / {problem.click_count.toLocaleString("en-US")}</td>
+                    <td className="px-4 py-3 font-mono text-[11px] text-[#555]">{problem.click_count.toLocaleString("en-US")}</td>
                     <td className="px-4 py-3"><StatusPill status={problem.status} /></td>
                     <td className="px-4 py-3">
                       {problem.status === "published"
@@ -120,34 +115,72 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           )}
         </Section>
 
-        <Section title={`Placements · ${placements.length}`} blurb="Suspending a placement recalculates rankings and starts a new rotation epoch.">
-          {placements.length ? (
-            <div className="overflow-x-auto border border-[rgba(55,50,47,0.12)] bg-white">
-              <table className="w-full min-w-[1040px] text-left">
+        <Section
+          title="Verify a founder by hand"
+          blurb="Normally a founder proves their product by signing in from an address at its domain. This is for the ones who cannot — gmail, an agency address, a domain they do not run mail on. Once redeemed, the grant owns the product until you revoke it. Revocation removes access and any badge that depended on the manual check; it does not delete their answers."
+        >
+          <ClaimGrantForm />
+
+          {grants.length ? (
+            <div className="mt-4 overflow-x-auto border border-[rgba(55,50,47,0.12)] bg-white">
+              <table className="w-full min-w-[880px] text-left">
                 <thead>
                   <tr className="border-b border-[rgba(55,50,47,0.12)] bg-[#fafafa]">
-                    {["Product", "Problem", "Rank / bid", "Views / clicks", "Owner", "Status", ""].map((label) => (
+                    {["Email", "Domain", "Why", "Badge", "State", ""].map((label) => (
                       <th key={label} className="px-4 py-2.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[#999]">{label}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {placements.map((placement) => (
-                    <tr key={placement.placement_id} className="border-b border-[rgba(55,50,47,0.08)] transition-colors duration-200 last:border-0 hover:bg-[#fafafa]">
-                      <td className="px-4 py-3 text-[12px] font-semibold text-[#111]">{placement.product_name}</td>
-                      <td className="max-w-sm px-4 py-3 text-[12px] text-[#666]">{placement.problem_statement}</td>
-                      <td className="px-4 py-3 font-mono text-[11px] text-[#555]">
-                        <span className={placement.rank === 1 ? "text-[#d84d37]" : ""}>#{placement.rank}</span>
-                        {" · "}
-                        {placement.founding_claim ? "$0 founding" : formatMoney(placement.current_bid_cents)}
+                  {grants.map((grant) => (
+                    <tr key={grant.id} className={`border-b border-[rgba(55,50,47,0.08)] transition-colors duration-200 last:border-0 hover:bg-[#fafafa] ${grant.revoked_at ? "opacity-50" : ""}`}>
+                      <td className="px-4 py-3 font-mono text-[11px] text-[#555]">{grant.email}</td>
+                      <td className="px-4 py-3 font-mono text-[11px] text-[#111]">{grant.registrable_domain}</td>
+                      <td className="max-w-sm px-4 py-3 text-[12px] text-[#666]">{grant.note}</td>
+                      <td className="px-4 py-3 font-mono text-[9px] uppercase tracking-[0.1em] text-[#888]">
+                        {grant.verified ? "verified" : "unmarked"}
                       </td>
-                      <td className="px-4 py-3 font-mono text-[11px] text-[#555]">{placement.impression_count.toLocaleString("en-US")} / {placement.click_count.toLocaleString("en-US")}</td>
-                      <td className="px-4 py-3 font-mono text-[10px] text-[#888]">{placement.owner_email}</td>
-                      <td className="px-4 py-3"><StatusPill status={placement.status} /></td>
                       <td className="px-4 py-3">
-                        {placement.status === "active"
-                          ? <AdminActionButton entity="placement" id={placement.placement_id} action="suspend" />
-                          : <AdminActionButton entity="placement" id={placement.placement_id} action="restore" />}
+                        <StatusPill status={grant.revoked_at ? "revoked" : grant.redeemed_at ? "redeemed" : "unused"} />
+                      </td>
+                      <td className="px-4 py-3">
+                        {grant.revoked_at ? null : <RevokeGrantButton id={grant.id} />}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
+        </Section>
+
+        <Section title={`Answers · ${offers.length}`} blurb="What products have said they can fix. Hiding an answer removes it from the problem page immediately.">
+          {offers.length ? (
+            <div className="overflow-x-auto border border-[rgba(55,50,47,0.12)] bg-white">
+              <table className="w-full min-w-[1040px] text-left">
+                <thead>
+                  <tr className="border-b border-[rgba(55,50,47,0.12)] bg-[#fafafa]">
+                    {["Product", "Problem", "How they solve it", "Clicks", "Contact", "Status", ""].map((label) => (
+                      <th key={label} className="px-4 py-2.5 font-mono text-[8px] uppercase tracking-[0.12em] text-[#999]">{label}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {offers.map((offer) => (
+                    <tr key={offer.offer_id} className="border-b border-[rgba(55,50,47,0.08)] transition-colors duration-200 last:border-0 hover:bg-[#fafafa]">
+                      <td className="px-4 py-3 text-[12px] font-semibold text-[#111]">
+                        {offer.name}
+                        {offer.verified ? <span className="ml-1.5 font-mono text-[8px] uppercase tracking-[0.1em] text-[#d84d37]">verified</span> : null}
+                      </td>
+                      <td className="max-w-xs px-4 py-3 text-[12px] text-[#666]">{offer.problem_statement}</td>
+                      <td className="max-w-sm px-4 py-3 text-[12px] text-[#666]">{offer.solves_text}</td>
+                      <td className="px-4 py-3 font-mono text-[11px] text-[#555]">{offer.click_count.toLocaleString("en-US")}</td>
+                      <td className="px-4 py-3 font-mono text-[10px] text-[#888]">{offer.owner_email || "—"}</td>
+                      <td className="px-4 py-3"><StatusPill status={offer.status} /></td>
+                      <td className="px-4 py-3">
+                        {offer.status === "active"
+                          ? <AdminActionButton entity="offer" id={offer.offer_id} action="suspend" />
+                          : <AdminActionButton entity="offer" id={offer.offer_id} action="restore" />}
                       </td>
                     </tr>
                   ))}
@@ -156,7 +189,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             </div>
           ) : (
             <p className="border border-dashed border-[rgba(55,50,47,0.16)] bg-[#fafafa] px-6 py-12 text-center text-[13px] text-[#888]">
-              No placements yet. Create a founding claim or wait for the first settled bid.
+              No product has answered a problem yet.
             </p>
           )}
         </Section>
@@ -188,9 +221,9 @@ function HeadStat({ value, label, middle = false, last = false, accent = false }
 }
 
 function StatusPill({ status }: { status: string }) {
-  const tone = status === "published" || status === "active"
+  const tone = status === "published" || status === "active" || status === "redeemed"
     ? "bg-[#eef7f0] text-[#2f7d4f]"
-    : status === "pending"
+    : status === "pending" || status === "unused"
       ? "bg-[#fff0eb] text-[#d84d37]"
       : "bg-[rgba(55,50,47,.06)] text-[#888]"
   return <span className={`inline-flex items-center px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.1em] ${tone}`}>{status}</span>

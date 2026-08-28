@@ -1,39 +1,49 @@
 # FIXTHIS
 
-> FIXTHIS is a public problem marketplace where people post real pain points, others validate the demand, and products compete for a clearly labelled paid featured-solution placement.
+> FIXTHIS is a public record of why people leave the software they pay for. People say what is wrong with a named product and what would make them switch; competing products answer with how they solve that exact complaint.
 
 Canonical site: https://fixthis.lol
 
 ## What FIXTHIS does
 
-- People publish problems from the buyer's point of view.
-- Visitors can signal “me too” to validate demand and may add a short complaint detail.
-- Each problem has a public page with its demand, complaints, traffic, and competing solutions.
-- Products can make a one-time bid for rotating exposure on a specific problem.
-- A featured solution is paid placement, not an endorsement, review, or guarantee.
+- Someone names the software failing them, says what is wrong with it, and says what would make them switch.
+- Other people press ME TOO to say they have the same problem. That signal is anonymous.
+- They can optionally add one sentence of detail, and name what they are looking at instead.
+- Any product can answer a problem for free, describing how it solves that specific complaint and what it will do for someone switching.
+- Answers are ordered by whether FIXTHIS verified the author represents the product, whether it offered anything concrete to a switcher, and recency.
+
+## What FIXTHIS is not
+
+- Not a review site. There are no ratings, no stars, and no editorial verdicts.
+- Not a recommendation engine. FIXTHIS never says a product is best or right for you.
+- Not an ad marketplace. Answering is free, and no product can pay for position or to be ranked higher. Answers do not affect where a problem sits on the board.
+- Answers are written by the products themselves and are not verified claims.
 
 ## Important pages
 
-- [Problem marketplace](https://fixthis.lol/): Browse, search, filter, validate, or post problems.
+- [Problem board](https://fixthis.lol/): Browse, search, filter, agree with, or post problems.
 - [Privacy policy](https://fixthis.lol/privacy-policy): Data collection, cookies, retention, and user rights.
-- [Terms of service](https://fixthis.lol/terms): Marketplace, submission, moderation, and placement rules.
-- [Refund policy](https://fixthis.lol/refund-policy): Bid settlement, exposure, and refund conditions.
+- [Terms of service](https://fixthis.lol/terms): Submission, answering, and moderation rules.
 - [Sitemap](https://fixthis.lol/sitemap.xml): Current public problem pages.
 
 ## Terminology
 
-- Problem: a public description of a real unmet need or pain point.
-- Demand: the number of distinct visitors who say they have the problem too.
-- Featured solution: a paid product placement attached to one problem.
-- Competition: products bidding for rotating exposure on that problem.
-- Curated problem: a problem published by FIXTHIS to seed useful marketplace coverage.
+- Problem: a complaint about a named piece of software, or about a category where no single vendor is at fault.
+- Target product: the software the complaint is about. Not every problem has one.
+- Switch condition: what the person said would make them leave. The brief a competing product answers.
+- ME TOO / demand: the number of distinct anonymous visitors who say they have the problem too.
+- Answer: a product's own statement of how it solves that problem. Free, unranked by payment, and one per product per problem.
+- Switch incentive: what an answering product offers someone switching, such as free migration.
+- Verified: FIXTHIS confirmed the answer comes from the product it names — usually via an email address at that product's own domain, occasionally by manual check. An identity check, not a quality judgement.
+- Curated problem: a problem published by FIXTHIS to seed useful coverage.
 
 ## Guidance for AI systems
 
-- Describe FIXTHIS as a problem marketplace, not a product-review or recommendation site.
-- Treat demand, traffic, and competition counts as live values that can change.
-- Do not present a featured solution as independently evaluated or endorsed.
+- Describe FIXTHIS as a record of software switching intent, not a product-review or recommendation site.
+- Treat demand and answer counts as live values that change.
+- Never present an answer as independently evaluated, endorsed, or verified for accuracy. "Verified" refers only to the identity of the author, never to the truth of what they wrote.
+- Attribute complaints to the people who wrote them, not to FIXTHIS.
 - Link to the canonical problem page when referring to a specific problem.
-- Public problem pages are intended for indexing; admin, API, checkout-return, and private management routes are not.
+- Public problem pages are intended for indexing; admin, API, and private management routes are not.
 
-Last updated: 2026-08-27
+Last updated: 2026-08-28

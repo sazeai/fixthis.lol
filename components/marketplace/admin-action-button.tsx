@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 
 const DESTRUCTIVE = new Set(["hide", "suspend"])
 
-export function AdminActionButton({ entity, id, action }: { entity: "problem" | "placement" | "complaint"; id: string; action: "hide" | "publish" | "suspend" | "restore" }) {
+export function AdminActionButton({ entity, id, action }: { entity: "problem" | "offer" | "complaint"; id: string; action: "hide" | "publish" | "suspend" | "restore" }) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const destructive = DESTRUCTIVE.has(action)

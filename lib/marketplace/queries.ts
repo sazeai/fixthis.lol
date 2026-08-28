@@ -1,42 +1,16 @@
 import "server-only"
 
 import { cache } from "react"
-import { rotationPercentages } from "@/lib/marketplace/helpers"
-import type { AdminComplaint, AdminPlacement, AdminProblem, BattlefieldEntry, FounderPlacementStats, ProblemCompetitor, ProblemDetail, ProblemSummary, PublicTrafficStats } from "@/types/marketplace"
+import type { AdminComplaint, AdminOffer, AdminProblem, ProblemAnswer, ProblemDetail, ProblemSummary, PublicTrafficStats, SwitchCandidate } from "@/types/marketplace"
 import { createAdminClient } from "@/utils/supabase/admin"
 
 type Row = Record<string, any>
 
 function number(value: unknown) { return Number(value || 0) }
 
-function toBattlefield(rows: Row[]): BattlefieldEntry[] {
-  const sorted = [...rows].sort((a, b) => number(b.current_bid_cents) - number(a.current_bid_cents) || new Date(a.settled_at).getTime() - new Date(b.settled_at).getTime())
-  const shares = rotationPercentages(Math.min(sorted.length, 5))
-  return sorted.map((row, index) => {
-    const product = Array.isArray(row.products) ? row.products[0] : row.products
-    const impressions = number(row.impression_count)
-    const clicks = number(row.click_count)
-    return {
-      placement_id: row.id,
-      product_id: row.product_id,
-      product_name: product?.name || "Unknown product",
-      product_tagline: product?.tagline || "",
-      destination_url: product?.destination_url || "#",
-      registrable_domain: product?.registrable_domain || "",
-      current_bid_cents: number(row.current_bid_cents),
-      rank: index + 1,
-      visibility_percentage: index < 5 ? (shares[index] || 0) : 0,
-      eligible: index < 5,
-      founding_claim: Boolean(row.founding_claim) && number(row.current_bid_cents) === 0,
-      impression_count: impressions,
-      click_count: clicks,
-      ctr: impressions > 0 ? Math.round((clicks / impressions) * 1000) / 10 : 0,
-      settled_at: row.settled_at,
-    }
-  })
-}
+const PRODUCT_COLUMNS = "id,name,tagline,destination_url,registrable_domain,icon_base64,icon_fetched_at,icon_attempted_at"
+const OFFER_COLUMNS = `id,problem_id,product_id,status,solves_text,switch_incentive,verified,click_count,created_at,products(${PRODUCT_COLUMNS})`
 
-/** Icon URL carries the fetch timestamp so a refreshed icon busts its own cache. */
 /**
  * Icon URL for a product, or null to render the monogram.
  *
@@ -53,102 +27,92 @@ export function productIconUrl(product: Row | null | undefined): string | null {
   return `/api/products/${product.id}/icon?v=${version}`
 }
 
-function toCompetitors(rows: Row[]): ProblemCompetitor[] {
-  const sorted = [...rows].sort(
-    (a, b) => number(b.current_bid_cents) - number(a.current_bid_cents)
-      || new Date(a.settled_at || 0).getTime() - new Date(b.settled_at || 0).getTime(),
-  )
-  const shares = rotationPercentages(Math.min(sorted.length, 5))
-  return sorted.map((row, index) => {
-    const product = Array.isArray(row.products) ? row.products[0] : row.products
-    return {
-      product_id: product?.id || row.product_id,
-      placement_id: row.id,
-      name: product?.name || "Unknown product",
-      registrable_domain: product?.registrable_domain || "",
-      rank: index + 1,
-      current_bid_cents: number(row.current_bid_cents),
-      visibility_percentage: index < 5 ? (shares[index] || 0) : 0,
-      founding_claim: Boolean(row.founding_claim) && number(row.current_bid_cents) === 0,
-      icon_url: productIconUrl(product),
-    }
-  })
+/**
+ * Order the answers to a problem.
+ *
+ * Verified first, then whoever put something concrete on the table for a
+ * switcher, then newest. Every term is something the reader can act on. There
+ * is nothing here a product can buy.
+ */
+function toAnswers(rows: Row[]): ProblemAnswer[] {
+  return [...rows]
+    .sort((a, b) =>
+      Number(Boolean(b.verified)) - Number(Boolean(a.verified))
+      || Number(Boolean(b.switch_incentive)) - Number(Boolean(a.switch_incentive))
+      || new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+    .map((row) => {
+      const product = Array.isArray(row.products) ? row.products[0] : row.products
+      return {
+        offer_id: row.id,
+        product_id: product?.id || row.product_id,
+        name: product?.name || "Unknown product",
+        registrable_domain: product?.registrable_domain || "",
+        destination_url: product?.destination_url || "#",
+        tagline: product?.tagline || "",
+        solves_text: row.solves_text || "",
+        switch_incentive: row.switch_incentive ?? null,
+        verified: Boolean(row.verified),
+        icon_url: productIconUrl(product),
+        created_at: row.created_at,
+      }
+    })
+}
+
+/** Free text, so fold on a normalised key but show what people actually typed. */
+function toSwitchCandidates(rows: Row[]): SwitchCandidate[] {
+  const counts = new Map<string, { name: string; count: number }>()
+  for (const row of rows) {
+    const raw = String(row.switch_candidate || "").trim()
+    if (!raw) continue
+    const key = raw.toLowerCase()
+    const existing = counts.get(key)
+    if (existing) existing.count += 1
+    else counts.set(key, { name: raw, count: 1 })
+  }
+  return [...counts.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)).slice(0, 8)
 }
 
 async function loadProblemSummaries(): Promise<ProblemSummary[]> {
   const supabase = createAdminClient()
-  // PostgREST tolerates unknown columns inside an embedded select but rejects
-  // them at top level, so a deploy landing before its migration would take the
-  // whole board down. Ask for the new columns, and fall back to the old shape
-  // if the database has not caught up yet.
-  const BOARD_COLUMNS = "id,slug,statement,category,origin,launch_priority,support_count,impression_count,click_count,created_at,published_at"
-  let problems: Row[] | null = null
-  let error: { code?: string } | null = null
-
-  {
-    const primary = await supabase.from("problems")
-      .select(`${BOARD_COLUMNS},target_product_name,switch_condition`)
-      .eq("status", "published").limit(200)
-    problems = primary.data as Row[] | null
-    error = primary.error
-  }
-
-  if (error?.code === "42703") {
-    console.warn("Board query fell back: complaint columns are missing, run migration 00000000000009.")
-    const legacy = await supabase.from("problems").select(BOARD_COLUMNS).eq("status", "published").limit(200)
-    problems = legacy.data as Row[] | null
-    error = legacy.error
-  }
+  const { data: problems, error } = await supabase.from("problems")
+    .select("id,slug,statement,target_product_name,switch_condition,category,origin,launch_priority,support_count,click_count,created_at,published_at")
+    .eq("status", "published")
+    .limit(200)
   if (error) throw error
   if (!problems?.length) return []
+
   const ids = problems.map((item: Row) => item.id)
   const since = new Date(Date.now() - 86_400_000).toISOString()
-  const [{ data: placements, error: placementError }, { data: supports }, { data: clicks }] = await Promise.all([
-    supabase.from("placements").select("id,problem_id,product_id,current_bid_cents,status,founding_claim,settled_at,products(id,name,registrable_domain,icon_base64,icon_fetched_at,icon_attempted_at)").in("problem_id", ids).eq("status", "active"),
+  const [{ data: offers, error: offerError }, { data: supports }] = await Promise.all([
+    supabase.from("offers").select(OFFER_COLUMNS).in("problem_id", ids).eq("status", "active"),
     supabase.from("problem_supports").select("problem_id").in("problem_id", ids).gte("created_at", since),
-    supabase.from("placement_clicks").select("problem_id").in("problem_id", ids).gte("created_at", since),
   ])
-  if (placementError) throw placementError
-  const placementRows = placements || []
-  const placementIds = placementRows.map((item: Row) => item.id)
-  const { data: bids } = placementIds.length
-    ? await supabase.from("bids").select("placement_id").in("placement_id", placementIds).eq("status", "settled").gte("settled_at", since)
-    : { data: [] }
+  if (offerError) throw offerError
 
-  const placementProblem = new Map(placementRows.map((item: Row) => [item.id, item.problem_id]))
   const supportsBy = new Map<string, number>()
-  const clicksBy = new Map<string, number>()
-  const bidsBy = new Map<string, number>()
-  const activeBy = new Map<string, Row[]>()
   for (const item of supports || []) supportsBy.set(item.problem_id, (supportsBy.get(item.problem_id) || 0) + 1)
-  for (const item of clicks || []) clicksBy.set(item.problem_id, (clicksBy.get(item.problem_id) || 0) + 1)
-  for (const item of bids || []) {
-    const problemId = placementProblem.get(item.placement_id)
-    if (problemId) bidsBy.set(problemId, (bidsBy.get(problemId) || 0) + 1)
-  }
-  for (const item of placementRows) {
-    const list = activeBy.get(item.problem_id) || []
+  const answersBy = new Map<string, Row[]>()
+  for (const item of offers || []) {
+    const list = answersBy.get(item.problem_id) || []
     list.push(item)
-    activeBy.set(item.problem_id, list)
+    answersBy.set(item.problem_id, list)
   }
 
   const now = Date.now()
   return problems.map((row: Row) => {
-    const active = activeBy.get(row.id) || []
-    const topBid = active.reduce((max, item) => Math.max(max, number(item.current_bid_cents)), 0)
+    const answers = toAnswers(answersBy.get(row.id) || [])
     const supports24h = supportsBy.get(row.id) || 0
-    const clicks24h = clicksBy.get(row.id) || 0
-    const bids24h = bidsBy.get(row.id) || 0
     // Freshness bonus decays linearly to zero across the first 24 published hours.
     const hoursOld = (now - new Date(row.published_at || row.created_at).getTime()) / 3_600_000
     const freshness = Math.max(0, 24 - hoursOld) / 6
     return {
       ...row,
-      support_count: number(row.support_count), impression_count: number(row.impression_count), click_count: number(row.click_count),
-      competitor_count: active.length, top_bid_cents: topBid, next_bid_cents: topBid > 0 ? topBid + 500 : 500,
-      competitors: toCompetitors(active),
-      supports_24h: supports24h, clicks_24h: clicks24h, bids_24h: bids24h,
-      trending_score: supports24h * 5 + clicks24h + bids24h * 10 + freshness,
+      support_count: number(row.support_count),
+      click_count: number(row.click_count),
+      answer_count: answers.length,
+      answers,
+      supports_24h: supports24h,
+      trending_score: supports24h * 5 + freshness,
     } as ProblemSummary
   })
 }
@@ -164,7 +128,7 @@ async function loadOrderedSummaries(): Promise<ProblemSummary[]> {
   if (orderingInFlight) return orderingInFlight
   orderingInFlight = loadProblemSummaries()
     .then((rows) => {
-      // Rank by rolling activity; fall back to curated launch priority while the market is quiet.
+      // Rank by rolling demand; fall back to curated launch priority while the board is quiet.
       rows.sort((a, b) => (b.trending_score - a.trending_score) || ((a.launch_priority || 999) - (b.launch_priority || 999)))
       orderingCache = { rows, expiresAt: Date.now() + ORDERING_TTL_MS }
       return rows
@@ -181,7 +145,12 @@ export function invalidateProblemOrdering() { orderingCache = null }
 export async function getProblemSummaries(options: { search?: string; category?: string; limit?: number } = {}) {
   let rows = await cachedSummaries()
   const search = options.search?.trim().toLowerCase()
-  if (search) rows = rows.filter((item) => item.statement.toLowerCase().includes(search) || item.category.toLowerCase().includes(search))
+  if (search) {
+    rows = rows.filter((item) =>
+      item.statement.toLowerCase().includes(search)
+      || item.category.toLowerCase().includes(search)
+      || (item.target_product_name || "").toLowerCase().includes(search))
+  }
   if (options.category && options.category !== "All") rows = rows.filter((item) => item.category === options.category)
   return rows.slice(0, options.limit || 100)
 }
@@ -196,22 +165,15 @@ export async function getProblemBySlug(slug: string): Promise<ProblemDetail | nu
   // Derived counts are computed for this one problem rather than looked up in
   // the cached board. The cache is up to two minutes stale and capped at 200
   // rows, so reading it here would 404 a problem that was just posted.
-  const [complaintResult, placementResult, supportResult, clickResult] = await Promise.all([
+  const [complaintResult, offerResult, supportResult, candidateResult] = await Promise.all([
     supabase.from("problem_supports").select("id,detail,created_at").eq("problem_id", problem.id).eq("detail_status", "published").not("detail", "is", null).order("created_at", { ascending: false }).limit(30),
-    supabase.from("placements").select("id,problem_id,product_id,current_bid_cents,status,founding_claim,settled_at,impression_count,click_count,products(id,name,tagline,destination_url,registrable_domain)").eq("problem_id", problem.id).eq("status", "active"),
+    supabase.from("offers").select(OFFER_COLUMNS).eq("problem_id", problem.id).eq("status", "active"),
     supabase.from("problem_supports").select("id", { count: "exact", head: true }).eq("problem_id", problem.id).gte("created_at", since),
-    supabase.from("placement_clicks").select("id", { count: "exact", head: true }).eq("problem_id", problem.id).gte("created_at", since),
+    supabase.from("problem_supports").select("switch_candidate").eq("problem_id", problem.id).not("switch_candidate", "is", null).limit(500),
   ])
 
-  const activePlacements = placementResult.data || []
-  const placementIds = activePlacements.map((item: Row) => item.id)
-  const { count: bids24h } = placementIds.length
-    ? await supabase.from("bids").select("id", { count: "exact", head: true }).in("placement_id", placementIds).eq("status", "settled").gte("settled_at", since)
-    : { count: 0 }
-
-  const topBid = activePlacements.reduce((max: number, item: Row) => Math.max(max, number(item.current_bid_cents)), 0)
+  const answers = toAnswers(offerResult.data || [])
   const supports24h = supportResult.count || 0
-  const clicks24h = clickResult.count || 0
   const hoursOld = (Date.now() - new Date(problem.published_at || problem.created_at).getTime()) / 3_600_000
   const freshness = Math.max(0, 24 - hoursOld) / 6
 
@@ -225,50 +187,23 @@ export async function getProblemBySlug(slug: string): Promise<ProblemDetail | nu
     origin: problem.origin,
     launch_priority: problem.launch_priority,
     support_count: number(problem.support_count),
-    impression_count: number(problem.impression_count),
     click_count: number(problem.click_count),
-    competitor_count: activePlacements.length,
-    top_bid_cents: topBid,
-    next_bid_cents: topBid > 0 ? topBid + 500 : 500,
-    competitors: toCompetitors(activePlacements),
+    answer_count: answers.length,
+    answers,
     supports_24h: supports24h,
-    clicks_24h: clicks24h,
-    bids_24h: bids24h || 0,
-    trending_score: supports24h * 5 + clicks24h + (bids24h || 0) * 10 + freshness,
+    trending_score: supports24h * 5 + freshness,
     created_at: problem.created_at,
     published_at: problem.published_at,
     complaints: (complaintResult.data || []).map((item: Row) => ({ id: item.id, detail: item.detail, created_at: item.created_at })),
-    battlefield: toBattlefield(activePlacements),
+    switch_candidates: toSwitchCandidates(candidateResult.data || []),
   }
 }
 
 export async function getPublicTrafficStats(): Promise<PublicTrafficStats> {
   const supabase = createAdminClient()
-  const liveSince = new Date(Date.now() - 45_000).toISOString()
   const daySince = new Date(Date.now() - 86_400_000).toISOString()
-  const [{ count: live }, { count: visitors }] = await Promise.all([
-    supabase.from("visitor_presence").select("visitor_key", { count: "exact", head: true }).gte("last_seen_at", liveSince),
-    supabase.from("visitors").select("visitor_key", { count: "exact", head: true }).gte("last_seen_at", daySince),
-  ])
-  // Temporarily unhidden: low counts are shown as-is while the
-  // presence pipeline is being verified end to end.
-  return { live_visitors: live || 0, visitors_24h: visitors || 0 }
-}
-
-export async function getBidStatus(quoteId: string) {
-  const supabase = createAdminClient()
-  const { data: quote } = await supabase.from("bid_quotes").select("id,status,problem_id,amount_cents,expires_at").eq("id", quoteId).maybeSingle()
-  if (!quote) return null
-  const { data: bid } = await supabase.from("bids").select("placement_id,status,settled_at").eq("quote_id", quoteId).maybeSingle()
-  let rank: number | null = null
-  if (bid?.placement_id) {
-    const { data: placement } = await supabase.from("placements").select("problem_id,current_bid_cents,settled_at").eq("id", bid.placement_id).maybeSingle()
-    if (placement) {
-      const { data: ranked } = await supabase.from("placements").select("id,current_bid_cents,settled_at").eq("problem_id", placement.problem_id).eq("status", "active").order("current_bid_cents", { ascending: false }).order("settled_at", { ascending: true })
-      rank = (ranked || []).findIndex((item: Row) => item.id === bid.placement_id) + 1 || null
-    }
-  }
-  return { ...quote, bid, rank }
+  const { count } = await supabase.from("visitors").select("visitor_key", { count: "exact", head: true }).gte("last_seen_at", daySince)
+  return { visitors_24h: count || 0 }
 }
 
 export async function getAdminComplaints(): Promise<AdminComplaint[]> {
@@ -297,73 +232,92 @@ export async function getAdminComplaints(): Promise<AdminComplaint[]> {
   return rows.sort((a, b) => (rank[a.detail_status] ?? 9) - (rank[b.detail_status] ?? 9))
 }
 
-export async function getAdminMarketplaceData(): Promise<{ problems: AdminProblem[]; placements: AdminPlacement[] }> {
-  const [summaries, supabase] = await Promise.all([getProblemSummaries(), Promise.resolve(createAdminClient())])
-  const [{ data: problemRows }, { data: placementRows }] = await Promise.all([
+export async function getAdminMarketplaceData(): Promise<{ problems: AdminProblem[]; offers: AdminOffer[] }> {
+  const supabase = createAdminClient()
+  const summaries = await getProblemSummaries()
+  const [{ data: problemRows }, { data: offerRows }] = await Promise.all([
     supabase.from("problems").select("*").order("created_at", { ascending: false }),
-    supabase.from("placements").select("id,problem_id,product_id,current_bid_cents,status,founding_claim,settled_at,impression_count,click_count,problems(statement),products(id,name,tagline,destination_url,registrable_domain,owner_email)").order("settled_at", { ascending: false }),
+    supabase.from("offers").select(`${OFFER_COLUMNS},created_by_email,problems(statement,slug)`).order("created_at", { ascending: false }),
   ])
   const summaryById = new Map(summaries.map((row) => [row.id, row]))
   const problems = (problemRows || []).map((row: Row) => ({
     ...(summaryById.get(row.id) || {
       id: row.id, slug: row.slug, statement: row.statement, target_product_name: row.target_product_name ?? null,
       switch_condition: row.switch_condition ?? null, category: row.category, origin: row.origin,
-      launch_priority: row.launch_priority, support_count: number(row.support_count), impression_count: number(row.impression_count),
-      click_count: number(row.click_count), competitor_count: 0, top_bid_cents: 0, next_bid_cents: 500, competitors: [],
-      supports_24h: 0, clicks_24h: 0, bids_24h: 0, created_at: row.created_at, published_at: row.published_at,
+      launch_priority: row.launch_priority, support_count: number(row.support_count),
+      click_count: number(row.click_count), answer_count: 0, answers: [],
+      supports_24h: 0, trending_score: 0, created_at: row.created_at, published_at: row.published_at,
     }),
     status: row.status, normalized_statement: row.normalized_statement, updated_at: row.updated_at,
   })) as AdminProblem[]
-  const grouped = new Map<string, Row[]>()
-  for (const row of placementRows || []) {
-    const list = grouped.get(row.problem_id) || []
-    list.push(row); grouped.set(row.problem_id, list)
-  }
-  const placements: AdminPlacement[] = []
-  for (const rows of grouped.values()) {
-    const battlefield = toBattlefield(rows)
-    battlefield.forEach((entry) => {
-      const row = rows.find((item: Row) => item.id === entry.placement_id)
-      if (!row) return
-      const product = Array.isArray(row.products) ? row.products[0] : row.products
-      const problem = Array.isArray(row.problems) ? row.problems[0] : row.problems
-      placements.push({ ...entry, problem_id: row.problem_id, problem_statement: problem?.statement || "", owner_email: product?.owner_email || "", status: row.status })
-    })
-  }
-  return { problems, placements }
+
+  const offers: AdminOffer[] = (offerRows || []).map((row: Row) => {
+    const [answer] = toAnswers([row])
+    const problem = Array.isArray(row.problems) ? row.problems[0] : row.problems
+    return {
+      ...answer,
+      problem_id: row.problem_id,
+      problem_statement: problem?.statement || "",
+      problem_slug: problem?.slug || "",
+      owner_email: row.created_by_email ?? null,
+      status: row.status,
+      click_count: number(row.click_count),
+    }
+  })
+  return { problems, offers }
 }
 
-export async function getFounderStats(productId: string): Promise<{ product: Row; stats: FounderPlacementStats[] } | null> {
+/**
+ * Everything a founder sees about their own product.
+ *
+ * Click counts live here and only here. On the buyer's side they would be
+ * noise; to the person who wrote the answer they are the reason to come back.
+ */
+export async function getFounderStats(productId: string): Promise<{ product: Row; offers: AdminOffer[] } | null> {
   const supabase = createAdminClient()
   const { data: product } = await supabase.from("products").select("id,name,tagline,destination_url,registrable_domain,owner_email,status").eq("id", productId).maybeSingle()
   if (!product) return null
-  const { data: placements } = await supabase.from("placements").select("id,problem_id,product_id,current_bid_cents,status,founding_claim,settled_at,impression_count,click_count,problems(id,slug,statement,support_count)").eq("product_id", productId).order("settled_at", { ascending: false })
-  const since = new Date(Date.now() - 86_400_000).toISOString()
-  const ids = (placements || []).map((item: Row) => item.id)
-  const [{ data: impressions }, { data: clicks }] = ids.length ? await Promise.all([
-    supabase.from("placement_impressions").select("placement_id").in("placement_id", ids).gte("created_at", since),
-    supabase.from("placement_clicks").select("placement_id").in("placement_id", ids).gte("created_at", since),
-  ]) : [{ data: [] }, { data: [] }]
-  const viewsBy = new Map<string, number>(), clicksBy = new Map<string, number>()
-  for (const row of impressions || []) viewsBy.set(row.placement_id, (viewsBy.get(row.placement_id) || 0) + 1)
-  for (const row of clicks || []) clicksBy.set(row.placement_id, (clicksBy.get(row.placement_id) || 0) + 1)
-  const stats: FounderPlacementStats[] = []
-  for (const row of placements || []) {
+  const { data: offerRows } = await supabase
+    .from("offers")
+    .select(`${OFFER_COLUMNS},created_by_email,problems(statement,slug)`)
+    .eq("product_id", productId)
+    .order("created_at", { ascending: false })
+
+  const offers: AdminOffer[] = (offerRows || []).map((row: Row) => {
+    const [answer] = toAnswers([row])
     const problem = Array.isArray(row.problems) ? row.problems[0] : row.problems
-    const { data: competitors } = await supabase.from("placements").select("id,problem_id,product_id,current_bid_cents,status,founding_claim,settled_at,impression_count,click_count,products(id,name,tagline,destination_url,registrable_domain)").eq("problem_id", row.problem_id).eq("status", "active")
-    const placement = toBattlefield(competitors || []).find((entry) => entry.placement_id === row.id)
-    if (!placement || !problem) continue
-    const views24 = viewsBy.get(row.id) || 0, clicks24 = clicksBy.get(row.id) || 0
-    const topBid = (competitors || []).reduce((max: number, item: Row) => Math.max(max, number(item.current_bid_cents)), 0)
-    stats.push({
-      placement,
-      problem: { id: problem.id, slug: problem.slug, statement: problem.statement, support_count: number(problem.support_count) },
-      impressions_24h: views24, clicks_24h: clicks24,
-      lifetime_impressions: number(row.impression_count), lifetime_clicks: number(row.click_count),
-      ctr_24h: views24 ? Math.round((clicks24 / views24) * 1000) / 10 : 0,
-      next_bid_cents: topBid > 0 ? topBid + 500 : 500,
-      competitor_count: (competitors || []).length,
-    })
-  }
-  return { product, stats }
+    return {
+      ...answer,
+      problem_id: row.problem_id,
+      problem_statement: problem?.statement || "",
+      problem_slug: problem?.slug || "",
+      owner_email: row.created_by_email ?? null,
+      status: row.status,
+      click_count: number(row.click_count),
+    }
+  })
+  return { product, offers }
+}
+
+export type ClaimGrant = {
+  id: string
+  email: string
+  registrable_domain: string
+  note: string
+  verified: boolean
+  created_at: string
+  redeemed_at: string | null
+  revoked_at: string | null
+}
+
+/** Every claim taken on trust rather than proved by domain. Live grants first. */
+export async function getClaimGrants(): Promise<ClaimGrant[]> {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from("product_claim_grants")
+    .select("id,email,registrable_domain,note,verified,created_at,redeemed_at,revoked_at")
+    .order("created_at", { ascending: false })
+    .limit(200)
+  return ((data || []) as ClaimGrant[])
+    .sort((a, b) => Number(Boolean(a.revoked_at)) - Number(Boolean(b.revoked_at)))
 }

@@ -79,14 +79,14 @@ export function PostProblemModal({
   }, [])
 
   /**
-   * Signing out lives here rather than in the header.
+   * A second way out, kept deliberately.
    *
-   * There is no account area to visit and nothing on the board changes when you
-   * are signed in, so a persistent sign-out control would be chrome nobody
-   * needs. This is the one screen that says "Signed in" — which is exactly
-   * where someone goes looking for the way out, and where switching to another
-   * email is a real thing to want. The auth listener clears userEmail, so the
-   * modal falls back to the magic-link form without closing.
+   * The header now carries the canonical sign-out, but this is the one screen
+   * that says "Signed in as …" while someone is mid-task, and switching to a
+   * different address is a real thing to want at exactly that moment. Both
+   * controls talk to the same Supabase client and the same auth listener, so
+   * signing out from either updates the other; this modal falls back to the
+   * magic-link form without closing.
    */
   async function signOut() {
     setSigningOut(true)

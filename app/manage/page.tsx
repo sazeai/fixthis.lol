@@ -6,8 +6,8 @@ import { Header } from "@/components/marketplace/header"
 import { ManageLinkRequest } from "@/components/marketplace/manage-link-request"
 
 export const metadata: Metadata = {
-  title: "Manage your placement",
-  description: "Request a fresh private management link for a FIXTHIS placement.",
+  title: "Manage your product",
+  description: "Request a fresh private management link for your product on FIXTHIS.",
   robots: { index: false, follow: false },
 }
 

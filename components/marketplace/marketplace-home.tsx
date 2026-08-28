@@ -4,16 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { Search, X } from "lucide-react"
 import { CategoryFilter } from "@/components/marketplace/category-filter"
 import { DeckPagination } from "@/components/marketplace/deck-pagination"
-import { useMarketEvents } from "@/components/marketplace/market-event-feed"
-import { boardPageCount, buildBoardPage, ORGANIC_PER_PAGE } from "@/lib/marketplace/live-fights"
 import { ProblemCard } from "@/components/marketplace/problem-card"
 import type { ProblemSection, ProblemSectionId, ProblemSummary } from "@/types/marketplace"
 
+const PAGE_SIZE = 30
+
 const SECTION_MARK: Record<ProblemSectionId, string> = {
   trending: "01",
-  contested: "02",
+  answered: "02",
   fresh: "03",
-  unclaimed: "04",
+  unanswered: "04",
 }
 
 export function MarketplaceHome({ problems, sections }: { problems: ProblemSummary[]; sections: ProblemSection[] }) {
@@ -21,8 +21,6 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
   const [category, setCategory] = useState("All")
   const [active, setActive] = useState<ProblemSectionId>(sections[0]?.id || "trending")
   const [page, setPage] = useState(1)
-  // One poll for the whole board rather than one per card.
-  const eventsByProblem = useMarketEvents(true)
   const deckRef = useRef<HTMLDivElement>(null)
 
   const categories = useMemo(
@@ -39,7 +37,7 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
     if (!filtering) return []
     return problems.filter((problem) => {
       const matchesCategory = category === "All" || problem.category === category
-      const matchesSearch = !query || `${problem.statement} ${problem.category}`.toLowerCase().includes(query)
+      const matchesSearch = !query || `${problem.statement} ${problem.target_product_name || ""} ${problem.category}`.toLowerCase().includes(query)
       return matchesCategory && matchesSearch
     })
   }, [category, filtering, problems, query])
@@ -47,27 +45,12 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
   const activeSection = sections.find((section) => section.id === active) || sections[0]
   const pool = filtering ? results : activeSection?.problems || []
 
-  // Pages are counted on organic supply; injected fights are additional
-  // circulation and must never change how many pages of problems exist.
-  const pageCount = boardPageCount(pool.length)
+  const pageCount = Math.max(1, Math.ceil(pool.length / PAGE_SIZE))
   // Clamp rather than trusting state: switching to a shorter section or
   // narrowing a filter can strand the page number past the end.
   const currentPage = Math.min(page, pageCount)
-  // A filtered view is a search result, not the board — never inject into it.
-  // Sliced by the organic size, which is what pageCount above is counted on:
-  // slicing by the larger PAGE_SIZE meant a filtered list could report more
-  // pages than it could fill, and the last one came up "Nothing matches yet"
-  // while matches were sitting on the page before it.
-  const entries = filtering
-    ? pool.slice((currentPage - 1) * ORGANIC_PER_PAGE, currentPage * ORGANIC_PER_PAGE).map((problem) => ({ problem, injected: false }))
-    : buildBoardPage(pool, currentPage, problems)
-
-  // Card numbers follow organic rank, not position on screen. An injected fight
-  // shows a bolt rather than a number, so it must not consume one — otherwise
-  // every injection pushed the count one further ahead of the real rank, and
-  // page 2 restarted below the highest number page 1 had already shown.
-  let rank = (currentPage - 1) * ORGANIC_PER_PAGE
-  const numbered = entries.map((entry) => ({ ...entry, rank: entry.injected ? rank : rank++ }))
+  const offset = (currentPage - 1) * PAGE_SIZE
+  const entries = pool.slice(offset, offset + PAGE_SIZE)
 
   // A new section or a changed filter is a new list — start at its first page.
   useEffect(() => { setPage(1) }, [active, query, category])
@@ -158,16 +141,11 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
         <p className="border-b border-[rgba(55,50,47,0.12)] bg-[#fafafa] px-5 py-3 text-[11px] text-[#8a857e] sm:px-7">{activeSection.blurb}</p>
       ) : null}
 
-      {numbered.length ? (
+      {entries.length ? (
         <div ref={deckRef} className="grid scroll-mt-24 bg-[rgba(55,50,47,0.12)] md:grid-cols-2 md:gap-px">
-          {numbered.map((entry, index) => (
-            <div key={`${entry.problem.id}-${entry.injected ? "fight" : "organic"}`} className={`${index ? "border-t border-[rgba(55,50,47,.12)]" : ""} md:border-t-0`}>
-              <ProblemCard
-                problem={entry.problem}
-                index={entry.rank}
-                liveFight={entry.injected}
-                events={eventsByProblem[entry.problem.id]}
-              />
+          {entries.map((problem, index) => (
+            <div key={problem.id} className={`${index ? "border-t border-[rgba(55,50,47,.12)]" : ""} md:border-t-0`}>
+              <ProblemCard problem={problem} index={offset + index} />
             </div>
           ))}
         </div>
@@ -182,13 +160,9 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
         page={currentPage}
         pageCount={pageCount}
         total={pool.length}
-        pageSize={ORGANIC_PER_PAGE}
+        pageSize={PAGE_SIZE}
         onChange={goToPage}
       />
     </section>
   )
-}
-
-function Stat({ value, label, middle = false, last = false }: { value: string; label: string; middle?: boolean; last?: boolean }) {
-  return <p className={middle ? "px-3" : last ? "pl-3" : "pr-3"}><span className="block font-serif text-[18px] leading-none text-[#111]">{value}</span><span className="mt-1 block font-mono text-[7px] uppercase tracking-[0.12em] text-[#999]">{label}</span></p>
 }

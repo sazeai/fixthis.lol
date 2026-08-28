@@ -1,5 +1,4 @@
 import { PostProblemModal } from "@/components/marketplace/post-problem-modal"
-import { PresenceTracker } from "@/components/marketplace/presence-tracker"
 import type { PublicTrafficStats } from "@/types/marketplace"
 
 export function Hero({ traffic }: { traffic: PublicTrafficStats }) {
@@ -11,15 +10,21 @@ export function Hero({ traffic }: { traffic: PublicTrafficStats }) {
     // column and the section below sits inside it.
     <section className="relative flex w-full flex-col items-center border-b border-[rgba(55,50,47,0.12)] pb-9 text-center">
       <div className="z-10 flex w-full max-w-3xl flex-col items-center px-5 sm:px-6">
-        {/* Live traffic replaces the static badge — the marketplace states its
-            own pulse instead of asserting that it has one. */}
-        <PresenceTracker initial={traffic} />
+        {/* One real number, or nothing. The live-visitor ticker was atmosphere
+            and it cost a database write per tab per twenty seconds. */}
+        {traffic.visitors_24h > 0 ? (
+          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-[rgba(55,50,47,0.14)] bg-white px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.14em] text-[#777]">
+            <span className="size-1.5 rounded-full bg-[#ef654f]" />
+            {traffic.visitors_24h.toLocaleString("en-US")} here in the last 24 hours
+          </p>
+          
+        ) : null}
 
         <h1 className="font-serif text-[36px] leading-[1.06] tracking-[-0.04em] text-[#111] sm:text-[46px] lg:text-[60px] lg:leading-[1.02]">
           What software is pissing you off?
         </h1>
         <p className="mt-4 max-w-2xl text-[14px] font-normal leading-[1.6] tracking-tight text-[#555] sm:text-[15px] lg:text-[1rem]">
-          Call out what sucks about the software you use. See who else is dealing with it. Let alternatives fight to win you over.
+          Say what sucks about the software you pay for, and what would make you leave it. See who else is stuck with the same thing. Then let the alternatives answer.
         </p>
       </div>
 

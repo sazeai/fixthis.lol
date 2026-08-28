@@ -1,8 +1,6 @@
 export type ProblemOrigin = "curated" | "user" | "founder"
 export type ProblemStatus = "published" | "pending" | "hidden"
-export type PlacementStatus = "active" | "suspended" | "hidden"
-export type BidStatus = "settled" | "suspended" | "revoked"
-export type PaymentState = "processing" | "settled" | "failed" | "cancelled"
+export type OfferStatus = "active" | "suspended" | "hidden"
 
 export type ProblemComplaint = { id: string; detail: string; created_at: string }
 
@@ -12,28 +10,33 @@ export type ProblemSummary = {
   statement: string
   /** Software the complaint is about, e.g. "Intercom". Null on curated rows. */
   target_product_name: string | null
-  /** What would make the poster switch. Optional. */
+  /**
+   * What would make the poster switch. Optional, and the whole point: it is the
+   * brief a competing product reads before deciding whether it can answer.
+   */
   switch_condition: string | null
   category: string
   origin: ProblemOrigin
   launch_priority: number | null
   support_count: number
-  impression_count: number
+  /** Outbound clicks on the answers to this problem. Not shown to buyers. */
   click_count: number
-  competitor_count: number
-  top_bid_cents: number
-  next_bid_cents: number
+  /** How many products have said they can fix this. */
+  answer_count: number
   supports_24h: number
-  clicks_24h: number
-  bids_24h: number
+  /**
+   * Demand only. Answers deliberately do not raise a problem's rank: the moment
+   * a product can lift a problem up the board by replying to it, placement is
+   * for sale again through the back door.
+   */
   trending_score: number
-  /** Every active advertiser, ranked. The card features one and stacks the rest. */
-  competitors: ProblemCompetitor[]
+  /** The products answering, in the order a buyer should read them. */
+  answers: ProblemAnswer[]
   created_at: string
   published_at: string | null
 }
 
-export type ProblemSectionId = "trending" | "contested" | "fresh" | "unclaimed"
+export type ProblemSectionId = "trending" | "answered" | "fresh" | "unanswered"
 
 export type ProblemSection = {
   id: ProblemSectionId
@@ -42,86 +45,40 @@ export type ProblemSection = {
   problems: ProblemSummary[]
 }
 
-/** One advertiser competing for a problem, as shown in the card's stack. */
-export type ProblemCompetitor = {
+/**
+ * One product's answer to one problem.
+ *
+ * Deliberately not a placement: there is no rank, no bid and no share of
+ * anything. A product earns its position by answering the complaint better,
+ * which is the only ordering a buyer has any reason to care about.
+ */
+export type ProblemAnswer = {
+  offer_id: string
   product_id: string
-  placement_id: string
   name: string
   registrable_domain: string
-  rank: number
-  current_bid_cents: number
-  visibility_percentage: number
-  founding_claim: boolean
+  destination_url: string
+  tagline: string
+  /** How this product solves this exact complaint. Required. */
+  solves_text: string
+  /** What they will do for someone switching. Optional. */
+  switch_incentive: string | null
+  /** FIXTHIS confirmed the author represents this product; not a claim-quality judgement. */
+  verified: boolean
   /** Cache-busting icon URL, or null when the monogram should render. */
   icon_url: string | null
+  created_at: string
 }
 
-export type RotationShare = { rank: number; percentage: number }
-
-export type FeaturedPlacement = {
-  placement_id: string
-  product_id: string
-  product_name: string
-  product_tagline: string
-  destination_url: string
-  registrable_domain: string
-  claim_kind: "founding" | "paid"
-  impression_count: number
-  click_count: number
-  /**
-   * The advertiser's own standing hook, e.g. "FREE MIGRATION". Ad copy, not a
-   * recorded event - it is never written to market_events, so it cannot be
-   * mistaken for something that just happened on the board.
-   */
-  offer: string | null
-}
-
-export type BattlefieldEntry = {
-  placement_id: string
-  product_id: string
-  product_name: string
-  product_tagline: string
-  destination_url: string
-  registrable_domain: string
-  current_bid_cents: number
-  rank: number
-  visibility_percentage: number
-  eligible: boolean
-  founding_claim: boolean
-  impression_count: number
-  click_count: number
-  ctr: number
-  settled_at: string
-}
+/** What people said they were looking at instead, counted and never attributed. */
+export type SwitchCandidate = { name: string; count: number }
 
 export type ProblemDetail = ProblemSummary & {
   complaints: ProblemComplaint[]
-  battlefield: BattlefieldEntry[]
+  switch_candidates: SwitchCandidate[]
 }
 
-export type PublicTrafficStats = { live_visitors: number | null; visitors_24h: number }
-
-export type BidQuote = {
-  quote_id: string
-  minimum_cents: number
-  amount_cents: number
-  expires_at: string
-  checkout_url?: string
-}
-
-export type FounderPlacementStats = {
-  placement: BattlefieldEntry
-  problem: Pick<ProblemSummary, "id" | "slug" | "statement" | "support_count">
-  impressions_24h: number
-  clicks_24h: number
-  lifetime_impressions: number
-  lifetime_clicks: number
-  ctr_24h: number
-  /** Minimum a rebid on this problem must meet right now. */
-  next_bid_cents: number
-  /** Rank 1 with more than one competitor means there is nothing left to take. */
-  competitor_count: number
-}
+export type PublicTrafficStats = { visitors_24h: number }
 
 export type AdminProblem = ProblemSummary & {
   status: ProblemStatus
@@ -139,9 +96,12 @@ export type AdminComplaint = {
   problem_slug: string
 }
 
-export type AdminPlacement = BattlefieldEntry & {
+export type AdminOffer = ProblemAnswer & {
   problem_id: string
   problem_statement: string
-  owner_email: string
-  status: PlacementStatus
+  problem_slug: string
+  owner_email: string | null
+  status: OfferStatus
+  /** Lifetime outbound clicks. Private to the founder console and admin. */
+  click_count: number
 }

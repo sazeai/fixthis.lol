@@ -8,7 +8,7 @@ export const problemSchema = z.object({
   /** The software being complained about, e.g. "Intercom". */
   targetProductName: z.string().trim().min(1, "Name the software this is about.").max(60),
   statement: z.string().trim().min(20, "Say a bit more about what is wrong.").max(280),
-  /** What would win them over. Optional, and the closest thing to a brief for advertisers. */
+  /** What would win them over. Optional, and the brief a competing product answers. */
   switchCondition: z.string().trim().max(160).optional().default("")
     .refine((value) => !value || value.length >= 3, "Add a little more detail."),
   // Category is no longer asked for: it is inferred server-side and can be
@@ -22,30 +22,45 @@ export const problemSchema = z.object({
 
 export const supportSchema = z.object({
   detail: z.string().trim().max(280).optional().default("").refine((value) => !value || value.length >= 3, "Add a little more detail."),
+  /**
+   * What they said they are looking at instead. A product name, not a URL —
+   * this is aggregated and shown publicly, so it must not become a place to
+   * park a link.
+   */
+  switchCandidate: z.string().trim().max(60).optional().default("")
+    .refine((value) => !/https?:\/\/|www\.|@/i.test(value), "Just the product name."),
   email: z.union([email, z.literal("")]).optional().default(""),
   turnstileToken: z.string().optional().default(""),
   website: honeypot,
 })
 
-export const bidSchema = z.object({
+/**
+ * A product answering one problem.
+ *
+ * No amount, because answering is free. `solvesText` is required and short on
+ * purpose: it has to answer the complaint it is attached to, which is the only
+ * thing stopping an answer from becoming a banner ad.
+ */
+export const offerSchema = z.object({
   problemId: z.string().uuid(),
   productName: z.string().trim().min(1).max(80),
   productTagline: z.string().trim().min(3).max(180),
   destinationUrl: z.string().trim().url().max(2048),
-  /**
-   * Short competitive hook, fired as a floating event rather than printed on
-   * the card. Kept apart from the tagline so it cannot become permanent
-   * coupon text sitting over the placement.
-   */
-  eventText: z.string().trim().max(60).optional().default("")
+  solvesText: z.string().trim().min(20).max(240),
+  /** What they will do for someone switching. Optional. */
+  switchIncentive: z.string().trim().max(140).optional().default("")
     .refine((value) => !value || value.length >= 3, "Make it a few characters longer."),
-  email,
-  amountCents: z.coerce.number().int().min(500).max(10_000_000),
+  // No email field. The author's address comes from the verified session, and
+  // the domain check that grants the verified badge is run against that. A
+  // submitted address would prove nothing and could only ever be a way to claim
+  // someone else's domain.
   turnstileToken: z.string().optional().default(""),
   website: honeypot,
 })
 
 export const productEditSchema = z.object({
+  /** Which product to edit. Ignored unless the caller is proved to own it. */
+  productId: z.string().uuid().optional(),
   name: z.string().trim().min(1).max(80),
   tagline: z.string().trim().min(3).max(180),
   destinationUrl: z.string().trim().url().max(2048),

@@ -8,7 +8,7 @@ export const revalidate = 3600
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = [
     { url: SITE_URL, lastModified: new Date(), changeFrequency: "hourly", priority: 1 },
-    ...["/privacy-policy", "/terms", "/refund-policy"].map((path) => ({
+    ...["/privacy-policy", "/terms"].map((path) => ({
       url: `${SITE_URL}${path}`,
       lastModified: new Date(),
       changeFrequency: "monthly" as const,
@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}/problems/${problem.slug}`,
       lastModified: new Date(problem.published_at || problem.created_at),
       changeFrequency: "daily" as const,
-      priority: problem.competitor_count > 0 ? 0.8 : 0.6,
+      priority: problem.answer_count > 0 ? 0.8 : 0.6,
     }))
   } catch (error) {
     console.error("FIXTHIS sitemap problem query failed", error)

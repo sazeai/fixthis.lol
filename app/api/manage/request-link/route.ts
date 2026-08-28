@@ -18,9 +18,9 @@ const schema = z.object({
   website: z.string().max(0).optional().default(""),
 })
 
-// Always the same response, whether or not the email owns a placement. Telling
+// Always the same response, whether or not the email owns a product. Telling
 // a caller "no such advertiser" would turn this into an email-enumeration oracle.
-const GENERIC = { ok: true, message: "If that email manages a placement, a fresh management link is on its way." }
+const GENERIC = { ok: true, message: "If that email manages a product, a fresh management link is on its way." }
 
 export async function POST(request: Request) {
   if (!mutationAllowed(request)) return jsonError("Invalid request origin.", 403)

@@ -1,30 +1,20 @@
 import Link from "next/link"
-import { ArrowUpRight, Zap } from "lucide-react"
-import { BidModal } from "@/components/marketplace/bid-modal"
+import { ArrowUpRight } from "lucide-react"
 import { ProblemHighlight } from "@/components/marketplace/problem-highlight"
-import type { MarketEvent } from "@/components/marketplace/market-event-feed"
-import { SponsorRow } from "@/components/marketplace/sponsor-row"
 import { SupportProblem } from "@/components/marketplace/support-problem"
 import type { ProblemSummary } from "@/types/marketplace"
 
-export function ProblemCard({
-  problem,
-  index,
-  liveFight = false,
-  events,
-}: {
-  problem: ProblemSummary
-  index: number
-  /**
-   * Injected because companies are paying to fight over it, not because it
-   * ranked here organically. Always labelled — a reader is entitled to know
-   * why a card is in front of them.
-   */
-  liveFight?: boolean
-  /** Real events recorded for this problem since the page opened. */
-  events?: MarketEvent[]
-}) {
+/**
+ * One card on the board.
+ *
+ * Reduced to the four things a reader can act on: which software, what the
+ * complaint is, how many people agree, and whether anyone has answered. The ad
+ * band, the bid button, the rank badge and the injected "live fight" slot are
+ * all gone — they described the auction to someone who had not asked about it.
+ */
+export function ProblemCard({ problem, index }: { problem: ProblemSummary; index: number }) {
   const isFirst = index === 0
+  const answers = problem.answer_count
 
   return (
     <article
@@ -52,7 +42,7 @@ export function ProblemCard({
               isFirst ? "text-[#d84d37]" : "text-[#929292] group-hover:text-[#777]"
             }`}
           >
-            {liveFight ? "⚡" : String(index + 1).padStart(2, "0")}
+            {String(index + 1).padStart(2, "0")}
           </span>
           <span className="h-2.5 w-px bg-[rgba(55,50,47,.16)]" />
           {/* The software being complained about leads, because that is what a
@@ -64,11 +54,7 @@ export function ProblemCard({
           {problem.origin === "curated" ? (
             <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.1em] text-[#7d7d7d]">Curated</span>
           ) : null}
-          {liveFight ? (
-            <span className="ml-auto flex shrink-0 items-center gap-1 font-mono text-[8px] uppercase tracking-[0.12em] text-[#d84d37]">
-              <Zap size={9} className="shrink-0" /> Live fight
-            </span>
-          ) : isFirst ? (
+          {isFirst ? (
             <span className="ml-auto shrink-0 font-mono text-[8px] uppercase tracking-[0.12em] text-[#d84d37]">Trending</span>
           ) : (
             <ArrowUpRight
@@ -86,22 +72,14 @@ export function ProblemCard({
           sequence={index}
         />
 
-        {/* The band and the actions sit together at the foot of the card, so the
-            band's lower rule doubles as the action row's divider instead of
-            stacking two hairlines a few pixels apart. */}
-        <div className="pointer-events-auto mt-auto pt-3">
-          <SponsorRow
-            problemId={problem.id}
-            competitors={problem.competitors}
-            nextBidCents={problem.next_bid_cents}
-            events={events}
-          />
-        </div>
-
         {/* Actions */}
-        <div className="pointer-events-auto flex items-center justify-between gap-2 pt-2.5">
+        <div className="pointer-events-auto mt-auto flex items-center justify-between gap-2 border-t border-[rgba(55,50,47,.09)] pt-3">
           <SupportProblem problemId={problem.id} initialCount={problem.support_count} compact />
-          <BidModal problemId={problem.id} statement={problem.statement} nextBidCents={problem.next_bid_cents} compact />
+          <span
+            className={`shrink-0 font-mono text-[9px] uppercase tracking-[0.12em] ${answers ? "text-[#d84d37]" : "text-[#aaa]"}`}
+          >
+            {answers ? `${answers} ${answers === 1 ? "answer" : "answers"}` : "No answer yet"}
+          </span>
         </div>
       </div>
     </article>

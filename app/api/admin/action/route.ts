@@ -4,7 +4,7 @@ import { isAdminAuthenticated } from "@/lib/marketplace/admin-auth"
 import { invalidateProblemOrdering } from "@/lib/marketplace/queries"
 import { createAdminClient } from "@/utils/supabase/admin"
 
-const schema = z.object({ entity: z.enum(["problem", "placement", "complaint"]), id: z.string().uuid(), action: z.enum(["hide", "publish", "suspend", "restore"]) })
+const schema = z.object({ entity: z.enum(["problem", "offer", "complaint"]), id: z.string().uuid(), action: z.enum(["hide", "publish", "suspend", "restore"]) })
 export async function POST(request: Request) {
   if (!await isAdminAuthenticated()) return NextResponse.json({ error: "Unauthorized." }, { status: 401 })
   const parsed = schema.safeParse(await request.json().catch(() => null)); if (!parsed.success) return NextResponse.json({ error: "Invalid request." }, { status: 400 })
@@ -18,9 +18,10 @@ export async function POST(request: Request) {
     const status = action === "publish" || action === "restore" ? "published" : "hidden"
     ;({ error } = await supabase.from("problems").update({ status, published_at: status === "published" ? new Date().toISOString() : undefined }).eq("id", id))
   } else {
+    // Nothing to rebuild: an answer's visibility is its own status, not a
+    // position in a rotation that has to be recomputed for everyone else.
     const status = action === "restore" || action === "publish" ? "active" : action === "suspend" ? "suspended" : "hidden"
-    const { data: placement, error: lookupError } = await supabase.from("placements").update({ status }).eq("id", id).select("problem_id").single(); error = lookupError
-    if (!error && placement) await supabase.rpc("rebuild_rotation", { p_problem_id: placement.problem_id })
+    ;({ error } = await supabase.from("offers").update({ status }).eq("id", id))
   }
   if (error) return NextResponse.json({ error: "Admin action failed." }, { status: 500 })
   await supabase.from("moderation_audit").insert({ entity_type: entity, entity_id: id, action })

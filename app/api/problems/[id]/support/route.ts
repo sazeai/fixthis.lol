@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { getAuthenticatedUser } from "@/lib/marketplace/auth"
 import { createProblemSubscription } from "@/lib/marketplace/email"
 import { getRequestIp, isKnownBot } from "@/lib/marketplace/helpers"
 import { jsonError, mutationAllowed } from "@/lib/marketplace/http"
@@ -34,12 +35,40 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   // One support per visitor is enforced by the anonymous key; without it the
   // vote cannot be deduped, so refuse it clearly instead of throwing a 500.
   if (!visitorKey) return jsonError("Enable cookies to record your support.", 400)
+  // The vote is anonymous. Prose is not.
+  //
+  // A detail sentence is published next to a named company, which makes it the
+  // one surface here worth spamming and the only one that generates moderation
+  // work. Requiring an account caps both, and costs nothing on the tap itself.
+  //
+  // `switchCandidate` stays anonymous on purpose: it is a constrained product
+  // name, shown only as an aggregate and never attributed, so there is little
+  // to gain by poisoning it and real value in it staying one tap.
+  let detailAuthor: string | null = null
+  if (parsed.data.detail) {
+    const user = await getAuthenticatedUser(request)
+    if (!user) return jsonError("Sign in to add a detail. The ME TOO count stays anonymous.", 401, { needsAuth: true })
+    detailAuthor = user.id
+  }
+
   const assessment = parsed.data.detail ? assessUserContent(parsed.data.detail) : { safe: true, reason: null }
   const detailStatus = parsed.data.detail ? (assessment.safe ? "published" : "pending") : "none"
+  // The candidate is rendered publicly, so it goes through the same content
+  // check as the detail — it is just dropped rather than queued, since there is
+  // nothing here worth a moderator's time.
+  const candidate = parsed.data.switchCandidate
+  const safeCandidate = candidate && assessUserContent(candidate).safe ? candidate : null
   const supabase = createAdminClient()
   const { data: problem } = await supabase.from("problems").select("id,status").eq("id", id).eq("status", "published").maybeSingle()
   if (!problem) return jsonError("Problem not found.", 404)
-  const { data, error } = await supabase.rpc("support_problem", { p_problem_id: id, p_visitor_key: visitorKey, p_detail: parsed.data.detail || null, p_detail_status: detailStatus })
+  const { data, error } = await supabase.rpc("support_problem", {
+    p_problem_id: id,
+    p_visitor_key: visitorKey,
+    p_detail: parsed.data.detail || null,
+    p_detail_status: detailStatus,
+    p_switch_candidate: safeCandidate,
+    p_detail_author: detailAuthor,
+  })
   if (error) { console.error("Support failed", error); return jsonError("Your support could not be recorded.", 500) }
   if (parsed.data.email) await createProblemSubscription(id, parsed.data.email, new URL(request.url).origin).catch(console.error)
   // A repeat press is a normal outcome, not an error: the row already exists, the

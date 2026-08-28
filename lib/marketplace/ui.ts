@@ -71,7 +71,7 @@ export const field =
 /** Inline error message. */
 export const errorText = "border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700"
 
-/** Small badge, e.g. "Curated", "Paid placement". */
+/** Small badge, e.g. "Curated", "Verified". */
 export const badge =
   "inline-flex items-center border border-[rgba(55,50,47,0.12)] bg-white px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.1em] text-[#999]"
 
