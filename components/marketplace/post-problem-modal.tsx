@@ -261,7 +261,7 @@ export function PostProblemModal({
             </FormField>
             <FormField
               label="Email (optional)"
-              helper={founder ? "Only used to confirm alerts. Your bid email is collected at checkout." : "Confirm by email to hear when the first solution claims this problem."}
+              helper={founder ? "Only used to confirm alerts." : "Confirm by email to hear when the first solution responds to this problem."}
             >
               <TextInput name="email" type="email" maxLength={254} defaultValue={userEmail} placeholder="you@company.com" />
             </FormField>
