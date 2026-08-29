@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { ArrowRight01Icon, Loading03Icon } from "@hugeicons/core-free-icons"
+import { ArrowRight01Icon, Loading03Icon, BadgePercentIcon } from "@hugeicons/core-free-icons"
 import { useRouter } from "next/navigation"
 import { FormField, TextArea, TextInput } from "@/components/marketplace/form-field"
 import { MagicLinkAuth } from "@/components/marketplace/magic-link-auth"
@@ -100,7 +100,7 @@ export function OfferModal({
   return <>
     <button type="button" onClick={() => { setDone(false); setError(""); setOpen(true) }} className={`group ${triggerBase} ${triggerSkin}`}>
       {label}
-      <HugeiconsIcon icon={ArrowRight01Icon} size={13} className="transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
+      <HugeiconsIcon icon={BadgePercentIcon} size={14} className="transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
     </button>
 
     <ModalShell open={open} onClose={close} labelledBy="offer-title" chromeLabel="MAKE AN OFFER">

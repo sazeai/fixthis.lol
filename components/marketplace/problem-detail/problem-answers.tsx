@@ -38,19 +38,21 @@ export function ProblemAnswers({ problem }: { problem: ProblemDetail }) {
               className="grid bg-white md:grid-cols-[200px_minmax(0,1fr)] lg:grid-cols-[210px_minmax(0,1fr)_200px]"
             >
               {/* Block 1: Product identity */}
-              <div className="flex items-start gap-3 border-b border-[rgba(55,50,47,0.12)] p-4 sm:p-5 md:row-span-2 md:border-b-0 md:border-r lg:row-span-1">
-                <ProductIcon name={answer.name} seed={answer.registrable_domain} iconUrl={answer.icon_url} size={30} />
+              <div className="flex items-start gap-2 border-b border-[rgba(55,50,47,0.12)] p-4 sm:p-5 md:row-span-2 md:border-b-0 md:border-r lg:row-span-1">
+                <ProductIcon name={answer.name} seed={answer.registrable_domain} iconUrl={answer.icon_url} size={36} />
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-[14px] font-semibold leading-5 text-[#111]">{answer.name}</h3>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <h3 className="truncate text-[14px] font-semibold leading-5 text-[#111]">{answer.name}</h3>
+                    {answer.verified ? (
+                      <span
+                        title="Verified identity · FIXTHIS confirmed this answer comes from the product it names."
+                        className="shrink-0 text-[#de422a] inline-flex items-center"
+                      >
+                        <HugeiconsIcon icon={CheckmarkBadge01Icon} size={15} />
+                      </span>
+                    ) : null}
+                  </div>
                   <p className="truncate font-sans text-[11px] text-[#666]">{answer.registrable_domain}</p>
-                  {answer.verified ? (
-                    <span
-                      title="FIXTHIS confirmed this answer comes from the product it names. It says nothing about whether the claim is true."
-                      className="mt-2 inline-flex items-center gap-1 rounded bg-[#fff0eb] px-2 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-[0.04em] text-[#de422a]"
-                    >
-                      <HugeiconsIcon icon={CheckmarkBadge01Icon} size={11} /> Verified identity
-                    </span>
-                  ) : null}
                 </div>
               </div>
 
@@ -63,7 +65,7 @@ export function ProblemAnswers({ problem }: { problem: ProblemDetail }) {
               {/* Block 3: Offer + Action divided into two rows */}
               <div className="flex flex-col justify-between border-t border-[rgba(55,50,47,0.12)] bg-[#fcfbfa] md:col-start-2 lg:col-start-auto lg:border-t-0">
                 {/* Row 1: Offer / Coupon incentive */}
-                <div className="flex flex-1 items-center px-4 py-3.5 sm:px-5">
+                <div className="flex flex-1 items-center px-2 py-3.5 sm:px-3">
                   {answer.switch_incentive ? (
                     <div className="flex items-start gap-2 text-[12px] leading-snug text-[#333]">
                       <HugeiconsIcon icon={GiftIcon} size={14} className="mt-0.5 shrink-0 text-[#de422a]" />
