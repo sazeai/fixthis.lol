@@ -83,7 +83,7 @@ export function BidModal({
 
     <ModalShell open={open} onClose={close} labelledBy="bid-title" chromeLabel="CLAIM PLACEMENT">
       <div className="px-5 pb-6 pt-1 sm:px-7">
-        <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Paid contextual placement</p>
+        <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#de422a]">Paid contextual placement</p>
         <h2 id="bid-title" className="mt-2 font-serif text-[23px] leading-[1.08] tracking-[-0.035em] text-[#111]">Claim this problem.</h2>
         <blockquote className="mt-3 line-clamp-2 border-l-2 border-[#ef654f] pl-3 text-[12px] leading-5 text-[#77726a]">“{statement}”</blockquote>
 

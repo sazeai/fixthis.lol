@@ -42,7 +42,7 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
         <div className="flex items-center gap-2">
           <span
             className={`font-mono text-[9px] font-semibold tabular-nums transition-colors duration-300 bg-gray-200/70 p-1.5 rounded-md ${
-              isFirst ? "text-[#d84d37]" : "text-[#929292] group-hover:text-[#777]"
+              isFirst ? "text-[#de422a]" : "text-[#929292] group-hover:text-[#777]"
             }`}
           >
             {String(index + 1).padStart(2, "0")}
@@ -58,7 +58,7 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
             <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.1em] text-[#7d7d7d]">Curated</span>
           ) : null}
           {isFirst ? (
-            <span className="ml-auto shrink-0 font-mono text-[8px] uppercase tracking-[0.12em] text-[#d84d37]">Trending</span>
+            <span className="ml-auto shrink-0 font-mono text-[8px] uppercase tracking-[0.12em] text-[#de422a]">Trending</span>
           ) : (
             <HugeiconsIcon
               icon={ArrowUpRight01Icon}
@@ -115,7 +115,7 @@ export function ProblemCard({ problem, index }: { problem: ProblemSummary; index
               icon={ArrowRight01Icon}
               size={11}
               aria-hidden="true"
-              className="shrink-0 text-[#b5b0a9] transition-all duration-200 group-hover/answers:translate-x-0.5 group-hover/answers:text-[#d84d37]"
+              className="shrink-0 text-[#b5b0a9] transition-all duration-200 group-hover/answers:translate-x-0.5 group-hover/answers:text-[#de422a]"
             />
           </Link>
         </div>

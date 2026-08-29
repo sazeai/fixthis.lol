@@ -21,7 +21,7 @@ export const COLOR = {
   faint: "#999",
   ghost: "#aaa",
   accent: "#ef4e37",
-  accentDeep: "#d84d37",
+  accentDeep: "#de422a",
   accentWash: "#fff0eb",
   accentWashStrong: "#fff3ee",
 } as const
@@ -37,7 +37,7 @@ export const heading = "font-serif tracking-[-0.02em] text-[#111]"
 
 /** Uppercase mono micro-label above a heading or beside a stat. */
 export const eyebrow = "font-mono uppercase tracking-[0.16em] text-[#999]"
-export const eyebrowAccent = "font-mono uppercase tracking-[0.16em] text-[#d84d37]"
+export const eyebrowAccent = "font-mono uppercase tracking-[0.16em] text-[#de422a]"
 
 /** Tiny mono label used inside cards and stat blocks. */
 export const microLabel = "font-mono uppercase tracking-[0.12em] text-[#999]"
@@ -76,4 +76,4 @@ export const badge =
   "inline-flex items-center border border-[rgba(55,50,47,0.12)] bg-white px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.1em] text-[#999]"
 
 export const badgeAccent =
-  "inline-flex items-center bg-[#fff0eb] px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.1em] text-[#d84d37]"
+  "inline-flex items-center bg-[#fff0eb] px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.1em] text-[#de422a]"

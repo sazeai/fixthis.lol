@@ -129,9 +129,9 @@ export function MarketplaceHome({ problems, sections }: { problems: ProblemSumma
                   aria-hidden="true"
                   className={`absolute inset-x-0 top-0 h-[2px] origin-left bg-[#ef4e37] transition-transform duration-300 ease-out ${selected ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`}
                 />
-                <span className={`font-mono text-[8px] tabular-nums tracking-[0.14em] transition-colors duration-300 ${selected ? "text-[#d84d37]" : "text-[#c4c0ba]"}`}>{SECTION_MARK[section.id]}</span>
+                <span className={`font-mono text-[8px] tabular-nums tracking-[0.14em] transition-colors duration-300 ${selected ? "text-[#de422a]" : "text-[#c4c0ba]"}`}>{SECTION_MARK[section.id]}</span>
                 <span className={`whitespace-nowrap text-[12px] font-medium transition-colors duration-300 ${selected ? "text-[#111]" : "text-[#77726a] group-hover:text-[#111]"}`}>{section.title}</span>
-                <span className={`rounded-full px-1.5 py-0.5 font-mono text-[8px] tabular-nums transition-colors duration-300 ${selected ? "bg-[#fff0eb] text-[#d84d37]" : "bg-[rgba(55,50,47,.06)] text-[#a8a39c]"}`}>{section.problems.length}</span>
+                <span className={`rounded-full px-1.5 py-0.5 font-mono text-[8px] tabular-nums transition-colors duration-300 ${selected ? "bg-[#fff0eb] text-[#de422a]" : "bg-[rgba(55,50,47,.06)] text-[#a8a39c]"}`}>{section.problems.length}</span>
               </button>
             )
           })}

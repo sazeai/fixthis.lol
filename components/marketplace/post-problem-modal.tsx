@@ -166,7 +166,7 @@ export function PostProblemModal({
   }
 
   const triggerClass = asLink
-    ? "text-[10px] text-[#999] underline underline-offset-2 transition-colors hover:text-[#d84d37]"
+    ? "text-[10px] text-[#999] underline underline-offset-2 transition-colors hover:text-[#de422a]"
     : inverted
     ? "group inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 text-[13px] font-bold uppercase tracking-[0.08em] text-[#111] transition-colors duration-200 ease-out hover:bg-[#fafafa] active:scale-[0.98]"
     : compact
@@ -228,7 +228,7 @@ export function PostProblemModal({
       ) : (
         <div className="px-5 pb-6 pt-1 sm:px-7">
           <div className="flex items-baseline justify-between gap-3">
-            <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">
+            <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#de422a]">
               {founder ? "Add and claim" : "Signed in"}
             </p>
             <button

@@ -149,8 +149,8 @@ html {
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Segoe UI Mono", "Roboto Mono", Menlo, Consolas, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -426,7 +426,7 @@ html {
  */
 .problem-sheen {
   --sheen-ink: #2f2c28;
-  --sheen-lit: #d84d37;
+  --sheen-lit: #de422a;
   background-image: linear-gradient(
     96deg,
     var(--sheen-ink) 45%,

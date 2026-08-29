@@ -46,7 +46,7 @@ export function BidSuccess({ quoteId }: { quoteId: string }) {
           <main className="relative z-10 mt-28 flex w-full flex-col items-center">
             <FramedSection contentClassName="px-5 py-16 sm:px-10 sm:py-24">
               <div className="mx-auto max-w-lg text-center">
-                <span className={`mx-auto grid size-12 place-items-center rounded-full ${settled ? "bg-[#eef7f0] text-[#2f7d4f]" : failed ? "bg-red-50 text-red-600" : "bg-[#fff0eb] text-[#d84d37]"}`}>
+                <span className={`mx-auto grid size-12 place-items-center rounded-full ${settled ? "bg-[#eef7f0] text-[#2f7d4f]" : failed ? "bg-red-50 text-red-600" : "bg-[#fff0eb] text-[#de422a]"}`}>
                   {settled ? <HugeiconsIcon icon={Tick02Icon} size={22} /> : failed ? <HugeiconsIcon icon={Alert02Icon} size={20} /> : <HugeiconsIcon icon={Loading03Icon} size={20} className="animate-spin" />}
                 </span>
 

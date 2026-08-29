@@ -88,7 +88,7 @@ export function TurnstileField() {
     <div>
       <div ref={ref} />
       {failed ? (
-        <p className="mt-2 text-[11px] leading-5 text-[#d84d37]">
+        <p className="mt-2 text-[11px] leading-5 text-[#de422a]">
           Bot verification could not load. Disable any blocker for challenges.cloudflare.com and retry.
         </p>
       ) : null}

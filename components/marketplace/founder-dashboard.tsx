@@ -80,7 +80,7 @@ export function FounderDashboard({
             <FramedSection contentClassName="px-5 py-9 sm:px-8 sm:py-12">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Private management</p>
+                  <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#de422a]">Private management</p>
                   <h1 className="mt-3 font-serif text-[32px] leading-[1.05] tracking-[-0.04em] text-[#111] sm:text-[40px]">{product.name}</h1>
                   <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.12em] text-[#999]">{product.registrable_domain}</p>
                 </div>
@@ -136,7 +136,7 @@ export function FounderDashboard({
                               {offer.problem_statement}
                             </Link>
                             {offer.verified ? (
-                              <span className="inline-flex shrink-0 items-center gap-1 bg-[#fff0eb] px-1.5 py-0.5 font-mono text-[7px] uppercase tracking-[0.1em] text-[#d84d37]">
+                              <span className="inline-flex shrink-0 items-center gap-1 bg-[#fff0eb] px-1.5 py-0.5 font-mono text-[7px] uppercase tracking-[0.1em] text-[#de422a]">
                                 <HugeiconsIcon icon={CheckmarkBadge01Icon} size={9} /> Verified
                               </span>
                             ) : null}
@@ -156,7 +156,7 @@ export function FounderDashboard({
                   ) : (
                     <div className="mt-4 border border-dashed border-[rgba(55,50,47,0.16)] bg-[#fafafa] px-5 py-8 text-center">
                       <p className="font-serif text-[19px] tracking-[-0.02em] text-[#111]">You have not answered anything yet.</p>
-                      <Link href="/#problems" className="mt-3 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[#d84d37] underline underline-offset-4">
+                      <Link href="/#problems" className="mt-3 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[#de422a] underline underline-offset-4">
                         Find a problem you solve <HugeiconsIcon icon={ArrowUpRight01Icon} size={12} />
                       </Link>
                     </div>

@@ -107,13 +107,13 @@ export function SupportProblem({
       className={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[10px] font-bold tracking-[0.02em] transition-all duration-200 active:scale-[0.97] disabled:cursor-default ${
         supported
           ? "bg-[#eef7f0] text-[#2f7d4f] ring-1 ring-inset ring-[rgba(47,125,79,.22)]"
-          : "bg-white text-[#111] ring-1 ring-inset ring-[rgba(55,50,47,.16)] hover:border-[#d84d37] hover:ring-[#d84d37] hover:text-[#d84d37]"
+          : "bg-white text-[#111] ring-1 ring-inset ring-[rgba(55,50,47,.16)] hover:border-[#de422a] hover:ring-[#de422a] hover:text-[#de422a]"
       }`}
     >
       <span className="grid size-3 place-items-center">
         {busy ? <HugeiconsIcon icon={Loading03Icon} size={11} className="animate-spin" />
           : supported ? <HugeiconsIcon icon={Tick02Icon} size={11} />
-          : <HugeiconsIcon icon={FireIcon} size={11} className="text-[#d84d37]" />}
+          : <HugeiconsIcon icon={FireIcon} size={11} className="text-[#de422a]" />}
       </span>
       <span className={`shrink-0 font-semibold tabular-nums transition-transform duration-300 ease-out ${bumped ? "scale-[1.35]" : "scale-100"}`}>
         {count.toLocaleString("en-US")}
@@ -145,56 +145,56 @@ export function SupportProblem({
           disabled={busy || supported}
           onClick={() => { if (!supported) void send().then((ok) => { if (ok) setStep("candidate") }) }}
           aria-label={supported ? "You have this problem too" : "I have this problem too"}
-          className={`group/support flex h-11 w-full items-center justify-between px-5 font-mono text-[10px] font-bold uppercase tracking-[0.08em] transition-colors duration-200 disabled:cursor-default sm:px-6 ${
+          className={`group/support flex h-12 w-full items-center justify-between px-5 font-sans text-[13px] font-medium transition-colors duration-200 disabled:cursor-default sm:px-6 ${
             supported
-              ? "bg-[#eef7f0] text-[#2f7d4f]"
-              : "bg-[#fafafa] text-[#111] hover:bg-[#fff0eb] hover:text-[#d84d37]"
+              ? "bg-[#eef7f0] text-[#246b41]"
+              : "bg-[#fafafa] text-[#111] hover:bg-[#fff0eb] hover:text-[#de422a]"
           }`}
         >
-          <span className="flex items-center gap-2">
-            <span className="grid size-3.5 place-items-center">
-              {busy ? <HugeiconsIcon icon={Loading03Icon} size={13} className="animate-spin text-[#d84d37]" />
-                : supported ? <HugeiconsIcon icon={CheckmarkBadge03Icon} size={13} className="text-[#2f7d4f]" />
-                : <HugeiconsIcon icon={FireIcon} size={13} className="text-[#d84d37] transition-transform duration-200 group-hover/support:scale-110" />}
+          <span className="flex items-center gap-2.5">
+            <span className="grid size-4 place-items-center">
+              {busy ? <HugeiconsIcon icon={Loading03Icon} size={14} className="animate-spin text-[#de422a]" />
+                : supported ? <HugeiconsIcon icon={Tick02Icon} size={14} className="text-[#246b41]" />
+                : <HugeiconsIcon icon={FireIcon} size={14} className="text-[#de422a] transition-transform duration-200 group-hover/support:scale-110" />}
             </span>
-            <span className="whitespace-nowrap">{supported ? "Counted" : "Me too"}</span>
+            <span className="whitespace-nowrap font-medium">{supported ? "Counted" : "Me too"}</span>
           </span>
 
-          <span className={`inline-flex items-center justify-center font-mono text-[10px] tabular-nums font-bold transition-transform duration-300 ease-out ${
-            supported ? "text-[#2f7d4f]" : "text-[#d84d37]"
+          <span className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 font-sans text-[11px] font-bold tabular-nums transition-transform duration-300 ease-out ${
+            supported ? "bg-[#246b41]/15 text-[#246b41]" : "bg-black/[0.06] text-[#222]"
           } ${bumped ? "scale-[1.35]" : "scale-100"}`}>
             {count.toLocaleString("en-US")}
           </span>
         </button>
 
         {/* Block 2: Add Context / Switch Preference Interactive Tile */}
-        <div className="flex h-11 items-center bg-[#fafafa] transition-colors hover:bg-white">
+        <div className="flex h-12 items-center bg-[#fafafa] transition-colors hover:bg-white">
           {savedCandidate || savedDetail ? (
-            <div className="flex h-full w-full items-center gap-1.5 px-5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#2f7d4f] sm:px-6">
-              <HugeiconsIcon icon={Tick02Icon} size={12} />
+            <div className="flex h-full w-full items-center gap-2 px-5 font-sans text-[12.5px] font-medium text-[#246b41] sm:px-6">
+              <HugeiconsIcon icon={Tick02Icon} size={14} />
               <span>{savedDetail ? "Detail saved" : "Preference saved"}</span>
             </div>
           ) : supported ? (
             <button
               type="button"
               onClick={() => setStep(savedCandidate ? "detail" : "candidate")}
-              className="group/ctx flex h-full w-full items-center justify-between px-5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#d84d37] transition-colors hover:text-[#111] sm:px-6"
+              className="group/ctx flex h-full w-full items-center justify-between px-5 font-sans text-[12.5px] font-medium text-[#de422a] transition-colors hover:text-[#111] sm:px-6"
             >
               <span>+ Add context / switch preference</span>
-              <HugeiconsIcon icon={ArrowRight01Icon} size={11} className="transition-transform duration-200 group-hover/ctx:translate-x-0.5" />
+              <HugeiconsIcon icon={ArrowRight01Icon} size={13} className="transition-transform duration-200 group-hover/ctx:translate-x-0.5" />
             </button>
           ) : (
             <button
               type="button"
               onClick={() => { void send().then((ok) => { if (ok) setStep("candidate") }) }}
-              className="group/ctx flex h-full w-full items-center justify-between px-5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#8a857e] transition-colors hover:text-[#d84d37] sm:px-6"
+              className="group/ctx flex h-full w-full items-center justify-between px-5 font-sans text-[12.5px] font-medium text-[#5c564f] transition-colors hover:text-[#de422a] sm:px-6"
             >
               <span>+ Add your switch preference</span>
-              <HugeiconsIcon icon={ArrowRight01Icon} size={11} className="text-[#bbb] transition-transform duration-200 group-hover/ctx:translate-x-0.5 group-hover/ctx:text-[#d84d37]" />
+              <HugeiconsIcon icon={ArrowRight01Icon} size={13} className="text-[#8c857c] transition-transform duration-200 group-hover/ctx:translate-x-0.5 group-hover/ctx:text-[#de422a]" />
             </button>
           )}
 
-          {message ? <p className="mr-4 text-[10px] text-red-700">{message}</p> : null}
+          {message ? <p className="mr-4 font-sans text-[11px] text-red-700">{message}</p> : null}
         </div>
       </div>
 
@@ -217,7 +217,7 @@ export function SupportProblem({
               }
             }}
           >
-            <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#d84d37]">Anonymous · no account</p>
+            <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#de422a]">Anonymous · no account</p>
             <h2 id="support-followup-title" className="mt-2 font-serif text-[24px] tracking-[-0.03em] text-[#111]">What are you looking at instead?</h2>
             <p className="mt-2 max-w-md text-[12px] leading-5 text-[#777]">
               Just a product name. It is combined with everyone else&rsquo;s answer and never linked to you.
@@ -277,7 +277,7 @@ export function SupportProblem({
                 }
               }}
             >
-              <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#d84d37]">Published without your name</p>
+              <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#de422a]">Published without your name</p>
               <h2 id="support-followup-title" className="mt-2 font-serif text-[24px] tracking-[-0.03em] text-[#111]">What specifically sucks?</h2>
               <textarea
                 name="detail"

@@ -55,7 +55,7 @@ export function ReportProblem({ problemId }: { problemId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-[#a8a39c] transition-colors hover:text-[#d84d37] px-4"
+        className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-[#a8a39c] transition-colors hover:text-[#de422a] px-4"
       >
         <HugeiconsIcon icon={Flag01Icon} size={10} /> Report this problem
       </button>
@@ -64,11 +64,11 @@ export function ReportProblem({ problemId }: { problemId: string }) {
 
   return (
     <form onSubmit={submit} className="w-full max-w-sm border border-[rgba(55,50,47,0.12)] bg-white p-4">
-      <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#d84d37]">Report this problem</p>
+      <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#de422a]">Report this problem</p>
       <div className="mt-3 space-y-1.5">
         {REASONS.map((reason, index) => (
           <label key={reason.value} className="flex cursor-pointer items-center gap-2 text-[12px] text-[#55504a]">
-            <input type="radio" name="reason" value={reason.value} required defaultChecked={index === 0} className="accent-[#d84d37]" />
+            <input type="radio" name="reason" value={reason.value} required defaultChecked={index === 0} className="accent-[#de422a]" />
             {reason.label}
           </label>
         ))}

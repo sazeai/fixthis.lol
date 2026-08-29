@@ -106,7 +106,7 @@ export function RevokeGrantButton({ id }: { id: string }) {
           setFailed(true)
         }
       }}
-      className="inline-flex h-7 items-center border border-[rgba(55,50,47,0.12)] bg-white px-2.5 font-mono text-[8px] uppercase tracking-[0.1em] text-[#d84d37] transition-colors hover:border-[#d84d37] disabled:opacity-50"
+      className="inline-flex h-7 items-center border border-[rgba(55,50,47,0.12)] bg-white px-2.5 font-mono text-[8px] uppercase tracking-[0.1em] text-[#de422a] transition-colors hover:border-[#de422a] disabled:opacity-50"
     >
       {busy ? "Working…" : failed ? "Failed — retry" : "revoke"}
     </button>

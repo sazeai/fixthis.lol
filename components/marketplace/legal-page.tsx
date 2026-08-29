@@ -8,7 +8,7 @@ const PROSE = [
   // Section headings
   "[&_h2]:mb-3 [&_h2]:font-serif [&_h2]:text-[26px] [&_h2]:leading-tight [&_h2]:tracking-[-0.02em] [&_h2]:text-[#151412] sm:[&_h2]:text-3xl",
   // Sub-headings inside a section
-  "[&_h3]:mb-1.5 [&_h3]:mt-6 [&_h3]:font-mono [&_h3]:text-[9px] [&_h3]:uppercase [&_h3]:tracking-[0.14em] [&_h3]:text-[#d84d37]",
+  "[&_h3]:mb-1.5 [&_h3]:mt-6 [&_h3]:font-mono [&_h3]:text-[9px] [&_h3]:uppercase [&_h3]:tracking-[0.14em] [&_h3]:text-[#de422a]",
   // Paragraph rhythm within a section
   "[&_section>p+p]:mt-3",
   "[&_strong]:font-semibold [&_strong]:text-[#151412]",
@@ -35,7 +35,7 @@ export function LegalPage({
       <MarketplaceFrame>
         <Header />
         <article className="mx-auto mt-32 max-w-3xl border-x border-[rgba(55,50,47,.12)] px-5 py-14 sm:mt-40 sm:px-12 sm:py-24">
-          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">{eyebrow}</p>
+          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#de422a]">{eyebrow}</p>
           <h1 className="mt-4 font-serif text-[38px] leading-[1.05] tracking-[-0.04em] sm:text-6xl">{title}</h1>
           <p className="mt-5 text-[16px] leading-7 text-[#68635b] sm:text-lg sm:leading-8">{intro}</p>
           <div className={PROSE}>{children}</div>

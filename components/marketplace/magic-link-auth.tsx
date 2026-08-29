@@ -50,7 +50,7 @@ export function MagicLinkAuth({
   if (sent) {
     return (
       <div className={compact ? "px-4 pb-6 pt-6" : "px-6 pb-10 pt-9 sm:px-10"}>
-        <span className="mx-auto grid size-12 place-items-center rounded-full bg-[#fff0eb] text-[#d84d37]"><HugeiconsIcon icon={Tick02Icon} size={21} /></span>
+        <span className="mx-auto grid size-12 place-items-center rounded-full bg-[#fff0eb] text-[#de422a]"><HugeiconsIcon icon={Tick02Icon} size={21} /></span>
         <p className="mt-6 text-center font-mono text-[9px] uppercase tracking-[0.16em] text-[#2f7d4f]">Link sent</p>
         <h2 id={titleId} className={`mt-3 text-center font-serif leading-[1.04] tracking-[-0.04em] text-[#111] ${compact ? "text-[22px]" : "text-[29px]"}`}>Check your email.</h2>
         <p className="mx-auto mt-4 max-w-sm text-center text-[13px] leading-6 text-[#666]">
@@ -66,7 +66,7 @@ export function MagicLinkAuth({
   return (
     <div className={compact ? "px-4 pb-6 pt-6" : "px-6 pb-9 pt-9 sm:px-10 sm:pb-10"}>
       <span className="mx-auto grid size-12 place-items-center rounded-full bg-[#f4f2f0] text-[#111]"><HugeiconsIcon icon={Mail01Icon} size={21} /></span>
-      <p className="mt-6 text-center font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Sign in to continue</p>
+      <p className="mt-6 text-center font-mono text-[9px] uppercase tracking-[0.16em] text-[#de422a]">Sign in to continue</p>
       <h2 id={titleId} className={`mt-3 text-center font-serif leading-[1.04] tracking-[-0.04em] text-[#111] ${compact ? "text-[22px]" : "text-[29px]"}`}>{title}</h2>
       <p className="mx-auto mt-4 max-w-sm text-center text-[13px] leading-6 text-[#666]">{blurb}</p>
       <form onSubmit={submit} className="mx-auto mt-8 max-w-sm space-y-3">

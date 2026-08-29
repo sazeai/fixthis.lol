@@ -20,7 +20,7 @@ export default function ManageRequestPage() {
           <main className="relative z-10 mt-28 flex w-full flex-col items-center">
             <FramedSection contentClassName="px-5 py-14 sm:px-10 sm:py-20">
               <div className="mx-auto max-w-md">
-                <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Advertiser access</p>
+                <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#de422a]">Advertiser access</p>
                 <h1 className="mt-3 font-serif text-[34px] leading-[1.05] tracking-[-0.04em] text-[#111] sm:text-[42px]">Lost your management link?</h1>
                 <p className="mt-4 text-[14px] leading-6 text-[#666]">
                   Management runs on private links, not accounts. Enter the email you used at checkout and we will send a fresh one for every product it manages.

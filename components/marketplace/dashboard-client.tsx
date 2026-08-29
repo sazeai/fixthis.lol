@@ -57,7 +57,7 @@ export function DashboardClient() {
     return (
       <Shell>
         <div className="mx-auto max-w-lg border border-dashed border-[rgba(55,50,47,0.16)] bg-[#fafafa] px-6 py-12 text-center">
-          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Nothing claimed yet</p>
+          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#de422a]">Nothing claimed yet</p>
           <h1 className="mt-3 font-serif text-[28px] leading-[1.05] tracking-[-0.04em] text-[#111]">
             You don&rsquo;t have a product here yet.
           </h1>

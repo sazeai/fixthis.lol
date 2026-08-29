@@ -26,7 +26,7 @@ export function AdminActionButton({ entity, id, action }: { entity: "problem" | 
       }}
       className={`inline-flex h-7 items-center border px-2.5 font-mono text-[8px] uppercase tracking-[0.1em] transition-colors disabled:opacity-50 ${
         destructive
-          ? "border-[rgba(55,50,47,0.12)] bg-white text-[#d84d37] hover:border-[#d84d37]"
+          ? "border-[rgba(55,50,47,0.12)] bg-white text-[#de422a] hover:border-[#de422a]"
           : "border-[rgba(55,50,47,0.12)] bg-white text-[#111] hover:border-[#777]"
       }`}
     >

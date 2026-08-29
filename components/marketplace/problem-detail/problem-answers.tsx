@@ -22,10 +22,10 @@ export function ProblemAnswers({ problem }: { problem: ProblemDetail }) {
   return (
     <section className="border-b border-t border-[rgba(55,50,47,0.12)] bg-[#fafafa]">
       {/* Top Header Bar */}
-      <div className="flex items-center justify-between border-b border-[rgba(55,50,47,0.12)] bg-[#f4f2f0] px-3 py-2.5 sm:px-5">
+      <div className="flex items-center justify-between border-b border-[rgba(55,50,47,0.12)] bg-[#f4f2f0] px-4 py-2.5 sm:px-6">
         <div className="flex items-baseline gap-2.5">
-          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Products say they can fix this</p>
-          <span className="font-mono text-[9px] tabular-nums text-[#999]">{String(count).padStart(2, "0")}</span>
+          <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.05em] text-[#de422a]">Products say they can fix this</p>
+          <span className="font-sans text-[11px] font-bold tabular-nums text-[#777]">{String(count).padStart(2, "0")}</span>
         </div>
       </div>
 
@@ -42,13 +42,13 @@ export function ProblemAnswers({ problem }: { problem: ProblemDetail }) {
                 <ProductIcon name={answer.name} seed={answer.registrable_domain} iconUrl={answer.icon_url} size={30} />
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-[14px] font-semibold leading-5 text-[#111]">{answer.name}</h3>
-                  <p className="truncate font-mono text-[8px] tracking-[0.04em] text-[#8a857e]">{answer.registrable_domain}</p>
+                  <p className="truncate font-sans text-[11px] text-[#666]">{answer.registrable_domain}</p>
                   {answer.verified ? (
                     <span
                       title="FIXTHIS confirmed this answer comes from the product it names. It says nothing about whether the claim is true."
-                      className="mt-2 inline-flex items-center gap-1 bg-[#fff0eb] px-1.5 py-0.5 font-mono text-[7px] uppercase tracking-[0.1em] text-[#d84d37]"
+                      className="mt-2 inline-flex items-center gap-1 rounded bg-[#fff0eb] px-2 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-[0.04em] text-[#de422a]"
                     >
-                      <HugeiconsIcon icon={CheckmarkBadge01Icon} size={9} /> Verified identity
+                      <HugeiconsIcon icon={CheckmarkBadge01Icon} size={11} /> Verified identity
                     </span>
                   ) : null}
                 </div>
@@ -56,8 +56,8 @@ export function ProblemAnswers({ problem }: { problem: ProblemDetail }) {
 
               {/* Block 2: How they address it */}
               <div className="p-4 sm:p-5 lg:border-r border-[rgba(55,50,47,0.12)]">
-                <p className="font-mono text-[8px] uppercase tracking-[0.14em] text-[#8a857e]">How they address it</p>
-                <p className="mt-1.5 text-[13px] leading-[1.6] text-[#2f2c28]">{answer.solves_text}</p>
+                <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.06em] text-[#777]">How they address it</p>
+                <p className="mt-1.5 font-sans text-[13.5px] leading-relaxed text-[#2a2724]">{answer.solves_text}</p>
               </div>
 
               {/* Block 3: Offer + Action divided into two rows */}
@@ -65,12 +65,12 @@ export function ProblemAnswers({ problem }: { problem: ProblemDetail }) {
                 {/* Row 1: Offer / Coupon incentive */}
                 <div className="flex flex-1 items-center px-4 py-3.5 sm:px-5">
                   {answer.switch_incentive ? (
-                    <div className="flex items-start gap-2 text-[11px] leading-[1.45] text-[#444]">
-                      <HugeiconsIcon icon={GiftIcon} size={13} className="mt-0.5 shrink-0 text-[#d84d37]" />
+                    <div className="flex items-start gap-2 text-[12px] leading-snug text-[#333]">
+                      <HugeiconsIcon icon={GiftIcon} size={14} className="mt-0.5 shrink-0 text-[#de422a]" />
                       <span className="font-medium text-[#111]">{answer.switch_incentive}</span>
                     </div>
                   ) : (
-                    <p className="font-mono text-[8px] uppercase tracking-[0.1em] text-[#bbb]">No switch offer</p>
+                    <p className="font-sans text-[11px] text-[#999]">No switch offer</p>
                   )}
                 </div>
 
@@ -79,7 +79,7 @@ export function ProblemAnswers({ problem }: { problem: ProblemDetail }) {
                   href={withReferralTag(answer.destination_url)}
                   target="_blank"
                   rel="sponsored nofollow noopener noreferrer"
-                  className="group/btn flex h-11 w-full items-center justify-center gap-2 border-t border-[rgba(55,50,47,0.12)] bg-[#111] px-4 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-white transition-all duration-200 hover:bg-[#ef4e37] active:bg-[#d84d37]"
+                  className="group/btn flex h-11 w-full items-center justify-center gap-2 border-t border-[rgba(55,50,47,0.12)] bg-[#111] px-4 font-sans text-[10px] font-semibold uppercase tracking-[0.1em] text-white transition-all duration-200 hover:bg-[#ef4e37] active:bg-[#de422a]"
                 >
                   <span>Visit Website</span>
                   <span className="flex size-4 items-center justify-center rounded-[3px] bg-white/10 text-white/90 transition-colors duration-200 group-hover/btn:bg-white/20 group-hover/btn:text-white">
@@ -96,13 +96,13 @@ export function ProblemAnswers({ problem }: { problem: ProblemDetail }) {
       <div className="grid border-t border-[rgba(55,50,47,0.12)] bg-[#fcfbfa] lg:grid-cols-[minmax(0,1fr)_200px]">
         {/* Left side: Prompt */}
         <div className="flex flex-col justify-center p-4 sm:p-5">
-          <p className="font-mono text-[8px] uppercase tracking-[0.16em] text-[#d84d37]">
+          <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.06em] text-[#de422a]">
             {count ? "Alternative Solution" : "First Response"}
           </p>
           <h4 className="mt-0.5 font-serif text-[17px] font-medium leading-snug tracking-[-0.02em] text-[#111]">
             {count ? "Does your product solve this too?" : "No product response yet."}
           </h4>
-          <p className="mt-1 text-[12px] leading-relaxed text-[#77726a]">
+          <p className="mt-1 font-sans text-[12.5px] leading-relaxed text-[#666]">
             {problem.target_product_name
               ? `If you build something that solves this better than ${problem.target_product_name}, say so.`
               : "Say how you fix this complaint and put your product in front of switching buyers."}

@@ -15,7 +15,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     return (
       <main className="grid min-h-screen place-items-center bg-[#fafafa] p-5 font-sans text-[#111]">
         <form action={loginAdmin} className="w-full max-w-sm border border-[rgba(55,50,47,0.12)] bg-white p-7">
-          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Restricted</p>
+          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#de422a]">Restricted</p>
           <h1 className="mt-3 font-serif text-[28px] leading-none tracking-[-0.04em] text-[#111]">FIXTHIS admin</h1>
           <input
             name="password"
@@ -47,7 +47,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
         <header className="flex flex-wrap items-end justify-between gap-5 border-b border-[rgba(55,50,47,0.12)] pb-7">
           <div>
-            <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Market operations</p>
+            <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#de422a]">Market operations</p>
             <h1 className="mt-3 font-serif text-[36px] leading-none tracking-[-0.04em] text-[#111] sm:text-[44px]">Control room.</h1>
             <p className="mt-3 text-[13px] text-[#777]">Moderation, answers, and honest counts.</p>
           </div>
@@ -170,7 +170,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                     <tr key={offer.offer_id} className="border-b border-[rgba(55,50,47,0.08)] transition-colors duration-200 last:border-0 hover:bg-[#fafafa]">
                       <td className="px-4 py-3 text-[12px] font-semibold text-[#111]">
                         {offer.name}
-                        {offer.verified ? <span className="ml-1.5 font-mono text-[8px] uppercase tracking-[0.1em] text-[#d84d37]">verified</span> : null}
+                        {offer.verified ? <span className="ml-1.5 font-mono text-[8px] uppercase tracking-[0.1em] text-[#de422a]">verified</span> : null}
                       </td>
                       <td className="max-w-xs px-4 py-3 text-[12px] text-[#666]">{offer.problem_statement}</td>
                       <td className="max-w-sm px-4 py-3 text-[12px] text-[#666]">{offer.solves_text}</td>
@@ -224,7 +224,7 @@ function StatusPill({ status }: { status: string }) {
   const tone = status === "published" || status === "active" || status === "redeemed"
     ? "bg-[#eef7f0] text-[#2f7d4f]"
     : status === "pending" || status === "unused"
-      ? "bg-[#fff0eb] text-[#d84d37]"
+      ? "bg-[#fff0eb] text-[#de422a]"
       : "bg-[rgba(55,50,47,.06)] text-[#888]"
   return <span className={`inline-flex items-center px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.1em] ${tone}`}>{status}</span>
 }

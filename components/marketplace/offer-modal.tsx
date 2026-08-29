@@ -125,7 +125,7 @@ export function OfferModal({
             emailPlaceholder="you@yourproduct.com"
           />
         ) : <>
-          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#d84d37]">Free · signed in as {session.email}</p>
+          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#de422a]">Free · signed in as {session.email}</p>
           <h2 id="offer-title" className="mt-2 font-serif text-[23px] leading-[1.08] tracking-[-0.035em] text-[#111]">
             {targetProductName ? `Take this customer from ${targetProductName}.` : "Say how you fix this."}
           </h2>
@@ -134,7 +134,7 @@ export function OfferModal({
           {/* The brief. It is the whole reason this field was worth surfacing. */}
           {switchCondition ? (
             <div className="mt-3 bg-[#fff6f2] px-3 py-2.5">
-              <p className="font-mono text-[8px] uppercase tracking-[0.14em] text-[#d84d37]">They said they would switch for</p>
+              <p className="font-mono text-[8px] uppercase tracking-[0.14em] text-[#de422a]">They said they would switch for</p>
               <p className="mt-1 text-[12px] leading-5 text-[#444]">{switchCondition}</p>
             </div>
           ) : null}
