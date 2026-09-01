@@ -39,7 +39,14 @@ export function inferProblemCategory(targetProductName: string, statement: strin
 }
 
 export function normalizeProblemStatement(value: string) {
-  return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/'s\b/g, "") // Remove 's (e.g. "paypal's" -> "paypal")
+    .replace(/['’]/g, "") // Remove any remaining apostrophes
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
 }
 
 export function createProblemSlug(statement: string) {
