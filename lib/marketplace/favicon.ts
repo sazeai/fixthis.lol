@@ -10,8 +10,8 @@ import "server-only"
  * the card looks worse than a clean monogram, so the caller falls back.
  */
 
-const MAX_BYTES = 100_000
-const MIN_WIDTH = 32
+const MAX_BYTES = 2_000_000
+const MIN_WIDTH = 16
 const TIMEOUT_MS = 6_000
 
 export type FetchedIcon = { base64: string; contentType: string; width: number }
@@ -25,7 +25,10 @@ async function get(url: string, accept: string) {
     return await fetch(url, {
       signal: controller.signal,
       redirect: "follow",
-      headers: { accept, "user-agent": "FIXTHIS-icon-fetcher/1.0 (+https://fixthis.lol)" },
+      headers: {
+        accept,
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 FIXTHIS-icon-fetcher/1.0 (+https://fixthis.lol)",
+      },
       cache: "no-store",
     })
   } finally {
@@ -33,8 +36,8 @@ async function get(url: string, accept: string) {
   }
 }
 
-/** Candidate icon URLs, best first: declared in the HTML, then the conventional path. */
-async function candidateUrls(origin: string): Promise<string[]> {
+/** Candidate icon URLs, best first: declared in the HTML, conventional path, then high-res search index fallbacks. */
+async function candidateUrls(origin: string, registrableDomain: string): Promise<string[]> {
   const urls: string[] = []
   try {
     const response = await get(origin, "text/html")
@@ -50,7 +53,10 @@ async function candidateUrls(origin: string): Promise<string[]> {
     }
   } catch { /* homepage unreachable; fall through to the conventional path */ }
   urls.push(new URL("/favicon.ico", origin).toString())
-  // Prefer larger declared icons; apple-touch-icon is usually 180px.
+  // Universal high-reliability fallbacks
+  urls.push(`https://www.google.com/s2/favicons?domain=${encodeURIComponent(registrableDomain)}&sz=128`)
+  urls.push(`https://icons.duckduckgo.com/ip3/${encodeURIComponent(registrableDomain)}.ico`)
+  // Prefer larger declared icons; apple-touch-icon is usually 180px+.
   return [...new Set(urls)].sort((a, b) => Number(/apple-touch/i.test(b)) - Number(/apple-touch/i.test(a)))
 }
 
@@ -88,7 +94,7 @@ export async function fetchProductIcon(registrableDomain: string, budgetMs = 20_
   // registrable-domain check before an answer can exist.
   const origin = `https://${registrableDomain}`
   let candidates: string[]
-  try { candidates = await candidateUrls(origin) } catch { return null }
+  try { candidates = await candidateUrls(origin, registrableDomain) } catch { return null }
 
   for (const url of candidates) {
     // Serving a card must never wait indefinitely on someone else's host.

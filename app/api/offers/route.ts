@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { getAuthenticatedUser } from "@/lib/marketplace/auth"
+import { refreshProductIcon } from "@/lib/marketplace/favicon"
 import { getRequestIp, isKnownBot, normalizeProductUrl } from "@/lib/marketplace/helpers"
 import { jsonError, mutationAllowed } from "@/lib/marketplace/http"
 import { checkMarketplaceRateLimit } from "@/lib/marketplace/rate-limit"
@@ -158,6 +159,9 @@ export async function POST(request: Request) {
     }
     return jsonError("Your answer could not be posted.", 500)
   }
+
+  // Fetch product icon immediately in the background so it is available without waiting
+  void refreshProductIcon(supabase, product.id, normalized.registrableDomain, 8_000).catch(() => undefined)
 
   // Ownership is the grant's redemption, even if this particular answer later
   // collides with an existing one. Reissued grants also restore the identity

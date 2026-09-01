@@ -22,7 +22,10 @@ const OFFER_COLUMNS = `id,problem_id,product_id,status,solves_text,switch_incent
 export function productIconUrl(product: Row | null | undefined): string | null {
   if (!product?.id) return null
   const neverAttempted = !product.icon_attempted_at
-  if (!product.icon_base64 && !neverAttempted) return null
+  if (!product.icon_base64 && !neverAttempted) {
+    const attemptedRecently = product.icon_attempted_at && (Date.now() - new Date(product.icon_attempted_at).getTime() < 15 * 60 * 1000)
+    if (attemptedRecently) return null
+  }
   const version = product.icon_fetched_at ? new Date(product.icon_fetched_at).getTime() : 0
   return `/api/products/${product.id}/icon?v=${version}`
 }

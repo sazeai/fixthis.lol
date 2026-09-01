@@ -45,8 +45,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   if (!product || product.status !== "active") return new NextResponse(null, { status: 404 })
   if (product.icon_base64) return serve(product.icon_base64, product.icon_content_type)
 
-  // Already tried and found nothing — 404 fast, the card renders a monogram.
-  if (product.icon_attempted_at) return new NextResponse(null, { status: 404 })
+  // If already tried very recently (< 15 mins) and found nothing, 404 fast
+  const attemptedRecently = product.icon_attempted_at && (Date.now() - new Date(product.icon_attempted_at).getTime() < 15 * 60 * 1000)
+  if (attemptedRecently) return new NextResponse(null, { status: 404 })
 
   try {
     let pending = inFlight.get(id)
