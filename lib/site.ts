@@ -5,9 +5,9 @@ export const GOOGLE_SITE_VERIFICATION_TOKEN = "fQFM6X09kRkUJOVpu8xkamgQ3zC3o9qrh
 // reaches complainers and SaaS founders alike, and the founders are the ones
 // who pay - a title addressed only to the free side gives them no reason to
 // read on.
-export const SITE_TITLE = "FIXTHIS — Why people leave the software they pay for"
+export const SITE_TITLE = "FIXTHIS — What sucks about the software you use"
 export const SITE_DESCRIPTION =
-  "People say what is wrong with the software they use and what would make them switch. Competing products answer with how they solve it. Free to answer, and nobody can pay to rank."
+  "Post what sucks about the software you use. Competing SaaS products respond with how they’d fix it and what they’ll offer to make you switch."
 
 export function absoluteUrl(path = "/") {
   return new URL(path, `${SITE_URL}/`).toString()

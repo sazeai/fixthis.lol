@@ -39,7 +39,7 @@ function HowItWorks() {
 export default async function HomePage() {
   await recordVisitorActivity()
   let problems: ProblemSummary[] = []
-  let traffic: PublicTrafficStats = { visitors_24h: 0 }
+  let traffic: PublicTrafficStats = { total_visitors: 0, total_days: 1 }
   // Settled, not all: a hiccup in the visitor counter must not discard the
   // whole board. Errors are logged with their real reason — passing an Error
   // straight to console.error prints "{}", because message and stack are

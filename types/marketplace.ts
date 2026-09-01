@@ -78,7 +78,10 @@ export type ProblemDetail = ProblemSummary & {
   switch_candidates: SwitchCandidate[]
 }
 
-export type PublicTrafficStats = { visitors_24h: number }
+export type PublicTrafficStats = {
+  total_visitors: number
+  total_days: number
+}
 
 export type AdminProblem = ProblemSummary & {
   status: ProblemStatus

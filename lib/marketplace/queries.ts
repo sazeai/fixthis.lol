@@ -201,9 +201,14 @@ export async function getProblemBySlug(slug: string): Promise<ProblemDetail | nu
 
 export async function getPublicTrafficStats(): Promise<PublicTrafficStats> {
   const supabase = createAdminClient()
-  const daySince = new Date(Date.now() - 86_400_000).toISOString()
-  const { count } = await supabase.from("visitors").select("visitor_key", { count: "exact", head: true }).gte("last_seen_at", daySince)
-  return { visitors_24h: count || 0 }
+  const [countResult, earliestResult] = await Promise.all([
+    supabase.from("visitors").select("visitor_key", { count: "exact", head: true }),
+    supabase.from("visitors").select("first_seen_at").order("first_seen_at", { ascending: true }).limit(1).maybeSingle(),
+  ])
+  const totalVisitors = countResult.count || 0
+  const earliest = earliestResult.data?.first_seen_at ? new Date(earliestResult.data.first_seen_at).getTime() : Date.now()
+  const totalDays = Math.max(1, Math.ceil((Date.now() - earliest) / (1000 * 60 * 60 * 24)))
+  return { total_visitors: totalVisitors, total_days: totalDays }
 }
 
 export async function getAdminComplaints(): Promise<AdminComplaint[]> {

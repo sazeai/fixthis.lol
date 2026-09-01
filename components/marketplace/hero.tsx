@@ -12,14 +12,17 @@ export function Hero({ traffic }: { traffic: PublicTrafficStats }) {
       <div className="z-10 flex w-full max-w-3xl flex-col items-center px-5 sm:px-6">
         {/* One real number, or nothing. The live-visitor ticker was atmosphere
             and it cost a database write per tab per twenty seconds. */}
-        {traffic.visitors_24h > 0 ? (
-          <p className="mb-5 inline-flex items-center gap-2" aria-label={`${traffic.visitors_24h.toLocaleString("en-US")} visitors in the last 24 hours`}>
+        {traffic.total_visitors > 0 ? (
+          <p
+            className="mb-5 inline-flex items-center gap-2"
+            aria-label={`${traffic.total_visitors.toLocaleString("en-US")} ${traffic.total_visitors === 1 ? "visitor" : "visitors"} in ${traffic.total_days} ${traffic.total_days === 1 ? "day" : "days"}`}
+          >
             <span aria-hidden="true" className="h-px w-1.5 bg-[#ef654f]/40" />
             <strong className="font-sans text-[24px] font-bold leading-none tracking-[-0.04em] text-[#e94f3d]">
-              {traffic.visitors_24h.toLocaleString("en-US")}
+              {traffic.total_visitors.toLocaleString("en-US")}
             </strong>
-            <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.08em] text-[#5f5a54]">
-              Visitors / 24h
+            <span className="font-sans text-[12px] font-semibold tracking-tight text-[#555]">
+              {traffic.total_visitors === 1 ? "visitor" : "visitors"} / {traffic.total_days} {traffic.total_days === 1 ? "day" : "days"}
             </span>
           </p>
         ) : null}

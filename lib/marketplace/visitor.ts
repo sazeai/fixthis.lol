@@ -44,16 +44,30 @@ export function dailyIpKey(ip: string) {
   return createHmac("sha256", visitorSecret()).update(`${day}:${ip}`).digest("hex")
 }
 
+export const VISITOR_SEEN_COOKIE = "fixthis_seen"
+
 export async function recordVisitorActivity() {
   try {
+    const cookieStore = await cookies()
+    if (cookieStore.get(VISITOR_SEEN_COOKIE)) return
+
     const visitorKey = await tryGetVisitorKey()
     if (!visitorKey) return
+
     const supabase = createAdminClient()
     const now = new Date().toISOString()
     await supabase.from("visitors").upsert({
       visitor_key: visitorKey,
       last_seen_at: now,
     }, { onConflict: "visitor_key" })
+
+    cookieStore.set(VISITOR_SEEN_COOKIE, "1", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 15, // 15 minutes throttle window
+    })
   } catch {
     // Visitor tracking should fail silently and never disrupt page loads
   }
