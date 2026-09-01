@@ -21,6 +21,156 @@ export function Footer() {
         </div>
       </section>
 
+      {/* As Seen On Badges Section */}
+      <section className="border-t border-[rgba(55,50,47,0.12)] bg-[#fafafa]">
+        <div className="border-b border-[rgba(55,50,47,0.12)] px-6 py-2.5 sm:px-8">
+          <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-[#888] text-center">
+            As seen on
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-px bg-[rgba(55,50,47,0.12)] sm:grid-cols-3 md:grid-cols-5">
+          <a
+            href="https://maidensail.com/startup/fixthis"
+            target="_blank"
+            rel="dofollow"
+            className="group flex h-14 items-center justify-center bg-white p-2.5 transition-colors duration-200 hover:bg-[#fff9f7]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://maidensail.com/badge/fixthis.svg"
+              alt="Featured on Maidensail"
+              loading="lazy"
+              className="max-h-6 max-w-[125px] w-auto object-contain transition-transform duration-200 ease-out group-hover:scale-[1.03]"
+            />
+          </a>
+
+          <a
+            href="https://findly.tools/fixthis?utm_source=fixthis"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex h-14 items-center justify-center bg-white p-2.5 transition-colors duration-200 hover:bg-[#fff9f7]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://findly.tools/badges/findly-tools-badge-light.svg"
+              alt="Featured on Findly.tools"
+              loading="lazy"
+              className="max-h-7 max-w-[125px] w-auto object-contain transition-transform duration-200 ease-out group-hover:scale-[1.03]"
+            />
+          </a>
+
+          <a
+            href="https://startupscrolls.com/projects/fixthis-lol?utm_source=badge"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex h-14 items-center justify-center bg-white p-2.5 transition-colors duration-200 hover:bg-[#fff9f7]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://startupscrolls.com/startupscrolls/images/badges/featured-on-light.svg"
+              alt="Featured on Startup Scrolls"
+              loading="lazy"
+              className="max-h-6 max-w-[125px] w-auto object-contain transition-transform duration-200 ease-out group-hover:scale-[1.03]"
+            />
+          </a>
+
+          <a
+            href="https://startupbase.io/products/fixthis?utm_source=startupbase&utm_medium=badge&utm_campaign=featured-badge-neutral"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex h-14 items-center justify-center bg-white p-2.5 transition-colors duration-200 hover:bg-[#fff9f7]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://statics.startupbase.io/site/badges/featured-on-sb-neutral.svg"
+              alt="Featured on StartupBase"
+              loading="lazy"
+              className="max-h-7 max-w-[125px] w-auto object-contain transition-transform duration-200 ease-out group-hover:scale-[1.03]"
+            />
+          </a>
+
+          <a
+            href="https://www.betterlaunch.co/product/fixthis"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex h-14 items-center justify-center bg-white p-2.5 transition-colors duration-200 hover:bg-[#fff9f7]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://www.betterlaunch.co/badge-find-light.svg"
+              alt="Better Launch"
+              loading="lazy"
+              className="max-h-7 max-w-[125px] w-auto object-contain transition-transform duration-200 ease-out group-hover:scale-[1.03]"
+            />
+          </a>
+
+          <a
+            href="https://nicklaunches.com/products/fixthis/?utm_source=fixthis.lol&utm_medium=badge&utm_campaign=featured"
+            target="_blank"
+            rel="noopener"
+            className="group flex h-14 items-center justify-center bg-white p-2.5 transition-colors duration-200 hover:bg-[#fff9f7]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://nicklaunches.com/badges/featured.png"
+              alt="FIXTHIS on Nick Launches"
+              loading="lazy"
+              className="max-h-7 max-w-[125px] w-auto object-contain transition-transform duration-200 ease-out group-hover:scale-[1.03]"
+            />
+          </a>
+
+          <a
+            href="https://launchstag.com"
+            target="_blank"
+            rel="noopener"
+            className="group flex h-14 items-center justify-center bg-white p-2.5 transition-colors duration-200 hover:bg-[#fff9f7]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://launchstag.com/badge-light.svg"
+              alt="Featured on Launchstag"
+              loading="lazy"
+              className="max-h-7 max-w-[125px] w-auto object-contain transition-transform duration-200 ease-out group-hover:scale-[1.03]"
+            />
+          </a>
+
+          <a
+            href="https://www.foundrlist.com/product/fixthis?utm_source=badge&utm_medium=embed"
+            target="_blank"
+            rel="noopener"
+            className="group flex h-14 items-center justify-center bg-white p-2.5 transition-colors duration-200 hover:bg-[#fff9f7]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://www.foundrlist.com/api/badge/fixthis"
+              alt="Featured on FoundrList"
+              loading="lazy"
+              className="max-h-6 max-w-[125px] w-auto object-contain transition-transform duration-200 ease-out group-hover:scale-[1.03]"
+            />
+          </a>
+
+          <a
+            href="https://submithunt.com"
+            target="_blank"
+            rel="noopener"
+            className="group flex h-14 items-center justify-center bg-white p-2.5 transition-colors duration-200 hover:bg-[#fff9f7]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://submithunt.com/badge-light.svg"
+              alt="Featured on Submit Hunt"
+              loading="lazy"
+              className="max-h-7 max-w-[125px] w-auto object-contain transition-transform duration-200 ease-out group-hover:scale-[1.03]"
+            />
+          </a>
+
+          <div className="flex h-14 items-center justify-center bg-white p-2.5 text-center">
+            <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#aaa]">
+            </span>
+          </div>
+        </div>
+      </section>
+
       <div className="grid border-t border-[rgba(55,50,47,0.12)] bg-[#f9f8f7] md:grid-cols-12">
         <div className="p-8 md:col-span-5 md:border-r md:border-[rgba(55,50,47,0.12)] md:p-12">
           <div className="mb-5 flex items-center gap-2">
