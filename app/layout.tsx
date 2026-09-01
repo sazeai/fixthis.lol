@@ -1,3 +1,4 @@
+import Script from "next/script"
 import type { Metadata, Viewport } from "next"
 import localFont from "next/font/local"
 import { GOOGLE_SITE_VERIFICATION_TOKEN, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site"
@@ -58,5 +59,26 @@ export const viewport: Viewport = {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} ${oxanium.variable} antialiased`}><body className="font-sans antialiased" style={{ backgroundImage: `url("${fineNoise}")`, backgroundRepeat: "repeat" }}>{children}</body></html>
+  return (
+    <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} ${oxanium.variable} antialiased`}>
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-KLN6EFGKRT"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-KLN6EFGKRT');
+          `}
+        </Script>
+      </head>
+      <body className="font-sans antialiased" style={{ backgroundImage: `url("${fineNoise}")`, backgroundRepeat: "repeat" }}>
+        {children}
+      </body>
+    </html>
+  )
 }
