@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { ProblemDetailView } from "@/components/marketplace/problem-detail-view"
 import { getProblemBySlug } from "@/lib/marketplace/queries"
+import { recordVisitorActivity } from "@/lib/marketplace/visitor"
 import { SITE_NAME, SITE_URL } from "@/lib/site"
 
 export const dynamic = "force-dynamic"
@@ -51,6 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProblemPage({ params, searchParams }: Props) {
+  await recordVisitorActivity()
   const [{ slug }, query] = await Promise.all([params, searchParams])
   const problem = await getProblemBySlug(slug).catch(() => null)
   if (!problem) notFound()

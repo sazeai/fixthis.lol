@@ -1,7 +1,16 @@
-import { randomBytes } from "crypto"
 import { NextResponse, type NextRequest } from "next/server"
 
 const VISITOR_COOKIE = "fixthis_visitor"
+
+function generateVisitorToken(): string {
+  const bytes = new Uint8Array(24)
+  crypto.getRandomValues(bytes)
+  let binary = ""
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
+}
 
 /**
  * A speculative load: the browser is fetching the page in case the user goes
@@ -19,11 +28,6 @@ const VISITOR_COOKIE = "fixthis_visitor"
  * activates it, the next real navigation gives them a token.
  */
 function isSpeculative(request: NextRequest) {
-  // Chrome/Safari speculation rules; the older Purpose/X-Moz spellings still
-  // appear from Firefox and from some link-prefetching extensions. Next's own
-  // router prefetch needs no check here — it arrives as Sec-Fetch-Dest: empty
-  // and is already rejected as a non-navigation (its Next-Router-Prefetch
-  // header is consumed upstream and never reaches this function).
   const purpose = `${request.headers.get("sec-purpose") || ""} ${request.headers.get("purpose") || ""} ${request.headers.get("x-moz") || ""}`
   return /prefetch|prerender/i.test(purpose)
 }
@@ -31,14 +35,7 @@ function isSpeculative(request: NextRequest) {
 /**
  * A request that should be allowed to create a visitor identity.
  *
- * Only top-level navigations mint. Previously any cookie-less request did —
- * including every API call — so a first page load fired several in parallel,
- * each minted a different id, each set it on its own response, and the last one
- * to land won in the browser. The losers had already been counted, which is how
- * a handful of browsers produced 23 "unique" visitors in a day.
- *
- * A sub-resource arriving without the cookie is simply not counted, which is
- * the correct outcome: it cannot be attributed to anyone.
+ * Only top-level navigations mint.
  */
 function isNavigation(request: NextRequest) {
   if (isSpeculative(request)) return false
@@ -50,7 +47,7 @@ function isNavigation(request: NextRequest) {
 
 export function proxy(request: NextRequest) {
   const existing = request.cookies.get(VISITOR_COOKIE)?.value
-  const minted = !existing && isNavigation(request) ? randomBytes(24).toString("base64url") : null
+  const minted = !existing && isNavigation(request) ? generateVisitorToken() : null
 
   // A freshly minted token is put back on the *request* as well, so the render
   // that follows sees the same identity the browser is about to store. Setting
@@ -83,4 +80,4 @@ export function proxy(request: NextRequest) {
   return response
 }
 
-export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp|woff2?)$).*)"] }
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?)$).*)"] }

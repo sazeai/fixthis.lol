@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { ArrowRight01Icon, CheckmarkBadge03Icon, FireIcon, Loading03Icon, LockKeyIcon, Tick02Icon } from "@hugeicons/core-free-icons"
+import { ArrowRight01Icon, WavingHand02Icon, FireIcon, Loading03Icon, LockKeyIcon, Tick02Icon } from "@hugeicons/core-free-icons"
 import { MagicLinkAuth } from "@/components/marketplace/magic-link-auth"
 import { ModalShell } from "@/components/marketplace/modal-shell"
 import { useSupportStatus } from "@/components/marketplace/use-support-status"
@@ -104,16 +104,15 @@ export function SupportProblem({
       disabled={busy || supported}
       onClick={() => { if (!supported) void send().then((ok) => { if (ok) setStep("candidate") }) }}
       aria-label={supported ? "You have this problem too" : "I have this problem too"}
-      className={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[10px] font-bold tracking-[0.02em] transition-all duration-200 active:scale-[0.97] disabled:cursor-default ${
-        supported
-          ? "bg-[#eef7f0] text-[#2f7d4f] ring-1 ring-inset ring-[rgba(47,125,79,.22)]"
-          : "bg-white text-[#111] ring-1 ring-inset ring-[rgba(55,50,47,.16)] hover:border-[#de422a] hover:ring-[#de422a] hover:text-[#de422a]"
-      }`}
+      className={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[10px] font-bold tracking-[0.02em] transition-all duration-200 active:scale-[0.97] disabled:cursor-default ${supported
+        ? "bg-[#eef7f0] text-[#2f7d4f] ring-1 ring-inset ring-[rgba(47,125,79,.22)]"
+        : "bg-white text-[#111] ring-1 ring-inset ring-[rgba(55,50,47,.16)] hover:border-[#de422a] hover:ring-[#de422a] hover:text-[#de422a]"
+        }`}
     >
       <span className="grid size-3 place-items-center">
         {busy ? <HugeiconsIcon icon={Loading03Icon} size={11} className="animate-spin" />
           : supported ? <HugeiconsIcon icon={Tick02Icon} size={11} />
-          : <HugeiconsIcon icon={FireIcon} size={11} className="text-[#de422a]" />}
+            : <HugeiconsIcon icon={WavingHand02Icon} size={13} className="text-[#de422a]" />}
       </span>
       <span className={`shrink-0 font-semibold tabular-nums transition-transform duration-300 ease-out ${bumped ? "scale-[1.35]" : "scale-100"}`}>
         {count.toLocaleString("en-US")}
@@ -145,24 +144,22 @@ export function SupportProblem({
           disabled={busy || supported}
           onClick={() => { if (!supported) void send().then((ok) => { if (ok) setStep("candidate") }) }}
           aria-label={supported ? "You have this problem too" : "I have this problem too"}
-          className={`group/support flex h-12 w-full items-center justify-between px-5 font-sans text-[13px] font-medium transition-colors duration-200 disabled:cursor-default sm:px-6 ${
-            supported
-              ? "bg-[#eef7f0] text-[#246b41]"
-              : "bg-[#fafafa] text-[#111] hover:bg-[#fff0eb] hover:text-[#de422a]"
-          }`}
+          className={`group/support flex h-12 w-full items-center justify-between px-5 font-sans text-[13px] font-medium transition-colors duration-200 disabled:cursor-default sm:px-6 ${supported
+            ? "bg-[#eef7f0] text-[#246b41]"
+            : "bg-[#fafafa] text-[#111] hover:bg-[#fff0eb] hover:text-[#de422a]"
+            }`}
         >
           <span className="flex items-center gap-2.5">
             <span className="grid size-4 place-items-center">
               {busy ? <HugeiconsIcon icon={Loading03Icon} size={14} className="animate-spin text-[#de422a]" />
                 : supported ? <HugeiconsIcon icon={Tick02Icon} size={14} className="text-[#246b41]" />
-                : <HugeiconsIcon icon={FireIcon} size={14} className="text-[#de422a] transition-transform duration-200 group-hover/support:scale-110" />}
+                  : <HugeiconsIcon icon={WavingHand02Icon} size={14} className="text-[#de422a] transition-transform duration-200 group-hover/support:scale-110" />}
             </span>
             <span className="whitespace-nowrap font-medium">{supported ? "Counted" : "Me too"}</span>
           </span>
 
-          <span className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 font-sans text-[11px] font-bold tabular-nums transition-transform duration-300 ease-out ${
-            supported ? "bg-[#246b41]/15 text-[#246b41]" : "bg-black/[0.06] text-[#222]"
-          } ${bumped ? "scale-[1.35]" : "scale-100"}`}>
+          <span className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 font-sans text-[11px] font-bold tabular-nums transition-transform duration-300 ease-out ${supported ? "bg-[#246b41]/15 text-[#246b41]" : "bg-black/[0.06] text-[#222]"
+            } ${bumped ? "scale-[1.35]" : "scale-100"}`}>
             {count.toLocaleString("en-US")}
           </span>
         </button>

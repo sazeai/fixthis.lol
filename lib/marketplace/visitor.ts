@@ -1,6 +1,7 @@
 import "server-only"
 import { createHmac, randomBytes } from "crypto"
 import { cookies } from "next/headers"
+import { createAdminClient } from "@/utils/supabase/admin"
 
 export const VISITOR_COOKIE = "fixthis_visitor"
 
@@ -41,4 +42,19 @@ export function newVisitorToken() { return randomBytes(24).toString("base64url")
 export function dailyIpKey(ip: string) {
   const day = new Date().toISOString().slice(0, 10)
   return createHmac("sha256", visitorSecret()).update(`${day}:${ip}`).digest("hex")
+}
+
+export async function recordVisitorActivity() {
+  try {
+    const visitorKey = await tryGetVisitorKey()
+    if (!visitorKey) return
+    const supabase = createAdminClient()
+    const now = new Date().toISOString()
+    await supabase.from("visitors").upsert({
+      visitor_key: visitorKey,
+      last_seen_at: now,
+    }, { onConflict: "visitor_key" })
+  } catch {
+    // Visitor tracking should fail silently and never disrupt page loads
+  }
 }

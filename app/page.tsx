@@ -6,6 +6,7 @@ import { Hero } from "@/components/marketplace/hero"
 import { MarketplaceHome } from "@/components/marketplace/marketplace-home"
 import { HomeJsonLd } from "@/components/seo/home-json-ld"
 import { getProblemSummaries, getPublicTrafficStats } from "@/lib/marketplace/queries"
+import { recordVisitorActivity } from "@/lib/marketplace/visitor"
 import { buildProblemSections } from "@/lib/marketplace/sections"
 import { SITE_DESCRIPTION, SITE_TITLE } from "@/lib/site"
 import type { ProblemSummary, PublicTrafficStats } from "@/types/marketplace"
@@ -36,6 +37,7 @@ function HowItWorks() {
 }
 
 export default async function HomePage() {
+  await recordVisitorActivity()
   let problems: ProblemSummary[] = []
   let traffic: PublicTrafficStats = { visitors_24h: 0 }
   // Settled, not all: a hiccup in the visitor counter must not discard the
